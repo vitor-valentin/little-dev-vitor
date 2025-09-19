@@ -1,0 +1,19 @@
+Atenção principal a itens com valor agregado como notebooks
+Armazenar dados de empréstimo como pessoa, datas de empréstimo e devolução, código de identificação, sala/local
+Categorizar os produtos/máquinas/items por áreas como construção civil / automotivo / tecnologia
+Possibilitar reservas e agendamentos prévios
+Agendamentos de várias datas para cursos
+Vistoria na hora da devolução com planilha
+Alerta para atrasos na hora da devolução
+Prazo definido para devolução
+Relatório dos empréstimos com as datas, pessoa que emprestou, se foi devolvido na data
+Botões e design geral levemente arredondado
+Alertas sonoros
+Letras tamanho médio
+Imagens para cada equipamento
+Site com responsividade para notebooks
+Filtro nas buscas por valor agregado / disponibilidade / categoria
+Barra para pesquisa por nome
+Modo para daltônicos
+Modo escuro
+
