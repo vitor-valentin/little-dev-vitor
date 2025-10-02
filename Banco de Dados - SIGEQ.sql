@@ -46,8 +46,9 @@ CREATE TABLE tbEmprestimos (
     idMembro INT,
     localUso VARCHAR(30),
     infoReserva VARCHAR(200),
+    devolvidoPor VARCHAR(40) NOT NULL,
     idMembroVistoria INT,
-    obsVistoria VARCHAR(255),
+    obsVistoria TEXT,
     FOREIGN KEY (idEquipamento) REFERENCES tbEquipamentos(idEquipamento),
     FOREIGN KEY (idMembro) REFERENCES tbEquipe(idMembro),
     FOREIGN KEY (idMembroVistoria) REFERENCES tbEquipe(idMembro)
