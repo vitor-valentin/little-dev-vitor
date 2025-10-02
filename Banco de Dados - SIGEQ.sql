@@ -42,6 +42,7 @@ CREATE TABLE tbEmprestimos (
     idEquipamento INT,
     dataRecebimento DATETIME NOT NULL,
     dataDevolucao DATETIME NOT NULL,
+    dataDevolvido DATETIME NOT NULL,
     idMembro INT,
     localUso VARCHAR(30),
     infoReserva VARCHAR(200),
