@@ -2,15 +2,15 @@
 
 @font-face {
     font-family: 'Branding';
-    src: url('/fonts/Branding Black.otf') format('otf');
-    font-weight: 500;
+    src: url('../fonts/Branding Black.otf') format('opentype');
+    font-weight: 800;
     font-style: normal;
 }
 
 @font-face{
     font-family: 'Branding';
-    src: url('/fonts/Branding Medium.otf') format('otf');
-    font-weight: 800;
+    src: url('../fonts/Branding Medium.otf') format('opentype');
+    font-weight: 500;
     font-style: normal;
 }
 
@@ -18,4 +18,77 @@
     margin: 0;
     box-sizing: border-box;
     padding: 0;
+}
+
+body {
+    background-color: #F2F2F2;
+}
+
+.sidebar {
+    width: 300px;
+    height: 100%;
+    position: fixed;
+    background-color: #13357A;
+    text-align: center;
+}
+
+.sidebar .logo {
+    margin-top: 35px;
+}
+
+.sidebar .user {
+    margin-top: 50px;
+}
+
+.sidebar .user img{
+    width: 96px;
+    height: 96px;
+}
+
+.sidebar .user p{
+    font-family: 'Branding';
+    font-weight: 500;
+    font-size: 20px;
+    color: white;
+    margin-top: 20px;
+}
+
+.sidebar .nav-menu {
+    margin-top: 20px;
+}
+
+.sidebar .nav-bottom {
+    position: fixed;
+    bottom: 10px;
+}
+
+.sidebar a {
+    width: 300px;
+    display: flex;
+    align-items: center;
+    height: 72px;
+    color: white;
+    font-size: 20px;
+    font-family: 'Branding';
+    font-weight: 800;
+    text-decoration: none;
+}
+
+.sidebar li.active {
+    background-color: #111D4A;
+}
+
+.sidebar li:hover {
+    cursor: pointer;
+    background-color: #192A6B;
+}
+
+.sidebar li img {
+    width: 36px;
+    height: 36px;
+    margin: 0 19px;
+}
+
+.sidebar i {
+    font-size: 36px;
 }

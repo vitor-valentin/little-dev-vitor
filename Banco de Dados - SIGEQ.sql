@@ -14,7 +14,9 @@ CREATE TABLE tbEquipe (
     foneMembro VARCHAR(11) UNIQUE NOT NULL,
     idArea INT,
     acessoSistema BOOLEAN NOT NULL,
-    senhaMembro VARCHAR(40),
+    senhaMembro VARCHAR(100),
+    tokenAcesso VARCHAR(16),
+    dataToken DATETIME,
     FOREIGN KEY (idArea) REFERENCES tbAreas(idArea)
 );
 
