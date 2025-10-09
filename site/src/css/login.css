@@ -19,7 +19,7 @@ body {
     font-family: 'Branding';
     font-weight: 800;
     font-size: 30px;
-    color: #111D4A;
+    color: var(--cor-escura);
     margin-top: 20px;
 }
 
@@ -46,9 +46,9 @@ body {
 }
 
 .login-box button {
-    background-color: #13357A;
+    background-color: var(--cor-primaria);
     border: none;
-    color: white;
+    color: var(--cor-texto);
     font-family: 'Branding';
     font-weight: 500;
     font-size: 45px;

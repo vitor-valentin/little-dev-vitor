@@ -72,7 +72,7 @@ app.get('/login', async (req, res) => {
     if(req.cookies.userToken) {
         res.redirect('/');
     }
-    res.sendFile(path.join(__dirname, 'src', 'login.html'));
+    res.sendFile(path.join(__dirname, 'src', 'pages', 'login.html'));
 })
 
 // POST

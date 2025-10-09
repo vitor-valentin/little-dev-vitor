@@ -1,0 +1,2 @@
+INSERT INTO tbAreas (nomeArea) VALUES ("teste");
+INSERT INTO tbEquipe (nomeMembro, emailMembro, foneMembro, idArea, acessoSistema, senhaMembro) VALUES ("Vitor", "vitor.rohling.becker@gmail.com", "45998041305", 1, true, "$2b$10$uxL1DcgiR/nFCIuhUv7llO17HujihYw1IHvu1jkcQyAzJ.EYfOHbi");
