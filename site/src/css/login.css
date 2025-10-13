@@ -48,7 +48,7 @@ body {
 .login-box button {
     background-color: var(--cor-primaria);
     border: none;
-    color: var(--cor-texto);
+    color: var(--cor-textos);
     font-family: 'Branding';
     font-weight: 500;
     font-size: 45px;

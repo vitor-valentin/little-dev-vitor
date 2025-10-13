@@ -19,6 +19,8 @@ document.addEventListener("DOMContentLoaded", () => {
                     .then(res => res.text())
                     .then(html => {
                         document.getElementById("content-container").innerHTML = html;
+
+                        import('../js/dashboard.js');
                     });
                 } else {
                     pagePromise = fetch('/pages/dashboard-main.html')

@@ -22,6 +22,10 @@
     --cor-fundo: #F2F2F2;
     --cor-caixas: white;
     --cor-texto-claro: #248EDF;
+    --cor-tabela-1: rgba(110, 175, 231, 0.19);
+    --cor-tabela-2: rgba(2, 66, 143, 0.19);
+    --cor-ver-mais: #C4C4C4;
+    --cor-avisos-bg: #EAEAEA;
 }
 
 * {
@@ -160,4 +164,28 @@ body {
     width: calc(100% + 20px);
     height: 2px;
     background-color: var(--cor-escura);
+}
+
+#dashboardHeader {
+    position: relative;
+}
+
+#dashboardHeader #page-2 {
+    position: relative;
+}
+
+#notifications {
+  position: absolute;
+  top: -8px; 
+  right: -16px;
+  background-color: var(--cor-primaria);
+  color: var(--cor-textos);
+  border-radius: 50%;
+  width: 17px;
+  height: 17px;
+  font-size: 12px;
+  font-weight: bold;
+  text-align: center;
+  line-height: 17px;
+  font-family: "Open Sans";
 }

@@ -75,6 +75,18 @@ app.get('/login', async (req, res) => {
     res.sendFile(path.join(__dirname, 'src', 'pages', 'login.html'));
 })
 
+app.get('/logout', requireLogin, async (req, res) => {
+
+    try{
+        await query("UPDATE tbEquipe SET tokenAcesso = '', dataToken = '' WHERE tokenAcesso = ?", [req.cookies.userToken]);
+    } catch(err) {
+        console.error("Erro no MySQL: ", err);
+    }
+
+    res.clearCookie("userToken");
+    res.redirect('/login');
+});
+
 // POST
 
 app.post('/login', async (req, res) => {
