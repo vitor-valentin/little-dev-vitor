@@ -1,0 +1,14 @@
+.areas {
+    margin-top: 70px;
+    width: 100%;
+    padding: 40px;
+}
+
+table {
+    width: 100%;
+}
+
+table thead tr{
+    background-color: var(--cor-escura);
+    color: white;
+}

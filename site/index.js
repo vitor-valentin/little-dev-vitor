@@ -68,6 +68,10 @@ app.get('/', requireLogin, async (req, res) => {
     res.sendFile(path.join(__dirname, 'src', 'index.html'));
 });
 
+app.get('/areas', requireLogin, async (req, res) => {
+    res.sendFile(path.join(__dirname, 'src', 'index.html'));
+});
+
 app.get('/login', async (req, res) => {
     if(req.cookies.userToken) {
         res.redirect('/');

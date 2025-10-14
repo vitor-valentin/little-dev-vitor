@@ -37,6 +37,14 @@ document.addEventListener("DOMContentLoaded", () => {
             case "/emprestimos":
                 headerEmprestimos.classList.add("active");
                 break;
+            case "/areas":
+                pagePromise = fetch('/pages/areas.html')
+                .then(res => res.text())
+                .then(html => {
+                    document.getElementById("content-container").innerHTML = html;
+                });
+
+                break;
         }
 
         window.pageLoaded = Promise.all([pagePromise]);
@@ -46,8 +54,6 @@ document.addEventListener("DOMContentLoaded", () => {
         const page2 = activeHeader.querySelector("#page-2");
         const page3 = activeHeader.querySelector("#page-3");
         
-
-
         try{
             switch(page) {
                 case "2":
