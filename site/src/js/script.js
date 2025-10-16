@@ -4,6 +4,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const params = new URLSearchParams(window.location.search);
         const page = params.get("page");
 
+        const sidebar = document.querySelector(".sidebar");
         const headerDashboard = document.getElementById("dashboardHeader");
         const headerEquipe = document.getElementById("equipeHeader");
         const headerEmprestimos = document.getElementById("emprestimosHeader");
@@ -44,15 +45,20 @@ document.addEventListener("DOMContentLoaded", () => {
                     document.getElementById("content-container").innerHTML = html;
                 });
 
+                sidebar.querySelector(".nav-menu .active").classList.remove("active");
+                sidebar.querySelector(".nav-menu #sideAreas").classList.add("active");
+
                 break;
         }
 
         window.pageLoaded = Promise.all([pagePromise]);
 
         const activeHeader = document.querySelector(".pages.active");
-        const mainPage = activeHeader.querySelector("#page-main");
-        const page2 = activeHeader.querySelector("#page-2");
-        const page3 = activeHeader.querySelector("#page-3");
+        if(activeHeader){
+            const mainPage = activeHeader.querySelector("#page-main");
+            const page2 = activeHeader.querySelector("#page-2");
+            const page3 = activeHeader.querySelector("#page-3");
+        }
         
         try{
             switch(page) {
@@ -68,21 +74,23 @@ document.addEventListener("DOMContentLoaded", () => {
         } catch(err) {
             mainPage.classList.add("active");
             //TODO: Add notification!
-            console.error("Nenhuma página com id 3 nesta seção!");
+            console.error("Nenhuma página com este id nesta seção!");
         }
 
-        activeHeader.querySelectorAll("p").forEach((element) => {
-            element.addEventListener("click", (e) => {
-                const active = e.target.classList.contains("active");
+        if(activeHeader){
+            activeHeader.querySelectorAll("p").forEach((element) => {
+                element.addEventListener("click", (e) => {
+                    const active = e.target.classList.contains("active");
 
-                if(!active) {
-                    const page = e.target.id == "page-main" ? "1" : e.target.id == "page-2" ? "2" : "3";
-                    params.set("page", page);
-                    window.location.search = params.toString();
-                }
+                    if(!active) {
+                        const page = e.target.id == "page-main" ? "1" : e.target.id == "page-2" ? "2" : "3";
+                        params.set("page", page);
+                        window.location.search = params.toString();
+                    }
 
-            })
-        });
+                })
+            });
+        }
 
     });
 });

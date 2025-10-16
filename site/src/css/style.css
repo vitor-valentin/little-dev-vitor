@@ -24,8 +24,11 @@
     --cor-texto-claro: #248EDF;
     --cor-tabela-1: rgba(110, 175, 231, 0.19);
     --cor-tabela-2: rgba(2, 66, 143, 0.19);
+    --cor-tabela-3: #EFEFEF;
     --cor-ver-mais: #C4C4C4;
     --cor-avisos-bg: #EAEAEA;
+    --cor-botao-excluir: #D4421E;
+    --cor-botao-editar: #FFB54C;
 }
 
 * {
