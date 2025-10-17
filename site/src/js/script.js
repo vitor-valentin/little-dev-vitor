@@ -49,6 +49,16 @@ document.addEventListener("DOMContentLoaded", () => {
                 sidebar.querySelector(".nav-menu #sideAreas").classList.add("active");
 
                 break;
+            case "/equipamentos":
+                pagePromise = fetch('/pages/equipamentos.html')
+                .then(res => res.text())
+                .then(html => {
+                    document.getElementById("content-container").innerHTML = html;
+                });
+
+                sidebar.querySelector(".nav-menu .active").classList.remove("active");
+                sidebar.querySelector(".nav-menu #sideEquipamentos").classList.add("active");
+                break;
         }
 
         window.pageLoaded = Promise.all([pagePromise]);

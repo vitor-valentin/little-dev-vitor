@@ -1,0 +1,134 @@
+<div class="pageTable">
+    <div class="add-search">
+        <div class="search">
+            <img src="../images/search.png" id="searchIcon" />
+            <input type="text" id="search" placeholder="Pesquise pelo nome da área." />
+            <button class="filter"><img src="../images/filter.png" /></button>
+        </div>
+        <button class="add-button"><span>+</span> Adicionar Área</button>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>IMAGEM</th>
+                <th>EQUIPAMENTO</th>
+                <th>CÓDIGO</th>
+                <th>ALTO VALOR</th>
+                <th>ÁREA</th>
+                <th>DISPONÍVEL</th>
+                <th>AÇÕES</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td class="showImg"><img src="https://media.istockphoto.com/id/479520746/pt/foto/laptop-com-tela-em-branco-em-branco.jpg?s=612x612&w=0&k=20&c=50nksFXbVLApBJ3YuOMn5vc5SD6-FNCFoOVIzImuh0k="></td>
+                <td>Notebook</td>
+                <td>59328409</td>
+                <td>Sim</td>
+                <td>INFORMÁTICA</td>
+                <td>Não</td>
+                <td>
+                    <button class="delete"><img src="../images/icon-excluir.png" />Excluir</button>
+                    <button class="edit"><img src="../images/icon-excluir.png" />Editar</button>
+                    <button class="history"><img src="../images/history.png" />Histórico</button>
+                </td>
+            </tr>
+            <tr>
+                <td class="showImg"><img src="https://media.istockphoto.com/id/479520746/pt/foto/laptop-com-tela-em-branco-em-branco.jpg?s=612x612&w=0&k=20&c=50nksFXbVLApBJ3YuOMn5vc5SD6-FNCFoOVIzImuh0k="></td>
+                <td>Notebook</td>
+                <td>59328409</td>
+                <td>Sim</td>
+                <td>INFORMÁTICA</td>
+                <td>Não</td>
+                <td>
+                    <button class="delete"><img src="../images/icon-excluir.png" />Excluir</button>
+                    <button class="edit"><img src="../images/icon-excluir.png" />Editar</button>
+                    <button class="history"><img src="../images/history.png" />Histórico</button>
+                </td>
+            </tr>
+            <tr>
+                <td class="showImg"><img src="https://media.istockphoto.com/id/479520746/pt/foto/laptop-com-tela-em-branco-em-branco.jpg?s=612x612&w=0&k=20&c=50nksFXbVLApBJ3YuOMn5vc5SD6-FNCFoOVIzImuh0k="></td>
+                <td>Notebook</td>
+                <td>59328409</td>
+                <td>Sim</td>
+                <td>INFORMÁTICA</td>
+                <td>Não</td>
+                <td>
+                    <button class="delete"><img src="../images/icon-excluir.png" />Excluir</button>
+                    <button class="edit"><img src="../images/icon-excluir.png" />Editar</button>
+                    <button class="history"><img src="../images/history.png" />Histórico</button>
+                </td>
+            </tr>
+            <tr>
+                <td class="showImg"><img src="https://media.istockphoto.com/id/479520746/pt/foto/laptop-com-tela-em-branco-em-branco.jpg?s=612x612&w=0&k=20&c=50nksFXbVLApBJ3YuOMn5vc5SD6-FNCFoOVIzImuh0k="></td>
+                <td>Notebook</td>
+                <td>59328409</td>
+                <td>Sim</td>
+                <td>INFORMÁTICA</td>
+                <td>Não</td>
+                <td>
+                    <button class="delete"><img src="../images/icon-excluir.png" />Excluir</button>
+                    <button class="edit"><img src="../images/icon-excluir.png" />Editar</button>
+                    <button class="history"><img src="../images/history.png" />Histórico</button>
+                </td>
+            </tr>
+            <tr>
+                <td class="showImg"><img src="https://media.istockphoto.com/id/479520746/pt/foto/laptop-com-tela-em-branco-em-branco.jpg?s=612x612&w=0&k=20&c=50nksFXbVLApBJ3YuOMn5vc5SD6-FNCFoOVIzImuh0k="></td>
+                <td>Notebook</td>
+                <td>59328409</td>
+                <td>Sim</td>
+                <td>INFORMÁTICA</td>
+                <td>Não</td>
+                <td>
+                    <button class="delete"><img src="../images/icon-excluir.png" />Excluir</button>
+                    <button class="edit"><img src="../images/icon-excluir.png" />Editar</button>
+                    <button class="history"><img src="../images/history.png" />Histórico</button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="pagination">
+        <button disabled>«</button>
+        <button class="active">1</button>
+        <button>2</button>
+        <button>»</button>
+    </div>
+</div>
+
+<div class="overlayFilter">
+    <div class="filterBox">
+        <h2>FILTRAR BUSCA</h2>
+
+        <div class="filterOpt">
+            <label for="checkValor">
+                <input type="checkbox" id="checkValor" />
+                Mostrar apenas itens marcados como alto valor.
+              </label>
+        </div>
+
+        <div class="filterOpt">
+            <label for="selectDisponibilidade">Mostrar apenas itens com disponibilidade marcada como:</label>
+            <select id="selectDisponibilidade">
+                <option value="ambas" default>Ambas</option>
+                <option value="indisponivel">Indisponível</option>
+                <option value="disponivel">Disponível</option>
+            </select>
+        </div>
+
+        <div class="filterOpt">
+            <label for="selectArea">Mostrar apenas itens da área:</label>
+            <select id="selectArea">
+                <option value="qualquer" default>Qualquer</option>
+                <option value="1">INFORMÁTICA</option>
+                <option value="2">MECÂNICA</option>
+            </select>
+        </div>
+
+        <div class="buttonGroup">
+            <button class="closeFilter">Voltar</button>
+            <button class="applyFilter">Aplicar</button>
+          </div>
+    </div>
+</div>
