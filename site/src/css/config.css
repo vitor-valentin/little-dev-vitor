@@ -1,0 +1,219 @@
+:root {
+    --azul-escuro: #132d63;
+    --azul-claro: #e9edf7;
+    --branco: #ffffff;
+    --texto-principal: #1a1a1a;
+    --texto-secundario: #6f6f6f;
+    --sombra: rgba(0, 0, 0, 0.08);
+}
+
+.configPage {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    width: 90%;
+    margin: 30px auto;
+}
+
+.configOpt {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--cor-caixas);
+    border-radius: 14px;
+    padding: 18px 28px;
+    box-shadow: 0 2px 6px var(--sombra);
+    transition: box-shadow 0.2s ease;
+}
+
+.configOpt:has(.configInputBelow) {
+    flex-wrap: wrap;
+}
+
+.configOpt:hover {
+    box-shadow: 0 4px 10px var(--sombra);
+}
+
+.configDesc {
+    flex: 1;
+    flex: 1 1 auto;
+}
+
+.configDesc h3 {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--cor-secundaria);
+    font-family: "Branding";
+    margin-bottom: 6px;
+}
+
+.configDesc p {
+    font-size: 16px;
+    color: var(--cor-secundaria);
+    font-family: "Open Sans";
+    font-weight: 300;
+    line-height: 1.4;
+}
+
+.configInput {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 180px;
+    justify-content: flex-end;
+}
+
+.configInput input[type="number"] {
+    width: 70px;
+    height: 45px;
+    font-size: 35px;
+    text-align: center;
+    border: none;
+    border-radius: 10px;
+    background: var(--cor-bg-config);
+    color: var(--cor-secundaria);
+    font-family: "Branding";
+    font-weight: 800;
+    outline: none;
+}
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type="number"] {
+    -moz-appearance: textfield;
+}
+
+.configInput p {
+    font-family: "Branding";
+    font-weight: 800;
+    color: var(--cor-secundaria);
+    font-size: 20px;
+}
+
+.configInput input[type="checkbox"] {
+    appearance: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: #e8e8ec;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.configInput input[type="checkbox"]:checked {
+    background: var(--cor-secundaria);
+}
+
+.configInput:has(select) {
+    position: relative;
+    display: inline-block;
+}
+
+.configInput select {
+    font-size: 35px;
+    border: none;
+    background: var(--cor-bg-config);
+    color: var(--cor-secundaria);
+    font-family: "Branding";
+    font-weight: 500;
+    padding: 10px 80px;
+    border-radius: 10px;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+}
+
+.configInput:has(select)::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    right: 12px;
+    width: 42px;
+    height: 42px;
+    background: url("../images/buttonMove.png") center/contain no-repeat;
+    transform: translateY(-50%) rotate(90deg);
+    transition: 0.3s;
+    pointer-events: none;
+}
+
+.configInputBelow {
+    flex: 1 1 100%;
+    margin-top: 12px; 
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    justify-content: space-between;
+    box-sizing: border-box;
+}
+
+.configInputBelow button {
+    background: var(--cor-secundaria);
+    color: var(--cor-textos);
+    font-weight: 700;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 24px;
+    cursor: pointer;
+    font-family: "Branding";
+    font-weight: 800;
+    font-size: 20px;
+    transition: opacity 0.2s ease;
+    flex: 0 0 auto;
+}
+
+.configInputBelow button:hover {
+    opacity: 0.9;
+}
+
+.configInputBelow input[type="range"] {
+    flex: 1;
+    height: 6px;
+    border-radius: 4px;
+    background: #d9d9d9;
+    appearance: none;
+    outline: none;
+    flex: 1 1 auto; 
+    margin: 0 12px; 
+}
+
+.configInputBelow input[type="range"]::-webkit-slider-thumb {
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--azul-escuro);
+    cursor: pointer;
+}
+
+.configInputBelow span {
+    font-family: "Branding";
+    font-weight: 800;
+    color: var(--cor-secundaria);
+    min-width: 50px;
+    font-size: 18px;
+    text-align: right;
+    flex: 0 0 60px;
+    text-align: right;
+}
+
+.saveOptions {
+    margin-top: 20px;
+    text-align: center;
+}
+
+#saveConfig {
+    padding: 12px 40px;
+    border: 0;
+    background-color: var(--cor-secundaria);
+    color: var(--cor-textos);
+    font-family: "Branding";
+    font-weight: 800;
+    font-size: 24px;
+    cursor: pointer;
+    border-radius: 10px;
+}

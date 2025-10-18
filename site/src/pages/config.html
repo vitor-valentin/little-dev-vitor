@@ -1,0 +1,75 @@
+<link href="../css/config.css" rel="stylesheet" type="text/css" />
+
+<div class="configPage">
+    <div class="configOpt">
+        <div class="configDesc">
+            <h3>Tempo De Duração dos Avisos</h3>
+            <p>Define o tempo que avisos da equipe, notificações do sistema e alertas do sistema são mostrados na sua página. 
+                Essa configuração não afeta o tempo que as notificações ficam armazenadas no sistema. (Máximo de 30 dias)</p>
+        </div>
+        <div class="configInput">
+            <input type="number" id="tempoDuracaoAvisos" min="1" max="30" value="30" />
+            <p>dias</p>
+        </div>
+    </div>
+
+    <div class="configOpt">
+        <div class="configDesc">
+            <h3>Notificações do Sistema</h3>
+            <p>Ativar essa configuração fará com que notificações do sistema como avisos de backup concluído apareçam na sua tela. 
+                Caso contrário elas continuaram a aparecer no dashboard na seção avisos normalmente.</p>
+        </div>
+        <div class="configInput">
+            <input type="checkbox" id="notificacoesSistema" />
+        </div>
+    </div>
+
+    <div class="configOpt">
+        <div class="configDesc">
+            <h3>Modo Daltonismo</h3>
+            <p>Muda os padrões de cores do sistema para se ajustar ao padrão de vista daltônico.</p>
+        </div>
+        <div class="configInput">
+            <input type="checkbox" id="modoDaltonico" />
+        </div>
+    </div>
+
+    <div class="configOpt">
+        <div class="configDesc">
+            <h3>Temas de Cor</h3>
+            <p>Define o tema de cor do sistema.</p>
+        </div>
+        <div class="configInput">
+            <select id="temaCor">
+                <option value="claro">Claro</option>
+                <option value="escuro">Escuro</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="configOpt">
+        <div class="configDesc">
+            <h3>Notificações Sonoras</h3>
+            <p>Define se um som será emitido ao receber uma notificação. Habilitado por padrão.</p>
+        </div>
+        <div class="configInput">
+            <input type="checkbox" id="somNotificacoes" checked />
+        </div>
+    </div>
+
+    <div class="configOpt">
+        <div class="configDesc">
+            <h3>Volume das Notificações Sonoras</h3>
+            <p>Define o volume do som emitido por uma notificação. Clique no botão “Testar” para checar o volume atual.</p>
+        </div>
+        <div class="configInputBelow">
+            <button class="testar">TESTAR</button>
+            <input type="range" id="volumeNotificacoes" min="0" max="100" value="100" />
+            <span>100%</span>
+        </div>
+    </div>
+
+    <div class="saveOptions">
+        <button id="saveConfig">SALVAR CONFIGURAÇÕES</button>
+    </div>
+</div>

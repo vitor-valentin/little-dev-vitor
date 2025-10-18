@@ -13,6 +13,8 @@ const app = express();
 
 const query = util.promisify(connection.query).bind(connection);
 
+const mainRoutes = ['/', '/areas', '/equipamentos', '/equipe', '/config', '/emprestimos'];
+
 app.use(express.json());
 app.use(cookieParser());
 
@@ -64,16 +66,10 @@ async function generateToken() {
 
 // GET
 
-app.get('/', requireLogin, async (req, res) => {
-    res.sendFile(path.join(__dirname, 'src', 'index.html'));
-});
-
-app.get('/areas', requireLogin, async (req, res) => {
-    res.sendFile(path.join(__dirname, 'src', 'index.html'));
-});
-
-app.get('/equipamentos', requireLogin, async (req, res) => {
-    res.sendFile(path.join(__dirname, 'src', 'index.html'));
+mainRoutes.forEach((route) => {
+    app.get(route, requireLogin, async (req, res) => {
+        res.sendFile(path.join(__dirname, 'src', 'index.html'));
+    });
 });
 
 app.get('/login', async (req, res) => {
@@ -93,6 +89,28 @@ app.get('/logout', requireLogin, async (req, res) => {
 
     res.clearCookie("userToken");
     res.redirect('/login');
+});
+
+app.get('/getId', requireLogin, async (req, res) => {
+    try {
+        const response = await query("SELECT idMembro FROM tbEquipe WHERE tokenAcesso = ?", [req.cookies.userToken]);
+        const userId = response[0].idMembro;
+        res.status(200).send({id: userId});
+    }catch (err) {
+        console.error("Erro no MySQL: ", err);
+        res.status(500).send({message: "Erro ao tentar pegar o id do usuário."});
+    }
+});
+
+app.get('/config/:id', async (req, res) => {
+    const {id} = req.params;
+    try {
+        const result = await query("SELECT * FROM tbConfig WHERE idUsuario = ?" , [parseInt(2)]);
+        res.status(200).send(result[0]);
+    }catch (err) {
+        console.error("Erro no MySQL: ", err);
+        res.status(500).send({message: "Erro ao tentar pegar as configurações do usuário do banco de dados."})
+    }
 });
 
 // POST
@@ -129,6 +147,21 @@ app.post('/login', async (req, res) => {
 });
 
 // PUT
+
+app.put("/config", requireLogin, async (req, res) => {
+    const { valueTmpDurAvisos, valueNotSistema, valueModoDalt, valueTema, valueSomNot, valueVolNot } = req.body;
+    const tokenUser = req.cookies.userToken;
+    try{
+        const res = await query("SELECT idMembro FROM tbEquipe WHERE tokenAcesso = ?", [tokenUser]);
+        const idUser = res[0].idMembro;
+        await query("UPDATE tbConfig SET tempoAvisos = ?, notificacoesSistema = ?, modoDaltonismo = ?, temaCor = ?, somNotificacoes = ?, volumeNotificacao = ? WHERE idUsuario = ?", [valueTmpDurAvisos, valueNotSistema, valueModoDalt, valueTema, valueSomNot, valueVolNot, idUser]);
+    } catch(err) {
+        console.error("Erro no MySQL: ", err);
+        res.status(500).send({message: "Ocorreu um erro ao tentar salvar suas configurações."});
+    }
+
+    res.status(200).send({message: "Configurações salvas com sucesso!"});
+});
 
 // DELETE
 

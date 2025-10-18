@@ -11,26 +11,30 @@ document.addEventListener("DOMContentLoaded", () => {
 
         let pagePromise;
 
-        switch(currentPage) {
+        switch (currentPage) {
             case "/":
                 headerDashboard.classList.add("active");
 
-                if(page == "2") {
-                    pagePromise = fetch('/pages/dashboard-avisos.html')
-                    .then(res => res.text())
-                    .then(html => {
-                        document.getElementById("content-container").innerHTML = html;
+                if (page == "2") {
+                    pagePromise = fetch("/pages/dashboard-avisos.html")
+                        .then((res) => res.text())
+                        .then((html) => {
+                            document.getElementById(
+                                "content-container"
+                            ).innerHTML = html;
 
-                        import('../js/dashboard.js');
-                    });
+                            import("../js/dashboard.js");
+                        });
                 } else {
-                    pagePromise = fetch('/pages/dashboard-main.html')
-                    .then(res => res.text())
-                    .then(html => {
-                        document.getElementById('content-container').innerHTML = html;
-                    });
+                    pagePromise = fetch("/pages/dashboard-main.html")
+                        .then((res) => res.text())
+                        .then((html) => {
+                            document.getElementById(
+                                "content-container"
+                            ).innerHTML = html;
+                        });
                 }
-                
+
                 break;
             case "/equipe":
                 headerEquipe.classList.add("active");
@@ -39,68 +43,131 @@ document.addEventListener("DOMContentLoaded", () => {
                 headerEmprestimos.classList.add("active");
                 break;
             case "/areas":
-                pagePromise = fetch('/pages/areas.html')
-                .then(res => res.text())
-                .then(html => {
-                    document.getElementById("content-container").innerHTML = html;
-                });
+                pagePromise = fetch("/pages/areas.html")
+                    .then((res) => res.text())
+                    .then((html) => {
+                        document.getElementById("content-container").innerHTML =
+                            html;
+                    });
 
-                sidebar.querySelector(".nav-menu .active").classList.remove("active");
-                sidebar.querySelector(".nav-menu #sideAreas").classList.add("active");
+                sidebar
+                    .querySelector(".nav-menu .active")
+                    .classList.remove("active");
+                sidebar
+                    .querySelector(".nav-menu #sideAreas")
+                    .classList.add("active");
 
                 break;
             case "/equipamentos":
-                pagePromise = fetch('/pages/equipamentos.html')
-                .then(res => res.text())
-                .then(html => {
-                    document.getElementById("content-container").innerHTML = html;
-                });
+                pagePromise = fetch("/pages/equipamentos.html")
+                    .then((res) => res.text())
+                    .then((html) => {
+                        document.getElementById("content-container").innerHTML =
+                            html;
+                    });
 
-                sidebar.querySelector(".nav-menu .active").classList.remove("active");
-                sidebar.querySelector(".nav-menu #sideEquipamentos").classList.add("active");
+                sidebar
+                    .querySelector(".nav-menu .active")
+                    .classList.remove("active");
+                sidebar
+                    .querySelector(".nav-menu #sideEquipamentos")
+                    .classList.add("active");
+                break;
+            case "/config":
+                pagePromise = fetch("/pages/config.html")
+                    .then((res) => res.text())
+                    .then((html) => {
+                        document.getElementById("content-container").innerHTML =
+                            html;
+
+                        import("../js/config.js");
+                    });
+
+                sidebar
+                    .querySelector(".nav-menu .active")
+                    .classList.remove("active");
+                sidebar
+                    .querySelector(".nav-bottom #config")
+                    .classList.add("active");
                 break;
         }
 
-        window.pageLoaded = Promise.all([pagePromise]);
+        window.pageLoaded = pagePromise;
 
         const activeHeader = document.querySelector(".pages.active");
-        if(activeHeader){
+        if (activeHeader) {
             const mainPage = activeHeader.querySelector("#page-main");
             const page2 = activeHeader.querySelector("#page-2");
             const page3 = activeHeader.querySelector("#page-3");
-        }
-        
-        try{
-            switch(page) {
-                case "2":
-                    mainPage.classList.remove("active");
-                    page2.classList.add("active");
-                    break;
-                case "3":
-                    mainPage.classList.remove("active");
-                    page3.classList.add("active");
-                    break;
-            }
-        } catch(err) {
-            mainPage.classList.add("active");
-            //TODO: Add notification!
-            console.error("Nenhuma página com este id nesta seção!");
-        }
 
-        if(activeHeader){
+            try {
+                switch (page) {
+                    case "2":
+                        mainPage.classList.remove("active");
+                        page2.classList.add("active");
+                        break;
+                    case "3":
+                        mainPage.classList.remove("active");
+                        page3.classList.add("active");
+                        break;
+                }
+            } catch (err) {
+                mainPage.classList.add("active");
+                //TODO: Add notification!
+                console.error("Nenhuma página com este id nesta seção!");
+            }
+
             activeHeader.querySelectorAll("p").forEach((element) => {
                 element.addEventListener("click", (e) => {
                     const active = e.target.classList.contains("active");
 
-                    if(!active) {
-                        const page = e.target.id == "page-main" ? "1" : e.target.id == "page-2" ? "2" : "3";
+                    if (!active) {
+                        const page =
+                            e.target.id == "page-main"
+                                ? "1"
+                                : e.target.id == "page-2"
+                                ? "2"
+                                : "3";
                         params.set("page", page);
                         window.location.search = params.toString();
                     }
-
-                })
+                });
             });
         }
+        window.pageLoaded.then(() => {
+            const pageTable = document.querySelector(".pageTable");
+            const pageEditAdd = document.querySelector(".pageEditAdd");
+            const addButton = document.querySelector(".add-button");
+            const returnButton = document.querySelector(".return");
 
+            const filterOpen = document.querySelector(".filter");
+            const filterClose = document.querySelector(".closeFilter");
+            const filterOverlay = document.querySelector(".overlayFilter");
+
+            function togglePage() {
+                pageTable.classList.toggle("active");
+                pageEditAdd.classList.toggle("active");
+            }
+
+            if (pageTable && pageEditAdd) {
+                addButton.addEventListener("click", () => {
+                    togglePage();
+                });
+
+                returnButton.addEventListener("click", () => {
+                    togglePage();
+                });
+            }
+
+            if (filterOverlay) {
+                filterOpen.addEventListener("click", () => {
+                    filterOverlay.classList.add("active");
+                });
+
+                filterClose.addEventListener("click", () => {
+                    filterOverlay.classList.remove("active");
+                });
+            }
+        });
     });
 });
