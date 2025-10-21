@@ -1,0 +1,255 @@
+<div class="pageTable active">
+    <div class="add-search">
+        <div class="search">
+            <img src="../images/search.png" id="searchIcon" />
+            <input
+                type="text"
+                id="search"
+                placeholder="Pesquise por equipamento, seu código, membro que recebeu ou local."
+            />
+            <button class="filter"><img src="../images/filter.png" /></button>
+        </div>
+        <button class="add-button"><span>+</span> Registrar Empréstimo</button>
+    </div>
+
+    <table>
+        <thead>
+            <tr class="smaller">
+                <th>EQUIPAMENTO</th>
+                <th>CÓDIGO EQ.</th>
+                <th>ALTO VALOR</th>
+                <th>DATA REC.</th>
+                <th>DATA DEVOLUÇÃO</th>
+                <th>DATA DEVOLVIDO</th>
+                <th>RECEBIDO POR</th>
+                <th>SALA/LOCAL</th>
+                <th>AÇÕES</th>
+            </tr>
+        </thead>
+        <tbody class="small">
+            <tr>
+                <td>Notebook</td>
+                <td>55312945</td>
+                <td>Sim</td>
+                <td>27/09/2025 09:00</td>
+                <td>27/09/2025 11:00</td>
+                <td>27/09/2025 11:00</td>
+                <td>Osnir de Souza</td>
+                <td>Sala 307</td>
+                <td>
+                    <button class="delete">
+                        <img src="../images/icon-excluir.png" />Excluir
+                    </button>
+                    <button class="edit">
+                        <img src="../images/icon-editar.png" />Editar
+                    </button>
+                    <button class="history">
+                        <img src="../images/vistoria.png" />Vistoria
+                    </button>
+                </td>
+            </tr>
+            <tr>
+                <td>Notebook</td>
+                <td>55312945</td>
+                <td>Sim</td>
+                <td>27/09/2025 09:00</td>
+                <td>27/09/2025 11:00</td>
+                <td>27/09/2025 11:00</td>
+                <td>Osnir de Souza</td>
+                <td>Sala 307</td>
+                <td>
+                    <button class="delete">
+                        <img src="../images/icon-excluir.png" />Excluir
+                    </button>
+                    <button class="edit">
+                        <img src="../images/icon-editar.png" />Editar
+                    </button>
+                    <button class="history">
+                        <img src="../images/vistoria.png" />Vistoria
+                    </button>
+                </td>
+            </tr>
+            <tr>
+                <td>Notebook</td>
+                <td>55312945</td>
+                <td>Sim</td>
+                <td>27/09/2025 09:00</td>
+                <td>27/09/2025 11:00</td>
+                <td>27/09/2025 11:00</td>
+                <td>Osnir de Souza</td>
+                <td>Sala 307</td>
+                <td>
+                    <button class="delete">
+                        <img src="../images/icon-excluir.png" />Excluir
+                    </button>
+                    <button class="edit">
+                        <img src="../images/icon-editar.png" />Editar
+                    </button>
+                    <button class="history">
+                        <img src="../images/vistoria.png" />Vistoria
+                    </button>
+                </td>
+            </tr>
+            <tr>
+                <td>Notebook</td>
+                <td>55312945</td>
+                <td>Sim</td>
+                <td>27/09/2025 09:00</td>
+                <td>27/09/2025 11:00</td>
+                <td>27/09/2025 11:00</td>
+                <td>Osnir de Souza</td>
+                <td>Sala 307</td>
+                <td>
+                    <button class="delete">
+                        <img src="../images/icon-excluir.png" />Excluir
+                    </button>
+                    <button class="edit">
+                        <img src="../images/icon-editar.png" />Editar
+                    </button>
+                    <button class="history">
+                        <img src="../images/vistoria.png" />Vistoria
+                    </button>
+                </td>
+            </tr>
+            <tr>
+                <td>Notebook</td>
+                <td>55312945</td>
+                <td>Sim</td>
+                <td>27/09/2025 09:00</td>
+                <td>27/09/2025 11:00</td>
+                <td>27/09/2025 11:00</td>
+                <td>Osnir de Souza</td>
+                <td>Sala 307</td>
+                <td>
+                    <button class="delete">
+                        <img src="../images/icon-excluir.png" />Excluir
+                    </button>
+                    <button class="edit">
+                        <img src="../images/icon-editar.png" />Editar
+                    </button>
+                    <button class="history">
+                        <img src="../images/vistoria.png" />Vistoria
+                    </button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="pagination">
+        <button disabled>«</button>
+        <button class="active">1</button>
+        <button>2</button>
+        <button>»</button>
+    </div>
+</div>
+
+<div class="pageEditAdd">
+    <form class="formEditAdd">
+        <h2>ADICIONAR EQUIPAMENTO</h2>
+
+        <div class="form-group">
+            <label for="nomeMembro">Nome</label>
+            <input type="text" id="nomeMembro" required />
+        </div>
+
+        <div class="form-group">
+            <label for="emailMembro">E-mail</label>
+            <input type="email" id="emailMembro" required />
+        </div>
+
+        <div class="form-group">
+            <label for="telMembro">Telefone</label>
+            <input type="text" id="telMembro" required />
+        </div>
+
+        <div class="form-group">
+            <label for="area">Área</label>
+            <input type="text" id="area" placeholder="Digite o nome da área" />
+        </div>
+
+        <div class="form-group checkboxGroup">
+            <label for="systemUser">
+                <input type="checkbox" id="systemUser" />
+                Definir como usuário do sistema?
+            </label>
+        </div>
+
+        <div class="form-group hidden">
+            <label for="senhaMembro">Senha</label>
+            <input type="password" id="senhaMembro" />
+        </div>
+
+        <div class="buttonGroup">
+            <button class="return" type="button">Voltar</button>
+            <button class="submit" type="submit">Criar</button>
+        </div>
+    </form>
+</div>
+
+<div class="overlayFilter">
+    <div class="filterBox">
+        <h2>FILTRAR BUSCA</h2>
+
+        <div class="filterOpt checkboxGroup">
+            <label for="checkValor">
+                <input type="checkbox" id="checkValor" />
+                Mostrar apenas empréstimos de items com alto valor.
+            </label>
+        </div>
+
+        <div class="filterOpt checkboxGroup">
+            <label for="checkAtraso">
+                <input type="checkbox" id="checkAtraso" />
+                Mostrar apenas empréstimos atrasados devolvidos ou não.
+            </label>
+        </div>
+
+        <div class="filterOpt">
+            <label for="selectStatus"
+                >Mostrar apenas empréstimos marcados como:</label
+            >
+            <select id="selectStatus">
+                <option value="todos" default>Todos</option>
+                <option value="finalizados">Finalizados</option>
+                <option value="agendados">Agendados</option>
+                <option value="em-uso">Em Uso</option>
+            </select>
+        </div>
+
+        <div class="filterOpt">
+            <label for="inputArea">Mostrar apenas empréstimos com itens da área:</label>
+            <input
+                type="text"
+                placeholder="Digite o nome da área ou deixe vazio para qualquer."
+                id="inputArea"
+            />
+        </div>
+
+        <div class="filterOpt">
+            <label>Mostrar apenas empréstimos entre as datas:</label>
+            <div class="dateFilterGroup">
+                <div class="dateInputBox">
+                    <label for="dataInicio">Início</label>
+                    <div class="customDateInput">
+                        <span class="calendarIcon"></span>
+                        <input type="text" id="dataInicio" placeholder="DD/MM/AAAA" />
+                    </div>
+                </div>
+            
+                <div class="dateInputBox">
+                    <label for="dataFim">Fim</label>
+                    <div class="customDateInput">
+                        <span class="calendarIcon"></span>
+                        <input type="text" id="dataFim" placeholder="DD/MM/AAAA" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="buttonGroup">
+            <button class="closeFilter">Voltar</button>
+            <button class="applyFilter">Aplicar</button>
+        </div>
+    </div>
+</div>
+

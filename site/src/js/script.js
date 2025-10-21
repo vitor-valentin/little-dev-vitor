@@ -38,9 +38,79 @@ document.addEventListener("DOMContentLoaded", () => {
                 break;
             case "/equipe":
                 headerEquipe.classList.add("active");
+
+                if (page == "2") {
+                    pagePromise = fetch("/pages/equipe-avisos.html")
+                        .then((res) => res.text())
+                        .then((html) => {
+                            document.getElementById(
+                                "content-container"
+                            ).innerHTML = html;
+
+                            import("../js/equipe.js");
+                        });
+                } else {
+                    pagePromise = fetch("/pages/equipe-main.html")
+                        .then((res) => res.text())
+                        .then((html) => {
+                            document.getElementById(
+                                "content-container"
+                            ).innerHTML = html;
+
+                            import("../js/equipe.js");
+                        });
+                }
+
+                sidebar
+                    .querySelector(".nav-menu .active")
+                    .classList.remove("active");
+                sidebar
+                    .querySelector(".nav-menu #sideEquipe")
+                    .classList.add("active");
+
                 break;
             case "/emprestimos":
                 headerEmprestimos.classList.add("active");
+
+                if(page == "3") {
+                    pagePromise = fetch("/pages/emprestimos-relatorios.html")
+                        .then((res) => res.text())
+                        .then((html) => {
+                            document.getElementById(
+                                "content-container"
+                            ).innerHTML = html;
+
+                            import("./emprestimos.js");
+                        });
+                } else if (page == "2") {
+                    pagePromise = fetch("/pages/emprestimos-agendar.html")
+                        .then((res) => res.text())
+                        .then((html) => {
+                            document.getElementById(
+                                "content-container"
+                            ).innerHTML = html;
+
+                            import("./emprestimos.js");
+                        });
+                } else {
+                    pagePromise = fetch("/pages/emprestimos-main.html")
+                        .then((res) => res.text())
+                        .then((html) => {
+                            document.getElementById(
+                                "content-container"
+                            ).innerHTML = html;
+
+                            import("./emprestimos.js");
+                        });
+                }
+
+                sidebar
+                    .querySelector(".nav-menu .active")
+                    .classList.remove("active");
+                sidebar
+                    .querySelector(".nav-menu #sideEmprestimos")
+                    .classList.add("active");
+
                 break;
             case "/areas":
                 pagePromise = fetch("/pages/areas.html")

@@ -66,7 +66,7 @@
 .configInput input[type="number"] {
     width: 70px;
     height: 45px;
-    font-size: 35px;
+    font-size: 30px;
     text-align: center;
     border: none;
     border-radius: 10px;
@@ -114,7 +114,7 @@ input[type="number"] {
 }
 
 .configInput select {
-    font-size: 35px;
+    font-size: 28px;
     border: none;
     background: var(--cor-bg-config);
     color: var(--cor-secundaria);

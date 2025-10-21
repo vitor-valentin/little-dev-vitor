@@ -319,6 +319,14 @@ tbody tr {
     font-size: 16px;
 }
 
+tr.smaller th{
+    font-size: 14px !important;
+}
+
+tbody.small td {
+    font-size: 14px !important;
+}
+
 tbody tr:nth-child(odd) {
     background-color: var(--cor-caixas);
 }
@@ -457,6 +465,7 @@ button:hover {
     display: flex;
     flex-direction: column;
     gap: 20px;
+    min-width: 600px;
 }
 
 .filterBox h2 {
@@ -509,7 +518,7 @@ button:hover {
 .filterOpt select {
     margin-top: 4px;
     padding: 10px 5px;
-    font-size: 30px;
+    font-size: 24px;
     border: 1px solid var(--cor-primaria);
     border-radius: 8px;
     color: var(--cor-escura);
@@ -552,6 +561,61 @@ button:hover {
     box-sizing: border-box;
     transition: background-color 0.3s ease;
 }
+
+.dateFilterGroup {
+    display: flex;
+    gap: 20px;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+
+.dateInputBox {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 200px;
+}
+
+.dateInputBox label {
+    font-family: "Branding", sans-serif;
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--cor-escura);
+    margin-bottom: 6px;
+}
+
+.customDateInput {
+    display: flex;
+    align-items: center;
+    border: 1px solid var(--cor-primaria);
+    border-radius: 8px;
+    background-color: white;
+    padding: 8px 12px;
+    gap: 10px;
+    font-family: "Branding", sans-serif;
+}
+
+.customDateInput input[type="text"] {
+    border: none;
+    outline: none;
+    font-size: 18px;
+    color: var(--cor-escura);
+    font-family: "Branding", sans-serif;
+}
+
+.customDateInput input::placeholder {
+    color: var(--cor-escura);
+    opacity: 0.7;
+}
+
+.calendarIcon {
+    width: 25px;
+    height: 25px;
+    background-image: url('../images/data.png');
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+
 
 .closeFilter {
     background-color: var(--cor-caixas);
@@ -613,6 +677,22 @@ button:hover {
     align-items: flex-start;
     width: 90%;
     margin: 10px 0;
+}
+
+.form-group.hidden {
+    display: none;
+}
+
+.form-group textarea {
+    resize: none;
+    width: 100%;
+    height: 250px;
+    font-family: "Branding";
+    font-weight: 500;
+    color: var(--cor-escura);
+    font-size: 25px;
+    padding-left: 7px;
+    padding-top: 3px;
 }
 
 .formEditAdd h2 {

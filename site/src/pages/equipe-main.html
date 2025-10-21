@@ -1,0 +1,200 @@
+<div class="pageTable active">
+    <div class="add-search">
+        <div class="search">
+            <img src="../images/search.png" id="searchIcon" />
+            <input
+                type="text"
+                id="search"
+                placeholder="Pesquise por nome, e-mail ou telefone."
+            />
+            <button class="filter"><img src="../images/filter.png" /></button>
+        </div>
+        <button class="add-button"><span>+</span> Adicionar Membro</button>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>NOME</th>
+                <th>EMAIL</th>
+                <th>TELEFONE</th>
+                <th>ÁREA</th>
+                <th>AÇÕES</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>OSNIR DE SOUZA</td>
+                <td>osnirsenai@gmail.com</td>
+                <td>(45) 99804-1305</td>
+                <td>INFORMÁTICA</td>
+                <td>
+                    <button class="delete">
+                        <img src="../images/icon-excluir.png" />Excluir
+                    </button>
+                    <button class="edit">
+                        <img src="../images/icon-editar.png" />Editar
+                    </button>
+                    <button class="history">
+                        <img src="../images/history.png" />Histórico
+                    </button>
+                </td>
+            </tr>
+            <tr>
+                <td>OSNIR DE SOUZA</td>
+                <td>osnirsenai@gmail.com</td>
+                <td>(45) 99804-1305</td>
+                <td>INFORMÁTICA</td>
+                <td>
+                    <button class="delete">
+                        <img src="../images/icon-excluir.png" />Excluir
+                    </button>
+                    <button class="edit">
+                        <img src="../images/icon-editar.png" />Editar
+                    </button>
+                    <button class="history">
+                        <img src="../images/history.png" />Histórico
+                    </button>
+                </td>
+            </tr>
+            <tr>
+                <td>OSNIR DE SOUZA</td>
+                <td>osnirsenai@gmail.com</td>
+                <td>(45) 99804-1305</td>
+                <td>INFORMÁTICA</td>
+                <td>
+                    <button class="delete">
+                        <img src="../images/icon-excluir.png" />Excluir
+                    </button>
+                    <button class="edit">
+                        <img src="../images/icon-editar.png" />Editar
+                    </button>
+                    <button class="history">
+                        <img src="../images/history.png" />Histórico
+                    </button>
+                </td>
+            </tr>
+            <tr>
+                <td>OSNIR DE SOUZA</td>
+                <td>osnirsenai@gmail.com</td>
+                <td>(45) 99804-1305</td>
+                <td>INFORMÁTICA</td>
+                <td>
+                    <button class="delete">
+                        <img src="../images/icon-excluir.png" />Excluir
+                    </button>
+                    <button class="edit">
+                        <img src="../images/icon-editar.png" />Editar
+                    </button>
+                    <button class="history">
+                        <img src="../images/history.png" />Histórico
+                    </button>
+                </td>
+            </tr>
+            <tr>
+                <td>OSNIR DE SOUZA</td>
+                <td>osnirsenai@gmail.com</td>
+                <td>(45) 99804-1305</td>
+                <td>INFORMÁTICA</td>
+                <td>
+                    <button class="delete">
+                        <img src="../images/icon-excluir.png" />Excluir
+                    </button>
+                    <button class="edit">
+                        <img src="../images/icon-editar.png" />Editar
+                    </button>
+                    <button class="history">
+                        <img src="../images/history.png" />Histórico
+                    </button>
+                </td>
+            </tr>
+            <tr>
+                <td>OSNIR DE SOUZA</td>
+                <td>osnirsenai@gmail.com</td>
+                <td>(45) 99804-1305</td>
+                <td>INFORMÁTICA</td>
+                <td>
+                    <button class="delete">
+                        <img src="../images/icon-excluir.png" />Excluir
+                    </button>
+                    <button class="edit">
+                        <img src="../images/icon-editar.png" />Editar
+                    </button>
+                    <button class="history">
+                        <img src="../images/history.png" />Histórico
+                    </button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="pagination">
+        <button disabled>«</button>
+        <button class="active">1</button>
+        <button>2</button>
+        <button>»</button>
+    </div>
+</div>
+
+<div class="pageEditAdd">
+    <form class="formEditAdd">
+        <h2>ADICIONAR MEMBRO</h2>
+
+        <div class="form-group">
+            <label for="nomeMembro">Nome</label>
+            <input type="text" id="nomeMembro" required />
+        </div>
+
+        <div class="form-group">
+            <label for="emailMembro">E-mail</label>
+            <input type="email" id="emailMembro" required />
+        </div>
+
+        <div class="form-group">
+            <label for="telMembro">Telefone</label>
+            <input type="text" id="telMembro" required />
+        </div>
+
+        <div class="form-group">
+            <label for="area">Área</label>
+            <input type="text" id="area" placeholder="Digite o nome da área" />
+        </div>
+
+        <div class="form-group checkboxGroup">
+            <label for="systemUser">
+                <input type="checkbox" id="systemUser" />
+                Definir como usuário do sistema?
+            </label>
+        </div>
+
+        <div class="form-group hidden">
+            <label for="senhaMembro">Senha</label>
+            <input type="password" id="senhaMembro" />
+        </div>
+
+        <div class="buttonGroup">
+            <button class="return" type="button">Voltar</button>
+            <button class="submit" type="submit">Criar</button>
+        </div>
+    </form>
+</div>
+
+<div class="overlayFilter">
+    <div class="filterBox">
+        <h2>FILTRAR BUSCA</h2>
+
+        <div class="filterOpt">
+            <label for="inputArea">Mostrar apenas membros da área:</label>
+            <input
+                type="text"
+                placeholder="Digite o nome da área ou deixe vazio para qualquer."
+                id="inputArea"
+            />
+        </div>
+
+        <div class="buttonGroup">
+            <button class="closeFilter">Voltar</button>
+            <button class="applyFilter">Aplicar</button>
+        </div>
+    </div>
+</div>
