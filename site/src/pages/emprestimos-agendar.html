@@ -1,0 +1,103 @@
+<link href="../css/emprestimos.css" type="text/css" rel="stylesheet" />
+
+<div class="schedule-container">
+    <h3>AGENDAR EMPRÉSTIMOS</h3>
+
+    <div class="schedule-main">
+        <div class="calendar-box">
+            <div class="calendar-header">
+                <button class="arrow-btn" aria-label="Previous month">
+                    &lt;
+                </button>
+                <span class="month-year">Setembro <strong>2025</strong></span>
+                <button class="arrow-btn" aria-label="Next month">&gt;</button>
+            </div>
+            <div class="calendar-weekdays">
+                <span>DOM</span><span>SEG</span><span>TER</span><span>QUA</span
+                ><span>QUI</span><span>SEX</span><span>SAB</span>
+            </div>
+            <div class="calendar-dates">
+                <span>1</span><span>2</span><span>2</span><span>2</span
+                ><span>2</span><span>2</span><span>2</span><span>2</span>
+                <span class="selected">9</span><span class="selected">10</span
+                ><span>11</span><span>12</span><span>13</span> <span>14</span
+                ><span>15</span><span>16</span><span>17</span><span>18</span
+                ><span>19</span><span>20</span> <span>21</span><span>22</span
+                ><span>23</span><span>24</span><span>25</span><span>26</span
+                ><span>27</span> <span>28</span><span>29</span><span>30</span>
+            </div>
+        </div>
+
+        <form class="config-form">
+            <label class="checkbox-label"
+                ><input type="checkbox" /> Utilizar configuração da
+                semana.</label
+            >
+            <label class="checkbox-label"
+                ><input type="checkbox" /> Utilizar configuração do mês.</label
+            >
+
+            <label for="applyDate" class="apply-label"
+                >Aplicar configuração até:</label
+            >
+            <input type="date" id="applyDate" placeholder="DD/MM/AAAA" />
+
+            <button type="button" class="btn-apply">Aplicar</button>
+        </form>
+    </div>
+
+    <form class="equipment-form">
+        <label for="equipName">Nome do Equipamento</label>
+        <input
+            type="text"
+            id="equipName"
+            placeholder="Procure um equipamento por nome ou código."
+        />
+
+        <label for="location">Sala/Local</label>
+        <input type="text" id="location" />
+
+        <label for="member">Membro</label>
+        <input
+            type="text"
+            id="member"
+            placeholder="Procure um membro por nome, e-mail ou telefone."
+        />
+
+        <label for="obsEmprestimo">Observações</label>
+        <textarea id="obsEmprestimo"></textarea>
+
+        <button type="submit" class="btn-schedule">Agendar</button>
+    </form>
+</div>
+
+<div id="horarioModal" class="horario-modal hidden">
+    <div class="horario-box">
+      <h4>DEFINIR HORÁRIOS</h4>
+  
+      <div class="horario-inputs">
+        <div class="horario-group">
+          <label for="horarioRetirada">Horário Retirada</label>
+          <div class="horario-wrapper">
+            <img src="calendar-icon.svg" alt="Ícone calendário" />
+            <input type="time" id="horarioRetirada" />
+          </div>
+        </div>
+  
+        <div class="horario-group">
+          <label for="horarioDevolucao">Horário Devolução</label>
+          <div class="horario-wrapper">
+            <img src="calendar-icon.svg" alt="Ícone calendário" />
+            <input type="time" id="horarioDevolucao" />
+          </div>
+        </div>
+      </div>
+  
+      <div class="horario-buttons">
+        <button id="removerData" class="btn-remover">Remover</button>
+        <button id="confirmarHorario" class="btn-confirmar">Definir</button>
+      </div>
+    </div>
+  </div>
+  
+

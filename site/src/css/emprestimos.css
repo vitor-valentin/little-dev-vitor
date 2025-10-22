@@ -1,0 +1,342 @@
+.schedule-container {
+    width: 80%;
+    margin: 30px auto;
+    padding: 25px 30px 40px;
+    border-radius: 8px;
+    background-color: var(--cor-caixas);
+}
+
+.schedule-container h3 {
+    font-family: "Branding";
+    font-weight: 800;
+    font-size: 24px;
+    text-align: center;
+    margin-bottom: 22px;
+}
+
+/* Parte superior: calendário e configurações */
+.schedule-main {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 24px;
+}
+
+/* Calendário */
+.calendar-box {
+    width: 52%;
+    height: auto;
+    border: 1.5px solid #112a61;
+    border-radius: 6px;
+    padding: 15px 18px;
+}
+
+.calendar-header {
+    font-family: "Open Sans";
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    font-weight: 300;
+    color: var(--cor-escura);
+    font-size: 22px;
+    margin-bottom: 10px;
+}
+
+.calendar-header strong {
+    font-weight: 900;
+}
+
+.arrow-btn {
+    background: none;
+    border: none;
+    color: var(--cor-escura);
+    font-size: 22px;
+    cursor: pointer;
+    font-weight: 700;
+    padding: 0 10px;
+    user-select: none;
+    transition: color 0.2s ease;
+}
+.arrow-btn:hover {
+    opacity: 0.8;
+}
+
+.calendar-weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    font-weight: 300;
+    font-size: 16px;
+    color: var(--cor-escura);
+    opacity: 0.6;
+    font-family: "Open Sans";
+    margin-bottom: 8px;
+}
+.calendar-weekdays span {
+    text-align: center;
+}
+
+.calendar-dates {
+    font-family: "Open Sans";
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    font-weight: bold;
+    font-size: 22px;
+    color: var(--cor-escura);
+    gap: 3px 6px;
+}
+
+.calendar-dates span {
+    text-align: center;
+    margin: 4px 0;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.calendar-dates span.selected {
+    background-color: var(--cor-escura);
+    color: var(--cor-textos);
+}
+
+.calendar-dates span:hover:not(.selected) {
+    background-color: #e0e7ff;
+}
+
+/* Configurações à direita */
+.config-form {
+    width: 45%;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    font-size: 14px;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    font-family: "Open Sans";
+    font-weight: 300;
+    font-size: 18px;
+    color: var(--cor-escura);
+}
+
+.checkbox-label input[type="checkbox"] {
+    width: 22px;
+    height: 22px;
+    cursor: pointer;
+}
+
+.apply-label {
+    margin-top: 6px;
+    font-family: "Open Sans";
+    font-weight: 300;
+    font-size: 18px;
+    color: var(--cor-escura);
+}
+
+.config-form input[type="date"] {
+    padding: 6px 10px;
+    font-family: "Branding", sans-serif;
+    font-weight: 500;
+    font-size: 13px;
+    color: var(--cor-escura);
+    border: 1px solid var(--cor-primaria);
+    border-radius: 4px;
+    outline: none;
+    width: 100%;
+}
+
+.config-form input[type="date"]::placeholder {
+    color: var(--cor-escura);
+    opacity: 0.7;
+}
+
+.btn-apply {
+    margin-top: 8px;
+    background-color: var(--cor-primaria);
+    color: white;
+    font-family: "Branding";
+    font-weight: 500;
+    font-size: 24px;
+    padding: 9px 0;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    width: 100%;
+    user-select: none;
+    transition: 0.2s;
+}
+.btn-apply:hover {
+    opacity: 0.9;
+}
+
+/* Formulário inferior */
+.equipment-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.equipment-form label {
+    font-family: "Open Sans";
+    font-size: 18px;
+    font-weight: 300;
+    color: var(--cor-escura);
+}
+
+.equipment-form input[type="text"] {
+    padding: 8px 10px;
+    font-family: "Branding", sans-serif;
+    font-weight: 500;
+    font-size: 18px;
+    border: 1px solid var(--cor-primaria);
+    border-radius: 4px;
+    color: var(--cor-escura);
+}
+
+.equipment-form input::placeholder {
+    opacity: 0.7;
+}
+
+.equipment-form textarea {
+    height: 160px;
+    resize: none;
+    padding-top: 3px;
+    padding-left: 7px;
+    font-family: "Branding";
+    font-weight: 500;
+    color: var(--cor-escura);
+    font-size: 18px;
+}
+
+.btn-schedule {
+    font-family: "Branding";
+    background-color: var(--cor-primaria);
+    color: var(--cor-textos);
+    font-weight: 500;
+    font-size: 22px;
+    padding: 10px 0;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    width: 260px;
+    margin: 0 auto;
+    user-select: none;
+    transition: 0.3s;
+}
+.btn-schedule:hover {
+    opacity: 0.9;
+}
+.horario-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.horario-box {
+    background: white;
+    padding: 30px 35px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    width: 450px;
+}
+
+.horario-box h4 {
+    font-family: "Branding";
+    font-weight: 800;
+    margin-bottom: 25px;
+    font-size: 16px;
+    font-weight: bold;
+    color: var(--cor-escura);
+    text-transform: uppercase;
+}
+
+.horario-inputs {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 25px;
+}
+
+.horario-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 50%;
+}
+
+.horario-group label {
+    font-size: 14px;
+    margin-bottom: 6px;
+    color: #333;
+}
+
+.horario-wrapper {
+    display: flex;
+    align-items: center;
+    border: 1.5px solid #0a0a2a;
+    border-radius: 4px;
+    padding: 4px 8px;
+    width: 100%;
+    justify-content: center;
+}
+
+.horario-wrapper img {
+    width: 20px;
+    height: 20px;
+    margin-right: 6px;
+}
+
+.horario-wrapper input[type="time"] {
+    border: none;
+    font-size: 14px;
+    width: 80px;
+    outline: none;
+    color: #333;
+    background: transparent;
+}
+
+.horario-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.horario-buttons button {
+    padding: 8px 25px;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.2s ease-in-out;
+    border: none;
+}
+
+#removerData.btn-remover {
+    background-color: #c0392b;
+    color: white;
+}
+
+#confirmarHorario.btn-confirmar {
+    background-color: #112a61;
+    color: white;
+}
+
+/* Classe auxiliar para ocultar */
+.hidden {
+    display: none;
+}
+
+/* Estilo para datas desabilitadas */
+span.disabled {
+    opacity: 0.7;
+    pointer-events: none;
+}

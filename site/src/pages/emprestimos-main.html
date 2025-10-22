@@ -145,43 +145,43 @@
 
 <div class="pageEditAdd">
     <form class="formEditAdd">
-        <h2>ADICIONAR EQUIPAMENTO</h2>
+        <h2>REGISTRAR EMPRÉSTIMO</h2>
 
         <div class="form-group">
-            <label for="nomeMembro">Nome</label>
-            <input type="text" id="nomeMembro" required />
+            <label for="nomeEquipamento">Nome do Equipamento</label>
+            <input type="text" id="nomeEquipamento" name="nomeEquipamento" placeholder="Procure um equipamento por nome ou código." required />
+        </div>
+
+        <div style="display:flex; gap: 12px; flex-wrap: wrap; width: 90%;">
+            <div class="form-group" style="flex: 1 1 45%;">
+                <label for="dataRecebimento">Data Recebimento</label>
+                <input type="datetime-local" id="dataRecebimento" name="dataRecebimento" required />
+            </div>
+
+            <div class="form-group" style="flex: 1 1 45%;">
+                <label for="dataDevolucao">Data Devolução</label>
+                <input type="datetime-local" id="dataDevolucao" name="dataDevolucao" required />
+            </div>
+
+            <div class="form-group" style="flex: 1 1 15%; min-width: 100px;">
+                <label for="salaLocal">Sala/Local</label>
+                <input type="text" id="salaLocal" name="salaLocal" />
+            </div>
         </div>
 
         <div class="form-group">
-            <label for="emailMembro">E-mail</label>
-            <input type="email" id="emailMembro" required />
+            <label for="membro">Membro</label>
+            <input type="text" id="membro" name="membro" placeholder="Procure um membro por nome, e-mail ou telefone." required />
         </div>
 
         <div class="form-group">
-            <label for="telMembro">Telefone</label>
-            <input type="text" id="telMembro" required />
-        </div>
-
-        <div class="form-group">
-            <label for="area">Área</label>
-            <input type="text" id="area" placeholder="Digite o nome da área" />
-        </div>
-
-        <div class="form-group checkboxGroup">
-            <label for="systemUser">
-                <input type="checkbox" id="systemUser" />
-                Definir como usuário do sistema?
-            </label>
-        </div>
-
-        <div class="form-group hidden">
-            <label for="senhaMembro">Senha</label>
-            <input type="password" id="senhaMembro" />
+            <label for="obsText">Observações</label>
+            <textarea id="obsText" style="height: 200px;" required></textarea>
         </div>
 
         <div class="buttonGroup">
             <button class="return" type="button">Voltar</button>
-            <button class="submit" type="submit">Criar</button>
+            <button class="submit" type="submit">Registrar</button>
         </div>
     </form>
 </div>
