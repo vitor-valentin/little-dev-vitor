@@ -13,7 +13,7 @@ const app = express();
 
 const query = util.promisify(connection.query).bind(connection);
 
-const mainRoutes = ['/', '/areas', '/equipamentos', '/equipe', '/config', '/emprestimos'];
+const mainRoutes = ['/', '/areas', '/equipamentos', '/equipe', '/config', '/emprestimos', '/vistoria'];
 
 app.use(express.json());
 app.use(cookieParser());

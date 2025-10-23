@@ -1,0 +1,61 @@
+<link href="../css/emprestimos.css" type="text/css" rel="stylesheet" />
+
+<div class="relatorios">
+    <div class="relatorio-box">
+        <h1>EMITIR RELATÓRIO</h1>
+
+        <h2 class="divisor">Período</h2>
+        <section class="box">
+            <div class="inputGroup">
+                <label for="predefinitions">Predefinições</label>
+                <select id="predefinitions">
+                    <option value="choose" disabled selected>
+                        Escolha uma predefinição
+                    </option>
+                    <option value="this-month">Este Mês</option>
+                    <option value="last-month">Último Mês</option>
+                    <option value="last-trimester">Último Trimestre</option>
+                    <option value="last-semester">Último Semestre</option>
+                    <option value="this-year">Este Ano</option>
+                </select>
+            </div>
+
+            <div class="inputGroup">
+                <label for="startTime">Início</label>
+                <input id="startTime" type="date" placeholder="DD/MM/AAAA" />
+            </div>
+
+            <div class="inputGroup">
+                <label for="endTime">Fim</label>
+                <input id="endTime" type="date" placeholder="DD/MM/AAAA" />
+            </div>
+        </section>
+
+        <h2 class="divisor">Conteúdo</h2>
+        <section class="box">
+            <div class="inputGroup">
+                <label for="equipmentInput">Equipamento</label>
+                <input id="equipmentInput" type="text" placeholder="Pesquise um equipamento ou deixe vazio para todos" />
+            </div>
+
+            <div class="inputGroup">
+                <label for="memberInput">Membro</label>
+                <input id="memberInput" type="text" placeholder="Pesquise um membro ou deixe vazio para todos" />
+            </div>
+        </section>
+
+        <label for="altoValor">
+            <input type="checkbox" id="altoValor" />
+            Somente equipamentos marcados como alto valor.
+        </label>
+
+        <label for="lateDevolution">
+            <input type="checkbox" id="lateDevolution" />
+            Somente empréstimos com devolução atrasada.
+        </label>
+        
+        <div class="button-group">
+            <button>Emitir</button>
+        </div>
+    </div>
+</div>

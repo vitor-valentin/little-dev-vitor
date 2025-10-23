@@ -1,0 +1,129 @@
+<link href="../css/vistoria.css" type="text/css" rel="stylesheet" />
+
+<div class="vistoria">
+    <div class="vistoria-box">
+        <h1>VISTORIA</h1>
+
+        <div class="rowInfo">
+            <div class="groupInput">
+                <label for="equipmentInfo">Equipamento</label>
+                <input type="text" id="equipmentInfo" disabled />
+            </div>
+
+            <div class="groupInput">
+                <label for="memberInfo">Membro</label>
+                <input type="text" id="memberInfo" disabled />
+            </div>
+        </div>
+
+        <div class="rowInfo">
+            <div class="groupInput">
+                <label for="codeEqInfo">Código</label>
+                <input type="text" id="codeEqInfo" disabled />
+            </div>
+
+            <div class="groupInputs">
+                <div class="dateInput">
+                    <label for="dateReceived">Recebimento</label>
+                    <input type="datetime-local" id="dateReceived" disabled />
+                </div>
+                
+                <div class="dateInput">
+                    <label for="dateDevolution">Devolução</label>
+                    <input type="datetime-local" id="dateDevolution" disabled />
+                </div>
+            </div>
+        </div>
+
+        <div class="centerInfo">
+            <div class="inputAlone">
+                <label for="dateNow">Atual</label>
+                <input type="datetime-local" id="dateNow" disabled />
+                <p>Atraso de 1 hora e 20 minutos.</p>
+            </div>
+        </div>
+
+        <h2 class="divider">Verificação</h2>
+
+        <div class="checkVerifications">
+            <label for="workingEquipment">
+                <input type="checkbox" id="workingEquipment" />
+                O equipamento funciona corretamente?
+            </label>
+
+            <label for="degradationSigns">
+                <input type="checkbox" id="degradationSigns" />
+                O equipamento não aparenta sinais de degradação? (Quebrados, marcas, manchas, ferrugem)
+            </label>
+
+            <label for="cleanWorkingCond">
+                <input type="checkbox" id="cleanWorkingCond" />
+                O equipamento está limpo e em condições adequadas de uso?
+            </label>
+
+            <label for="acessoriesPresent">
+                <input type="checkbox" id="acessoriesPresent" />
+                Todos os acessórios e componentes necessários estão presentes? (ex.: cabos, carregadores, adaptadores, manuais)
+            </label>
+
+            <label for="idTag">
+                <input type="checkbox" id="idTag" />
+                O equipamento possui identificação/etiqueta de patrimônio ou código visível e legível?
+            </label>
+
+            <label for="fallingGear">
+                <input type="checkbox" id="fallingGear" />
+                O equipamento não apresenta peças soltas ou com folga excessiva?
+            </label>
+
+            <label for="rippedCables">
+                <input type="checkbox" id="rippedCables" />
+                Os cabos/fios (se houver) não estão descascados, rompidos ou com emendas improvisadas?
+            </label>
+
+            <label for="turningOn">
+                <input type="checkbox" id="turningOn" />
+                O equipamento liga/desliga normalmente (se for eletrônico)?
+            </label>
+
+            <label for="badSmell">
+                <input type="checkbox" id="badSmell" />
+                Há sinais de mau cheiro, superaquecimento ou ruídos anormais durante o funcionamento?
+            </label>
+
+            <label for="mobileParts">
+                <input type="checkbox" id="mobileParts" />
+                Os botões, chaves, conectores ou partes móveis funcionam sem travamentos?
+            </label>
+
+            <label for="transportBag">
+                <input type="checkbox" id="transportBag" />
+                O equipamento possui estojo, capa ou embalagem de transporte adequada (se aplicável)?
+            </label>
+
+            <label for="workingDisplays">
+                <input type="checkbox" id="workingDisplays" />
+                Indicadores, luzes e displays funcionam normalmente? (Quando possuir)
+            </label>
+
+            <label for="workingBattery">
+                <input type="checkbox" id="workingBattery" />
+                Bateria/carregamento (quando aplicável) estão em bom estado?
+            </label>
+
+            <label for="conditionDeclaration">
+                <input type="checkbox" id="conditionDeclaration" />
+                Eu, USERNAME, declaro que, após vistoria, o equipamento foi devolvido em 
+                boas condições de uso e está apto para futuros empréstimos.
+            </label>
+        </div>
+        
+        <label for="obsVistoria">Observações</label>
+        <textarea id="obsVistoria"></textarea>
+
+        <div class="buttonsVistoria">
+            <button class="return">Voltar</button>
+            <button class="done">Finalizar</button>
+        </div>
+    </div>
+</div>

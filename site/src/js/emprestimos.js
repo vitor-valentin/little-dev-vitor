@@ -95,63 +95,6 @@ function updateCalendar() {
     prevBtn.style.opacity = isSameMonth ? 0.3 : 1;
 }
 
-prevBtn.addEventListener("click", () => {
-    if (displayDate > currentDate) {
-        displayDate.setMonth(displayDate.getMonth() - 1);
-        updateCalendar();
-    }
-});
-
-nextBtn.addEventListener("click", () => {
-    displayDate.setMonth(displayDate.getMonth() + 1);
-    updateCalendar();
-});
-
-confirmarHorarioBtn.addEventListener("click", () => {
-    if (
-        !inputHorarioRetirada.value ||
-        !inputHorarioDevolucao.value ||
-        !clickedDay
-    )
-        return;
-
-    const dateStr = formatDate(clickedDay);
-    const retirada = `${dateStr} ${inputHorarioRetirada.value}`;
-    const devolucao = `${dateStr} ${inputHorarioDevolucao.value}`;
-
-    if (retirada >= devolucao) {
-        alert("A devolução deve ser após a retirada.");
-        return;
-    }
-
-    const existingIndex = selectedDateTimes.findIndex((dt) =>
-        dt[0].startsWith(dateStr)
-    );
-
-    if (existingIndex !== -1) {
-        selectedDateTimes[existingIndex] = [retirada, devolucao];
-    } else {
-        selectedDateTimes.push([retirada, devolucao]);
-    }
-
-    horarioModal.classList.add("hidden");
-    updateCalendar();
-    console.log("Selecionados:", selectedDateTimes);
-});
-
-removerDataBtn.addEventListener("click", () => {
-    if (!clickedDay) return;
-
-    const dateStr = formatDate(clickedDay);
-    selectedDateTimes = selectedDateTimes.filter(
-        (dt) => !dt[0].startsWith(dateStr)
-    );
-
-    horarioModal.classList.add("hidden");
-    updateCalendar();
-    console.log("Removido:", selectedDateTimes);
-});
-
 function getSampleTimesByConfig(dates) {
     const config = {};
     dates.forEach((dt) => {
@@ -238,9 +181,65 @@ function applyConfig() {
 
     selectedDateTimes.push(...newSelections);
     updateCalendar();
-    console.log("Datas aplicadas:", selectedDateTimes);
 }
 
-applyBtn.addEventListener("click", applyConfig);
+if (calendarDates) {
+    prevBtn.addEventListener("click", () => {
+        if (displayDate > currentDate) {
+            displayDate.setMonth(displayDate.getMonth() - 1);
+            updateCalendar();
+        }
+    });
 
-updateCalendar();
+    nextBtn.addEventListener("click", () => {
+        displayDate.setMonth(displayDate.getMonth() + 1);
+        updateCalendar();
+    });
+
+    confirmarHorarioBtn.addEventListener("click", () => {
+        if (
+            !inputHorarioRetirada.value ||
+            !inputHorarioDevolucao.value ||
+            !clickedDay
+        )
+            return;
+
+        const dateStr = formatDate(clickedDay);
+        const retirada = `${dateStr} ${inputHorarioRetirada.value}`;
+        const devolucao = `${dateStr} ${inputHorarioDevolucao.value}`;
+
+        if (retirada >= devolucao) {
+            alert("A devolução deve ser após a retirada.");
+            return;
+        }
+
+        const existingIndex = selectedDateTimes.findIndex((dt) =>
+            dt[0].startsWith(dateStr)
+        );
+
+        if (existingIndex !== -1) {
+            selectedDateTimes[existingIndex] = [retirada, devolucao];
+        } else {
+            selectedDateTimes.push([retirada, devolucao]);
+        }
+
+        horarioModal.classList.add("hidden");
+        updateCalendar();
+    });
+
+    removerDataBtn.addEventListener("click", () => {
+        if (!clickedDay) return;
+
+        const dateStr = formatDate(clickedDay);
+        selectedDateTimes = selectedDateTimes.filter(
+            (dt) => !dt[0].startsWith(dateStr)
+        );
+
+        horarioModal.classList.add("hidden");
+        updateCalendar();
+    });
+
+    applyBtn.addEventListener("click", applyConfig);
+
+    updateCalendar();
+}

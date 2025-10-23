@@ -14,6 +14,31 @@
     font-style: normal;
 }
 
+@keyframes slideInBounce {
+    0% {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    70% {
+        transform: translateX(-3%);
+        opacity: 1;
+    }
+    100% {
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideOut {
+    0% {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    100% {
+        transform: translateX(60%);
+        opacity: 0;
+    }
+}
+
 :root {
     --cor-primaria: #13357a;
     --cor-secundaria: #192a6b;
@@ -31,6 +56,10 @@
     --cor-botao-editar: #ffb54c;
     --cor-botao-historico: #00b9d2;
     --cor-bg-config: #efefef;
+    --cor-not-sucesso: #277800;
+    --cor-not-falha: #D4421E;
+    --cor-not-information: #13357A;
+    --cor-not-alerta: #F1710B;
 }
 
 * {
@@ -319,7 +348,7 @@ tbody tr {
     font-size: 16px;
 }
 
-tr.smaller th{
+tr.smaller th {
     font-size: 14px !important;
 }
 
@@ -611,11 +640,10 @@ button:hover {
 .calendarIcon {
     width: 25px;
     height: 25px;
-    background-image: url('../images/data.png');
+    background-image: url("../images/data.png");
     background-size: cover;
     background-repeat: no-repeat;
 }
-
 
 .closeFilter {
     background-color: var(--cor-caixas);
@@ -769,4 +797,52 @@ button:hover {
     width: 200px;
     background-color: var(--cor-primaria);
     color: var(--cor-textos);
+}
+
+.notification {
+    position: fixed;
+    right: 10px;
+    top: 30px;
+    background-color: var(--cor-caixas);
+    border: 2px solid var(--cor-primaria);
+    display: flex;
+    justify-content: left;
+    align-items: center;
+    width: 35%;
+    padding: 8px;
+    gap: 10px;
+    box-shadow: 4px 4px 4px 0 rgba(0, 0, 0, 0.25);
+    animation: slideInBounce 0.43s ease-out forwards;
+}
+
+.notification.hide {
+    animation: slideOut 0.6s forwards;
+}
+
+.notification.success{
+    color: var(--cor-not-sucesso);
+}
+
+.notification.failure{
+    color: var(--cor-not-falha);
+}
+
+.notification.information{
+    color: var(--cor-not-information);
+}
+
+.notification.alert{
+    color: var(--cor-not-alerta);
+}
+
+.notBody h2 {
+    font-family: "Branding";
+    font-weight: 800;
+    font-size: 25px;
+}
+
+.notBody p {
+    font-family: "Open Sans";
+    font-weight: 300;
+    font-size: 18px;
 }

@@ -72,7 +72,7 @@ document.addEventListener("DOMContentLoaded", () => {
             case "/emprestimos":
                 headerEmprestimos.classList.add("active");
 
-                if(page == "3") {
+                if (page == "3") {
                     pagePromise = fetch("/pages/emprestimos-relatorios.html")
                         .then((res) => res.text())
                         .then((html) => {
@@ -160,6 +160,22 @@ document.addEventListener("DOMContentLoaded", () => {
                     .querySelector(".nav-bottom #config")
                     .classList.add("active");
                 break;
+            case "/vistoria":
+                pagePromise = fetch("/pages/vistoria.html")
+                    .then((res) => res.text())
+                    .then((html) => {
+                        document.getElementById("content-container").innerHTML =
+                            html;
+                    });
+
+                sidebar
+                    .querySelector(".nav-menu .active")
+                    .classList.remove("active");
+                sidebar
+                    .querySelector(".nav-menu #sideEmprestimos")
+                    .classList.add("active");
+
+                break;
         }
 
         window.pageLoaded = pagePromise;
@@ -238,6 +254,8 @@ document.addEventListener("DOMContentLoaded", () => {
                     filterOverlay.classList.remove("active");
                 });
             }
+
+            window.showNotification("failure", "Sucesso!", "Tarefa realizada com sucesso!");
         });
     });
 });

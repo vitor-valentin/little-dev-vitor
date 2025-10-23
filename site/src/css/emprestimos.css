@@ -253,7 +253,7 @@
     font-family: "Branding";
     font-weight: 800;
     margin-bottom: 25px;
-    font-size: 16px;
+    font-size: 20px;
     font-weight: bold;
     color: var(--cor-escura);
     text-transform: uppercase;
@@ -274,9 +274,11 @@
 }
 
 .horario-group label {
-    font-size: 14px;
+    font-size: 18px;
     margin-bottom: 6px;
-    color: #333;
+    color: var(--cor-escura);
+    font-family: "Open Sans";
+    font-weight: 300;
 }
 
 .horario-wrapper {
@@ -290,17 +292,19 @@
 }
 
 .horario-wrapper img {
-    width: 20px;
-    height: 20px;
+    width: 30px;
+    height: 30px;
     margin-right: 6px;
 }
 
 .horario-wrapper input[type="time"] {
     border: none;
-    font-size: 14px;
+    font-size: 16px;
     width: 80px;
     outline: none;
-    color: #333;
+    color: var(--cor-escura);
+    font-family: "Branding";
+    font-weight: 500;
     background: transparent;
 }
 
@@ -313,30 +317,183 @@
 .horario-buttons button {
     padding: 8px 25px;
     border-radius: 5px;
-    font-size: 16px;
+    font-size: 18px;
     cursor: pointer;
     font-weight: bold;
     transition: 0.2s ease-in-out;
     border: none;
+    font-family: "Branding";
+    font-weight: 500;
 }
 
 #removerData.btn-remover {
-    background-color: #c0392b;
-    color: white;
+    background-color: var(--cor-botao-excluir);
+    color: var(--cor-textos);
 }
 
 #confirmarHorario.btn-confirmar {
-    background-color: #112a61;
-    color: white;
+    background-color: var(--cor-primaria);
+    color: var(--cor-textos);
 }
 
-/* Classe auxiliar para ocultar */
 .hidden {
     display: none;
 }
 
-/* Estilo para datas desabilitadas */
 span.disabled {
     opacity: 0.7;
     pointer-events: none;
+}
+
+.relatorios {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: calc(100vh - 150px);
+}
+
+.relatorio-box {
+    width: 80%;
+    background-color: var(--cor-caixas);
+    text-align: center;
+}
+
+.relatorio-box h1 {
+    font-family: "Branding";
+    font-weight: 800;
+    font-size: 25px;
+    color: var(--cor-escura);
+    margin: 20px 0;
+}
+
+.divisor {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: "Open Sans";
+    font-weight: 300;
+    font-size: 20px;
+    color: var(--cor-escura);
+    opacity: 0.6;
+    margin: 15px 0;
+}
+
+.divisor::after,
+.divisor::before {
+    opacity: 0.6;
+    content: "";
+    flex: 1;
+    border-bottom: 1px solid var(--cor-escura);
+    margin: 0 10px;
+}
+
+.box {
+    margin: 0 20px;
+    display: flex;
+    gap: 20px; /* space between input groups */
+    align-items: flex-end;
+}
+
+.inputGroup {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.inputGroup label {
+    font-family: "Open Sans";
+    font-weight: 300;
+    color: var(--cor-escura);
+    font-size: 16px;
+    margin-bottom: 5px;
+    text-align: left;
+}
+
+.inputGroup select,
+.inputGroup input[type="date"] {
+    font-family: "Branding";
+    font-weight: 500;
+    border: 1px solid var(--cor-primaria);
+    border-radius: 5px;
+    padding: 8px 12px;
+    font-size: 18px;
+    color: var(--cor-secundaria);
+    outline: none;
+}
+
+/* make first input (the select) wider */
+.inputGroup select {
+    flex: 3 !important;
+}
+
+/* optional: style date inputs to match the reference */
+input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(20%) sepia(100%) saturate(400%) hue-rotate(200deg);
+}
+
+.inputGroup input[type="text"] {
+    font-family: "Branding";
+    font-weight: 500;
+    border: 1px solid var(--cor-primaria);
+    border-radius: 4px;
+    padding: 12px 12px;
+    font-size: 16px;
+    color: var(--cor-secundaria);
+    outline: none;
+}
+
+.inputGroup input[type="text"]::placeholder {
+    color: var(--cor-escura);
+    opacity: 0.7;
+}
+
+/* checkboxes and labels */
+label[for="altoValor"],
+label[for="lateDevolution"] {
+    margin-top: 15px;
+    margin-left: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #0a2d64;
+    font-size: 18px;
+    margin-bottom: 6px;
+    font-weight: 300;
+    font-family: "Open Sans";
+}
+
+input[type="checkbox"] {
+    width: 22px;
+    height: 22px;
+    border: 1px solid #aeb3c2;
+    border-radius: 3px;
+    accent-color: var(--cor-escura); /* modern browsers */
+}
+
+/* button section */
+.button-group {
+    display: flex;
+    justify-content: center;
+    margin-top: 15px;
+}
+
+.button-group button {
+    font-family: "Branding";
+    font-weight: 500;
+    background-color: var(--cor-primaria);
+    color: var(--cor-textos);
+    border: none;
+    border-radius: 6px;
+    font-size: 25px;
+    font-weight: 500;
+    padding: 10px 40px;
+    cursor: pointer;
+    transition: 0.2s ease;
+    margin-top: 15px;
+    margin-bottom: 20px;
+}
+
+.button-group button:hover {
+    opacity: 0.9;
 }
