@@ -170,6 +170,34 @@ app.get("/areas/:page", async (req, res) => {
     }
 });
 
+app.get("/areas/search/:page", async (req, res) => {
+    const { page } = req.params;
+    const { q } = req.query;
+
+    const itensPerPage = 8;
+    const offset = (parseInt(page) - 1) * itensPerPage;
+
+    try {
+        const result = await query(
+            "SELECT * FROM tbAreas WHERE nomeArea LIKE ? ORDER BY idArea DESC LIMIT ?, ?",
+            [`%${q}%`, offset, itensPerPage]
+        );
+
+        const result2 = await query(
+            "SELECT COUNT(*) AS totalItens FROM tbAreas WHERE nomeArea LIKE ?",
+            [`%${q}%`]
+        );
+
+        res.status(200).send({ result, result2 });
+    } catch (err) {
+        console.error("Erro no MySQL: ", err);
+        res.status(500).send({
+            message: "Erro ao tentar buscar áreas no banco de dados",
+        });
+    }
+});
+
+
 app.get("/areas/find/:id", async (req, res) => {
     const { id } = req.params;
 
@@ -202,6 +230,75 @@ app.get("/equipe/:page", async (req, res) => {
         console.error("Erro no MySQL: ", err);
         res.status(500).send({
             message: "Erro ao tentar pegar itens da tabela",
+        });
+    }
+});
+
+app.get("/equipe/search/:page", async (req, res) => {
+    const { page } = req.params;
+    const { q } = req.query;
+
+    const itensPerPage = 8;
+    const offset = (parseInt(page) - 1) * itensPerPage;
+
+    try {
+        const result = await query(
+            "SELECT * FROM tbEquipe WHERE nomeMembro LIKE ? OR emailMembro LIKE ? OR foneMembro LIKE ? ORDER BY idMembro DESC LIMIT ?, ?",
+            [`%${q}%`, `%${q}%`, `%${q}%`, offset, itensPerPage]
+        );
+
+        const result2 = await query(
+            "SELECT COUNT(*) AS totalItens FROM tbEquipe WHERE nomeMembro LIKE ? OR emailMembro LIKE ? OR foneMembro LIKE ?",
+            [`%${q}%`, `%${q}%`, `%${q}%`]
+        );
+
+        res.status(200).send({ result, result2 });
+    } catch (err) {
+        console.error("Erro no MySQL: ", err);
+        res.status(500).send({
+            message: "Erro ao tentar buscar membros no banco de dados",
+        });
+    }
+});
+
+app.get("/equipe/filter/:page", async (req, res) => {
+    const { page } = req.params;
+    const { q, areaId } = req.query;
+
+    const itensPerPage = 8;
+    const offset = (parseInt(page) - 1) * itensPerPage;
+
+    let whereClauses = [];
+    let params = [];
+
+    if (q) {
+        whereClauses.push("(nomeMembro LIKE ? OR emailMembro LIKE ? OR foneMembro LIKE ?)");
+        params.push(`%${q}%`, `%${q}%`, `%${q}%`);
+    }
+
+    if (areaId) {
+        whereClauses.push("idArea = ?");
+        params.push(areaId);
+    }
+
+    const whereSQL = whereClauses.length ? "WHERE " + whereClauses.join(" AND ") : "";
+
+    try {
+        const result = await query(
+            `SELECT * FROM tbEquipe ${whereSQL} ORDER BY idMembro DESC LIMIT ?, ?`,
+            [...params, offset, itensPerPage]
+        );
+
+        const result2 = await query(
+            `SELECT COUNT(*) AS totalItens FROM tbEquipe ${whereSQL}`,
+            params
+        );
+
+        res.status(200).send({ result, result2 });
+    } catch (err) {
+        console.error("Erro no MySQL: ", err);
+        res.status(500).send({
+            message: "Erro ao tentar buscar membros no banco de dados",
         });
     }
 });
@@ -243,6 +340,103 @@ app.get("/equipamentos/:page", async (req, res) => {
     }
 });
 
+app.get("/equipamentos/search/:page", async (req, res) => {
+    const { page } = req.params;
+    const { q } = req.query;
+
+    const itensPerPage = 8;
+    const offset = (parseInt(page) - 1) * itensPerPage;
+
+    try {
+        const result = await query(
+            "SELECT * FROM tbEquipamentos WHERE nomeEquipamento LIKE ? OR codEquipamento LIKE ? ORDER BY idEquipamento DESC LIMIT ?, ?",
+            [`%${q}%`, `%${q}%`, offset, itensPerPage]
+        );
+
+        const result2 = await query(
+            "SELECT COUNT(*) AS totalItens FROM tbEquipamentos WHERE nomeEquipamento LIKE ? OR codEquipamento LIKE ?",
+            [`%${q}%`, `%${q}%`]
+        );
+
+        res.status(200).send({ result, result2 });
+    } catch (err) {
+        console.error("Erro no MySQL: ", err);
+        res.status(500).send({
+            message: "Erro ao tentar buscar equipamentos no banco de dados",
+        });
+    }
+});
+
+app.get("/equipamentos/filter/:page", async (req, res) => {
+    const { page } = req.params;
+    const { q, idArea, disponibility, altoValor } = req.query;
+
+    const itensPerPage = 8;
+    const offset = (parseInt(page) - 1) * itensPerPage;
+
+    let whereClauses = [];
+    let params = [];
+
+    // Search by name or code
+    if (q) {
+        whereClauses.push("(nomeEquipamento LIKE ? OR codEquipamento LIKE ?)");
+        params.push(`%${q}%`, `%${q}%`);
+    }
+
+    // Filter by area
+    if (idArea) {
+        whereClauses.push("idArea = ?");
+        params.push(idArea);
+    }
+
+    // Filter by altoValor
+    if (altoValor === "true") {
+        whereClauses.push("altoValor = 1");
+    }
+
+    // Filter by availability
+    let availabilityJoin = "";
+    if (disponibility === "true") {
+        // LEFT JOIN only on active loans where dataRecebimento <= NOW() and not yet returned
+        availabilityJoin = `
+            LEFT JOIN tbEmprestimos e 
+            ON tbEquipamentos.idEquipamento = e.idEquipamento 
+            AND e.dataDevolvido IS NULL
+            AND e.dataRecebimento <= NOW()
+        `;
+        whereClauses.push("e.idEmprestimo IS NULL"); // Only available equipment
+    }
+
+    const whereSQL = whereClauses.length ? "WHERE " + whereClauses.join(" AND ") : "";
+
+    try {
+        // Main query
+        const result = await query(
+            `SELECT tbEquipamentos.* FROM tbEquipamentos
+             ${availabilityJoin}
+             ${whereSQL}
+             ORDER BY idEquipamento DESC
+             LIMIT ?, ?`,
+            [...params, offset, itensPerPage]
+        );
+
+        // Count total items for pagination
+        const result2 = await query(
+            `SELECT COUNT(*) AS totalItens FROM tbEquipamentos
+             ${availabilityJoin}
+             ${whereSQL}`,
+            params
+        );
+
+        res.status(200).send({ result, result2 });
+    } catch (err) {
+        console.error("Erro no MySQL: ", err);
+        res.status(500).send({
+            message: "Erro ao tentar buscar equipamentos no banco de dados",
+        });
+    }
+});
+
 app.get("/equipamentos/find/:id", async (req, res) => {
     const { id } = req.params;
 
@@ -280,12 +474,58 @@ app.get("/emprestimos/:page", async (req, res) => {
     }
 });
 
+app.get("/emprestimos/search/:page", async (req, res) => {
+    const { page } = req.params;
+    const { q } = req.query;
+    const itensPerPage = 8;
+    const offset = (parseInt(page) - 1) * itensPerPage;
+
+    try {
+        const searchTerm = `%${q}%`;
+
+        const sql = `
+            SELECT e.*, eq.nomeEquipamento, eq.codEquipamento, eq.altoValor, m.nomeMembro
+            FROM tbEmprestimos e
+            JOIN tbEquipamentos eq ON e.idEquipamento = eq.idEquipamento
+            JOIN tbEquipe m ON e.idMembro = m.idMembro
+            WHERE m.nomeMembro LIKE ? 
+               OR eq.nomeEquipamento LIKE ? 
+               OR eq.codEquipamento LIKE ? 
+               OR e.localUso LIKE ?
+            ORDER BY e.idEmprestimo DESC
+            LIMIT ?, ?
+        `;
+
+        const sqlCount = `
+            SELECT COUNT(*) AS totalItens
+            FROM tbEmprestimos e
+            JOIN tbEquipamentos eq ON e.idEquipamento = eq.idEquipamento
+            JOIN tbEquipe m ON e.idMembro = m.idMembro
+            WHERE m.nomeMembro LIKE ? 
+               OR eq.nomeEquipamento LIKE ? 
+               OR eq.codEquipamento LIKE ? 
+               OR e.localUso LIKE ?
+        `;
+
+        const result = await query(sql, [searchTerm, searchTerm, searchTerm, searchTerm, offset, itensPerPage]);
+        const result2 = await query(sqlCount, [searchTerm, searchTerm, searchTerm, searchTerm]);
+
+        res.status(200).send({ result, result2 });
+    } catch (err) {
+        console.error("Erro no MySQL: ", err);
+        res.status(500).send({
+            message: "Erro ao buscar empréstimos no banco de dados",
+        });
+    }
+});
+
+
 app.get("/emprestimos/equipamento/:id", async (req, res) => {
     const { id } = req.params;
 
     try {
         const result = await query(
-            "SELECT * FROM tbEmprestimos WHERE idEquipamento = ? AND dataDevolvido = '0000-00-00 00:00:00' AND dataRecebimento <= NOW()",
+            "SELECT * FROM tbEmprestimos WHERE idEquipamento = ? AND dataDevolvido IS NULL AND dataRecebimento <= NOW()",
             [id]
         );
         res.status(200).send(result);
@@ -465,7 +705,7 @@ app.delete("/equipamentos/:id", async (req, res) => {
     }
 });
 
-app.delete("/equipamentos/:id", async (req, res) => {
+app.delete("/emprestimos/:id", async (req, res) => {
     const { id } = req.params;
 
     try {

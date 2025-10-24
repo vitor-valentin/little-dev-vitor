@@ -1,5 +1,14 @@
 const tableBody = document.querySelector("tbody");
 const pagination = document.querySelector(".pagination");
+const searchInput = document.getElementById("search");
+const applyFilterBtn = document.querySelector(".applyFilter");
+const closeFilterBtn = document.querySelector(".closeFilter");
+const overlayFilter = document.querySelector(".overlayFilter");
+const inputArea = document.getElementById("inputArea");
+const selectDisp = document.getElementById("selectDisponibilidade");
+const checkValor = document.getElementById("checkValor");
+
+let autocompleteBox;
 
 async function deleteEquipment(id) {
     const confirm = await showConfirm(
@@ -198,5 +207,214 @@ async function loadTable() {
     });
     pagination.appendChild(btnNext);
 }
+
+async function searchEquipamentos(query, page = 1) {
+    clearChildren(tableBody);
+    clearChildren(pagination);
+
+    const result = await fetch(
+        `http://localhost:8080/equipamentos/search/${page}?q=${encodeURIComponent(
+            query
+        )}`
+    );
+    const json = await result.json();
+
+    const totalItens = json.result2[0].totalItens;
+    const totalPages = Math.ceil(totalItens / 8);
+    const itens = json.result;
+
+    itens.forEach(async (item) => {
+        const res = await fetch(
+            `http://localhost:8080/areas/find/${item.idArea}`
+        );
+        const json2 = await res.json();
+        const nomeArea = json2[0].nomeArea;
+
+        const res2 = await fetch(
+            `http://localhost:8080/emprestimos/equipamento/${item.idEquipamento}`
+        );
+        const json3 = await res2.json();
+
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+        <td class="showImg">
+            <img src="../images/uploads/${item.imagemEquipamento}" />
+        </td>
+      <td>${item.nomeEquipamento}</td>
+      <td>${item.codEquipamento}</td>
+      <td>${altoValorConvert(item.altoValor)}</td>
+      <td>${nomeArea}</td>
+      <td>${eqDisponivel(json3[0])}</td>
+      <td>
+        <button class="delete" data-id="${
+            item.idEquipamento
+        }"><img src="../images/icon-excluir.png" />Excluir</button>
+        <button class="edit" data-id="${
+            item.idEquipamento
+        }"><img src="../images/icon-editar.png" />Editar</button>
+        <button class="history" data-id="${
+            item.idEquipamento
+        }"><img src="../images/history.png" />Histórico</button>
+      </td>
+    `;
+        tr.querySelector(".delete").addEventListener("click", () =>
+            deleteEquipment(item.idEquipamento)
+        );
+        tr.querySelector(".edit").addEventListener("click", () =>
+            editEquipment(item.idEquipamento)
+        );
+        tr.querySelector(".history").addEventListener("click", () => {
+            viewHistoryEquipment(item.idEquipamento);
+        });
+        tableBody.appendChild(tr);
+    });
+
+    const btnPrev = makeButton("«", {
+        disabled: page === 1,
+        onClick: () => setPage(page - 1),
+    });
+    pagination.appendChild(btnPrev);
+
+    const slots = getVisibleSlots(page, totalPages);
+    slots.forEach((slot) => {
+        if (slot === "ellipsis") {
+            const ell = makeEllipsisInput(totalPages, page);
+            pagination.appendChild(ell);
+        } else {
+            const pageBtn = makeButton(slot, {
+                className: page === slot ? "active" : null,
+                onClick: () => setPage(slot),
+            });
+            if (page === slot) pageBtn.classList.add("active");
+            pagination.appendChild(pageBtn);
+        }
+    });
+
+    const btnNext = makeButton("»", {
+        disabled: page >= totalPages,
+        onClick: () => setPage(page + 1),
+    });
+    pagination.appendChild(btnNext);
+}
+
+function createAutocompleteBox() {
+    autocompleteBox = document.createElement("div");
+    autocompleteBox.classList.add("autocomplete-list");
+    inputArea.parentNode.style.position = "relative";
+    inputArea.parentNode.appendChild(autocompleteBox);
+}
+
+function clearAutocomplete() {
+    if (autocompleteBox) autocompleteBox.innerHTML = "";
+}
+
+async function fetchAreas(query) {
+    if (!query.trim()) return [];
+    try {
+        const res = await fetch(
+            `http://localhost:8080/areas/search/1?q=${encodeURIComponent(
+                query
+            )}`
+        );
+        const json = await res.json();
+        return json.result || [];
+    } catch (err) {
+        console.error("Erro ao buscar áreas:", err);
+        return [];
+    }
+}
+
+async function showSuggestions(query) {
+    if (!autocompleteBox) createAutocompleteBox();
+    clearAutocomplete();
+    inputArea.removeAttribute("data-id");
+
+    const areas = await fetchAreas(query);
+    if (areas.length === 0) {
+        const noResult = document.createElement("div");
+        noResult.textContent = "Nenhuma área encontrada";
+        noResult.classList.add("autocomplete-item");
+        autocompleteBox.appendChild(noResult);
+        return;
+    }
+
+    areas.forEach((area) => {
+        const item = document.createElement("div");
+        item.classList.add("autocomplete-item");
+        item.textContent = area.nomeArea;
+
+        item.addEventListener("click", () => {
+            inputArea.value = area.nomeArea;
+            inputArea.dataset.id = area.idArea;
+            clearAutocomplete();
+        });
+
+        autocompleteBox.appendChild(item);
+    });
+}
+
+function getCurrentFilter() {
+    const params = new URLSearchParams(window.location.search);
+    const filterStr = params.get("filter");
+    if (!filterStr) return {};
+    try {
+        return JSON.parse(filterStr);
+    } catch {
+        return {};
+    }
+}
+
+inputArea.addEventListener("input", (e) => showSuggestions(e.target.value));
+
+document.addEventListener("click", (e) => {
+    if (!inputArea.contains(e.target) && !autocompleteBox?.contains(e.target)) {
+        clearAutocomplete();
+    }
+});
+
+searchInput.addEventListener("input", (e) => {
+    const query = e.target.value.trim();
+
+    if (query.length > 0) {
+        searchEquipamentos(query);
+    } else {
+        loadTable();
+    }
+});
+
+applyFilterBtn.addEventListener("click", () => {
+    const areaId = inputArea.dataset.id;
+    const checkState = checkValor.checked;
+    const selectValue = selectDisp.value;
+
+    const params = new URLSearchParams(window.location.search);
+
+    if (!areaId && !checkState && selectValue == "ambas") {
+        params.delete("filter");
+    } else {
+        params.set(
+            "filter",
+            JSON.stringify({
+                areaId: parseInt(areaId),
+                checkState: checkState,
+                selectValue: selectValue,
+            })
+        );
+    }
+    window.location.search = params.toString();
+});
+
+closeFilterBtn.addEventListener("click", () => {
+    overlayFilter.style.display = "none";
+});
+
+const params = new URLSearchParams(window.location.search);
+const currentPage = parseInt(params.get("p")) || 1;
+const currentQuery = params.get("q") || "";
+const currentFilter = getCurrentFilter();
+
+searchInput.value = currentQuery;
+if (currentFilter.areaId && inputArea)
+    inputArea.dataset.id = currentFilter.areaId;
 
 loadTable();
