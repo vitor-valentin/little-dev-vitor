@@ -4,8 +4,7 @@ async function login() {
     const passwdValue = document.getElementById('passwd').value;
 
     if(!emailValue || !passwdValue) {
-        //Mudar para notificação
-        console.error("Preencha todos os campos para entrar."); 
+        window.showNotification("failure", "Falha!", "Preencha todos os campos para entrar.");
         return;
     }
 

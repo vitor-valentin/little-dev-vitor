@@ -57,9 +57,9 @@
     --cor-botao-historico: #00b9d2;
     --cor-bg-config: #efefef;
     --cor-not-sucesso: #277800;
-    --cor-not-falha: #D4421E;
-    --cor-not-information: #13357A;
-    --cor-not-alerta: #F1710B;
+    --cor-not-falha: #d4421e;
+    --cor-not-information: #13357a;
+    --cor-not-alerta: #f1710b;
 }
 
 * {
@@ -382,7 +382,7 @@ td button img {
 }
 
 tbody td.showImg img {
-    width: 100px;
+    width: 70px;
     height: auto;
     border: 1px solid var(--cor-primaria);
 }
@@ -443,7 +443,7 @@ button:hover {
     font-family: "Branding";
     font-weight: 500;
     font-size: 18px;
-    background-color: white;
+    background-color: var(--cor-caixas);
     padding: 6px 11px;
     border-radius: 4px;
     border: 1px solid var(--cor-avisos-bg);
@@ -451,14 +451,52 @@ button:hover {
 }
 
 .pagination button.active {
-    background-color: #0d2f73;
+    background-color: var(--cor-primaria);
     color: white;
-    border: 1px solid #0d2f73;
+    border: 1px solid var(--cor-primaria);
 }
 
 .pagination button:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+}
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+.ellipsis-input {
+    font-family: "Branding";
+    font-weight: 500;
+    font-size: 18px;
+    background-color: var(--cor-caixas);
+    color: var(--cor-secundaria);
+    padding: 6px 11px;
+    border-radius: 4px;
+    border: 1px solid var(--cor-avisos-bg);
+    text-align: center;
+    width: 40px;
+    cursor: pointer;
+    outline: none;
+}
+
+/* Focus state to match interaction style */
+.ellipsis-input:focus {
+    border-color: var(--cor-primaria);
+    cursor: text;
+}
+
+/* Optional: change placeholder style to look like "..." */
+.ellipsis-input::placeholder {
+    color: var(--cor-escura);
+    opacity: 0.7;
+    text-align: center;
 }
 
 .overlayFilter {
@@ -819,19 +857,19 @@ button:hover {
     animation: slideOut 0.6s forwards;
 }
 
-.notification.success{
+.notification.success {
     color: var(--cor-not-sucesso);
 }
 
-.notification.failure{
+.notification.failure {
     color: var(--cor-not-falha);
 }
 
-.notification.information{
+.notification.information {
     color: var(--cor-not-information);
 }
 
-.notification.alert{
+.notification.alert {
     color: var(--cor-not-alerta);
 }
 
@@ -845,4 +883,85 @@ button:hover {
     font-family: "Open Sans";
     font-weight: 300;
     font-size: 18px;
+}
+
+.confirmOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 99;
+}
+
+.confirmBox {
+    background-color: var(--cor-caixas);
+    padding: 50px 120px;
+    border-radius: 15px;
+    box-shadow: 4px 4px 4px 0 rgba(0, 0, 0, 0.25);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: var(--cor-escura);
+}
+
+.confirmBox img {
+    width: 100px;
+    height: 100px;
+}
+
+.confirmBox h2 {
+    font-family: "Branding";
+    font-weight: 800;
+    font-size: 30px;
+    margin: 10px 0;
+}
+
+.confirmBox p {
+    font-family: "Open Sans";
+    font-weight: 300;
+    font-size: 22px;
+    max-width: 420px;
+    overflow-wrap: break-word;
+    text-align: center;
+    margin: 15px 0;
+}
+
+.confirmButtons {
+    display: flex;
+    justify-content: space-between;
+}
+
+.cBtn {
+    padding: 10px 12px;
+    font-family: "Open Sans";
+    font-weight: bold;
+    font-size: 22px;
+    border-radius: 10px;
+    margin: 0 10px;
+    margin-top: 20px;
+    cursor: pointer;
+}
+
+.cBtn.bCancel {
+    border: 1px solid var(--cor-escura);
+    color: var(--cor-escura);
+    background-color: transparent;
+}
+
+.danger .cBtn.bConfirm {
+    background-color: var(--cor-not-falha);
+    color: var(--cor-textos);
+    border: 0;
+}
+
+.normal .cBtn.bConfirm {
+    background-color: var(--cor-escura);
+    color: var(--cor-textos);
+    border: 0;
 }

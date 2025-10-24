@@ -22,6 +22,57 @@ window.getUserId = async function getUserId() {
     return response.id;
 };
 
+window.showConfirm = async function showConfirm(
+    type,
+    title = "Confirmar",
+    message = "Tem certeza?",
+    confirmText = "Confirmar",
+    cancelText = "Cancelar",
+) {
+    return new Promise((resolve) => {
+        console.log(type);
+        const icon =
+        {
+            normal: "images/confirmNormal.png",
+            danger: "images/confirmDanger.png",
+        }[type] || "images/confirmNormal.png";
+
+        const overlay = document.createElement("div");
+        overlay.className = "confirmOverlay";
+
+        const box = document.createElement("div");
+        box.className = `confirmBox ${type}`;
+
+        box.innerHTML = `
+            ${icon ? `<img src="${icon}" />` : ""}
+            <h2>${title}</h2>
+            <p>${message}</p>
+            <div class="confirmButtons">
+                <button class="cBtn bCancel">${cancelText}</button>
+                <button class="cBtn bConfirm">${confirmText}</button>
+            </div>
+        `;
+
+        overlay.appendChild(box);
+        document.body.appendChild(overlay);
+
+        const btnCancel = box.querySelector(".bCancel");
+        const btnConfirm = box.querySelector(".bConfirm");
+
+        btnCancel.addEventListener("click", () => {
+            overlay.classList.add("hide");
+            overlay.remove();
+            resolve(false);
+        });
+
+        btnConfirm.addEventListener("click", () => {
+            overlay.classList.add("hide");
+            overlay.remove();
+            resolve(true);
+        });
+    });
+};
+
 window.showNotification = async function showNotification(
     type,
     title,
@@ -57,7 +108,7 @@ window.showNotification = async function showNotification(
     const soundNot = json.volumeNotificacao / 100;
 
     sound.volume = soundNot;
-    sound.play();
+    if (json.somNotificacoes) sound.play();
 
     setTimeout(() => {
         notification.classList.add("hide");

@@ -23,7 +23,7 @@ document.addEventListener("DOMContentLoaded", () => {
                                 "content-container"
                             ).innerHTML = html;
 
-                            import("../js/dashboard.js");
+                            import("./dashboard.js");
                         });
                 } else {
                     pagePromise = fetch("/pages/dashboard-main.html")
@@ -47,7 +47,7 @@ document.addEventListener("DOMContentLoaded", () => {
                                 "content-container"
                             ).innerHTML = html;
 
-                            import("../js/equipe.js");
+                            import("./equipe.js");
                         });
                 } else {
                     pagePromise = fetch("/pages/equipe-main.html")
@@ -57,7 +57,7 @@ document.addEventListener("DOMContentLoaded", () => {
                                 "content-container"
                             ).innerHTML = html;
 
-                            import("../js/equipe.js");
+                            import("./equipe.js");
                         });
                 }
 
@@ -118,6 +118,8 @@ document.addEventListener("DOMContentLoaded", () => {
                     .then((html) => {
                         document.getElementById("content-container").innerHTML =
                             html;
+
+                        import("./areas.js");
                     });
 
                 sidebar
@@ -134,6 +136,8 @@ document.addEventListener("DOMContentLoaded", () => {
                     .then((html) => {
                         document.getElementById("content-container").innerHTML =
                             html;
+                        
+                        import("./equipamentos.js");
                     });
 
                 sidebar
@@ -150,7 +154,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         document.getElementById("content-container").innerHTML =
                             html;
 
-                        import("../js/config.js");
+                        import("./config.js");
                     });
 
                 sidebar
@@ -199,8 +203,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             } catch (err) {
                 mainPage.classList.add("active");
-                //TODO: Add notification!
-                console.error("Nenhuma página com este id nesta seção!");
+                showNotification("failure", "Falha!", "Nenhuma página com este id nesta seção!");
             }
 
             activeHeader.querySelectorAll("p").forEach((element) => {
@@ -220,7 +223,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
             });
         }
-        window.pageLoaded.then(() => {
+        window.pageLoaded.then(async () => {
             const pageTable = document.querySelector(".pageTable");
             const pageEditAdd = document.querySelector(".pageEditAdd");
             const addButton = document.querySelector(".add-button");
@@ -254,8 +257,6 @@ document.addEventListener("DOMContentLoaded", () => {
                     filterOverlay.classList.remove("active");
                 });
             }
-
-            window.showNotification("failure", "Sucesso!", "Tarefa realizada com sucesso!");
         });
     });
 });

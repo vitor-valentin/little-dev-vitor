@@ -40,7 +40,12 @@ async function saveConfig() {
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify(values)
     });
-    //TODO: add success notification
+
+    if(response.status == 200) {
+        window.showNotification("success", "Sucesso!", "Configurações salvas com sucesso!");
+    } else {
+        window.showNotification("failure", "Falha!", "Algo deu errado ao salvar suas configurações!");
+    }
 }
 
 tempoDuracaoAvisos.addEventListener("change", () => {

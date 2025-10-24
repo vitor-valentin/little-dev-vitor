@@ -1,3 +1,21 @@
 INSERT INTO tbAreas (nomeArea) VALUES ("teste");
 INSERT INTO tbEquipe (nomeMembro, emailMembro, foneMembro, idArea, acessoSistema, senhaMembro) VALUES ("Vitor", "vitor.rohling.becker@gmail.com", "45998041305", 1, true, "$2b$10$uxL1DcgiR/nFCIuhUv7llO17HujihYw1IHvu1jkcQyAzJ.EYfOHbi");
 INSERT INTO tbConfig (idUsuario, tempoAvisos, notificacoesSistema, modoDaltonismo, temaCor, somNotificacoes, volumeNotificacao) VALUES (1, 30, false, false, "claro", true, 100);
+
+INSERT INTO tbAreas (nomeArea) VALUES
+('INFORMÁTICA'),
+('MEDICINA'),
+('ENGENHARIA'),
+('DIREITO'),
+('EDUCAÇÃO'),
+('ADMINISTRAÇÃO'),
+('ARQUITETURA'),
+('CONTABILIDADE'),
+('PSICOLOGIA'),
+('ENFERMAGEM'),
+('AGRONOMIA'),
+('MARKETING'),
+('DESIGN'),
+('FARMÁCIA'),
+('BIOLOGIA'),
+('MECÂNICA');
