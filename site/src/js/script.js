@@ -1,15 +1,20 @@
 document.addEventListener("DOMContentLoaded", () => {
-    window.componentsLoaded.then(() => {
+    window.componentsLoaded.then(async () => {
         const currentPage = window.location.pathname;
         const params = new URLSearchParams(window.location.search);
         const page = params.get("page");
 
+        const username = document.querySelector(".user p");
         const sidebar = document.querySelector(".sidebar");
         const headerDashboard = document.getElementById("dashboardHeader");
         const headerEquipe = document.getElementById("equipeHeader");
         const headerEmprestimos = document.getElementById("emprestimosHeader");
 
         let pagePromise;
+
+        const userInfo = await getUserInfo();
+        const nomeMembro = userInfo.nomeMembro.split(" ")[0].toUpperCase();
+        username.textContent = nomeMembro;
 
         switch (currentPage) {
             case "/":

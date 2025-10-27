@@ -22,6 +22,17 @@ window.getUserId = async function getUserId() {
     return response.id;
 };
 
+window.getUserInfo = async function getUserInfo() {
+    const res = await fetch("http://localhost:8080/getInfo");
+    const json = await res.json();
+    return json;
+}
+
+window.stripHTMLTags = function stripHTMLTags(string) {
+    const parseHTML = new DOMParser().parseFromString(string, "text/html");
+    return parseHTML.body.textContent || "";
+}
+
 window.showConfirm = async function showConfirm(
     type,
     title = "Confirmar",

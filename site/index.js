@@ -133,6 +133,22 @@ app.get("/getId", requireLogin, async (req, res) => {
     }
 });
 
+app.get("/getInfo", requireLogin, async (req, res) => {
+    try {
+        const response = await query(
+            "SELECT * FROM tbEquipe WHERE tokenAcesso = ?",
+            [req.cookies.userToken]
+        );
+        const userInfo = response[0];
+        res.status(200).send(userInfo);
+    } catch (err) {
+        console.error("Erro no MySQL: ", err);
+        res.status(500).send({
+            message: "Erro ao tentar pegar informações do usuário.",
+        });
+    }
+});
+
 app.get("/config/:id", async (req, res) => {
     const { id } = req.params;
     try {
@@ -196,7 +212,6 @@ app.get("/areas/search/:page", async (req, res) => {
         });
     }
 });
-
 
 app.get("/areas/find/:id", async (req, res) => {
     const { id } = req.params;
@@ -272,7 +287,9 @@ app.get("/equipe/filter/:page", async (req, res) => {
     let params = [];
 
     if (q) {
-        whereClauses.push("(nomeMembro LIKE ? OR emailMembro LIKE ? OR foneMembro LIKE ?)");
+        whereClauses.push(
+            "(nomeMembro LIKE ? OR emailMembro LIKE ? OR foneMembro LIKE ?)"
+        );
         params.push(`%${q}%`, `%${q}%`, `%${q}%`);
     }
 
@@ -281,7 +298,9 @@ app.get("/equipe/filter/:page", async (req, res) => {
         params.push(areaId);
     }
 
-    const whereSQL = whereClauses.length ? "WHERE " + whereClauses.join(" AND ") : "";
+    const whereSQL = whereClauses.length
+        ? "WHERE " + whereClauses.join(" AND ")
+        : "";
 
     try {
         const result = await query(
@@ -407,7 +426,9 @@ app.get("/equipamentos/filter/:page", async (req, res) => {
         whereClauses.push("e.idEmprestimo IS NULL"); // Only available equipment
     }
 
-    const whereSQL = whereClauses.length ? "WHERE " + whereClauses.join(" AND ") : "";
+    const whereSQL = whereClauses.length
+        ? "WHERE " + whereClauses.join(" AND ")
+        : "";
 
     try {
         // Main query
@@ -507,8 +528,20 @@ app.get("/emprestimos/search/:page", async (req, res) => {
                OR e.localUso LIKE ?
         `;
 
-        const result = await query(sql, [searchTerm, searchTerm, searchTerm, searchTerm, offset, itensPerPage]);
-        const result2 = await query(sqlCount, [searchTerm, searchTerm, searchTerm, searchTerm]);
+        const result = await query(sql, [
+            searchTerm,
+            searchTerm,
+            searchTerm,
+            searchTerm,
+            offset,
+            itensPerPage,
+        ]);
+        const result2 = await query(sqlCount, [
+            searchTerm,
+            searchTerm,
+            searchTerm,
+            searchTerm,
+        ]);
 
         res.status(200).send({ result, result2 });
     } catch (err) {
@@ -518,7 +551,6 @@ app.get("/emprestimos/search/:page", async (req, res) => {
         });
     }
 });
-
 
 app.get("/emprestimos/equipamento/:id", async (req, res) => {
     const { id } = req.params;
@@ -534,6 +566,27 @@ app.get("/emprestimos/equipamento/:id", async (req, res) => {
         res.status(500).send({
             message: "Erro ao tentar pegar itens da tabela",
         });
+    }
+});
+
+//TODO IMPLEMENT THESE
+app.get("/emprestimos/vencidos", async (req, res) => {
+    try {
+        const result = await query("SELECT * FROM tbEmprestimos WHERE dataDevolucao > NOW() AND dataDevolvido IS NULL");
+        res.status(200).send(result);
+    }catch(err) {
+        console.error("Erro no MySQL:", err);
+        res.status(500).send({message: "Erro ao tentar pegar os emprestimos vencidos."});
+    }
+})
+
+app.get("/emprestimos/proximos", async (req, res) => {
+    try {
+        const result = await query("SELECT * FROM tbEmprestimos WHERE dataDevolucao >= CURDATE() AND dataDevolucao < NOW();");
+        res.status(200).send(result);
+    } catch(err) {
+        console.error("Erro no MySQL: ", err);
+        res.status(500).send({message: "Erro ao tentar pegar os empréstimos próximos."})
     }
 });
 
@@ -583,6 +636,21 @@ app.post("/login", async (req, res) => {
     } catch (err) {
         console.error("Erro no MySQL:", err);
         res.status(500).json({ error: err.message });
+    }
+});
+
+app.post("/avisos", async (req, res) => {
+    const { userId, mensagemAviso } = req.body;
+
+    try {
+        await query(
+            "INSERT INTO tbAvisos (avisoSistema, idUsuario, mensagemAviso, dataAviso) VALUES (false, ?, ?, NOW())",
+            [userId, mensagemAviso]
+        );
+        res.status(200).send();
+    } catch (err) {
+        console.error("Erro no MySQL: ", err);
+        res.status(500).send({ message: "Erro ao tentar postar o aviso." });
     }
 });
 

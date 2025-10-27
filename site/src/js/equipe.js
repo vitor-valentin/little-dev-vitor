@@ -1,17 +1,11 @@
-const systemUser = document.getElementById("systemUser");
-const hiddenForm = document.querySelector(".form-group.hidden");
-
 const params = new URLSearchParams(window.location.search);
 const page = params.get("page");
 
 if (!page || page == 1) {
-    systemUser.addEventListener("input", () => {
-        hiddenForm.classList.toggle("hidden");
-        hiddenForm.querySelector("input").setAttribute("required", "required");
-    });
-}
+    const systemUser = document.getElementById("systemUser");
+    const hiddenForm = document.querySelector(".form-group.hidden");
+    
 
-if (!page || page == 1) {
     const tableBody = document.querySelector("tbody");
     const pagination = document.querySelector(".pagination");
     const searchInput = document.getElementById("search");
@@ -149,7 +143,7 @@ if (!page || page == 1) {
         const totalPages = Math.ceil(totalItens / 8);
         const itens = json.result;
 
-        if(page > totalPages) setPage(totalPages);
+        if (page > totalPages) setPage(totalPages);
 
         for (const item of itens) {
             const areaRes = await fetch(
@@ -312,8 +306,12 @@ if (!page || page == 1) {
         const areaId = inputArea.dataset.id;
         if (areaId) {
             const params = new URLSearchParams(window.location.search);
-            if(inputArea.value == "") params.delete("filter");
-            else params.set("filter", JSON.stringify({ areaId: parseInt(areaId) }));
+            if (inputArea.value == "") params.delete("filter");
+            else
+                params.set(
+                    "filter",
+                    JSON.stringify({ areaId: parseInt(areaId) })
+                );
             window.location.search = params.toString();
         } else {
             showNotification(
@@ -335,12 +333,11 @@ if (!page || page == 1) {
     }
 
     // ========================= INITIAL LOAD =========================
-    const params = new URLSearchParams(window.location.search);
     const currentQuery = params.get("q") || "";
     const currentFilter = getCurrentFilter();
 
     searchInput.value = currentQuery;
-    if (currentFilter.areaId && inputArea){
+    if (currentFilter.areaId && inputArea) {
         inputArea.dataset.id = currentFilter.areaId;
         filterValueLoad(currentFilter.areaId);
     }
@@ -351,5 +348,44 @@ if (!page || page == 1) {
         const query = e.target.value.trim();
         if (query.length > 0) searchEquipe(query);
         else loadEquipe(1, "", getCurrentFilter());
+    });
+
+    systemUser.addEventListener("input", () => {
+        hiddenForm.classList.toggle("hidden");
+        hiddenForm.querySelector("input").setAttribute("required", "required");
+    });
+} else {
+    const nomeMembro = document.getElementById("nomeMembro");
+    const avisoText = document.getElementById("avisoText");
+    const postAviso = document.querySelector(".buttonGroup .submit");
+
+    const userInfo = await getUserInfo();
+    const username = userInfo.nomeMembro.split(" ")[0].toUpperCase();
+
+    nomeMembro.value = username;
+
+
+    postAviso.addEventListener("click", async (e) => {
+        e.preventDefault();
+
+        if(avisoText.value.replaceAll(" ", '') != "") {
+            const textAviso = stripHTMLTags(avisoText.value);
+            
+            try {
+                await fetch("http://localhost:8080/avisos", {
+                    method: "POST",
+                    headers: {'Content-Type': "application/json"},
+                    body: JSON.stringify({mensagemAviso: textAviso, userId: userInfo.idMembro})
+                });
+
+                showNotification("success", "Sucesso!", "Seu aviso foi postado com sucesso!");
+                avisoText.value = "";
+            } catch (err) {
+                console.error("Erro ao tentar postar aviso: ", err);
+                showNotification("failure", "Falha!", "Houve um erro ao tentar postar o aviso! Cheque os logs para mais informações");
+            }
+        } else {
+            showNotification("failure", "Falha!", "Por favor preencha o campo aviso!");
+        }
     });
 }

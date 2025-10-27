@@ -758,7 +758,7 @@ input[type="number"] {
     color: var(--cor-escura);
     font-size: 25px;
     padding-left: 7px;
-    padding-top: 3px;
+    padding-top: 5px;
 }
 
 .formEditAdd h2 {
@@ -785,6 +785,10 @@ input[type="number"] {
     color: var(--cor-escura);
     font-family: "Branding";
     font-weight: 500;
+}
+
+.formEditAdd input:disabled {
+    opacity: 0.7;
 }
 
 .formEditAdd input::placeholder {
