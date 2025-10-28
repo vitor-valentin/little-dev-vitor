@@ -26,27 +26,27 @@ window.getUserInfo = async function getUserInfo() {
     const res = await fetch("http://localhost:8080/getInfo");
     const json = await res.json();
     return json;
-}
+};
 
 window.stripHTMLTags = function stripHTMLTags(string) {
     const parseHTML = new DOMParser().parseFromString(string, "text/html");
     return parseHTML.body.textContent || "";
-}
+};
 
 window.showConfirm = async function showConfirm(
     type,
     title = "Confirmar",
     message = "Tem certeza?",
     confirmText = "Confirmar",
-    cancelText = "Cancelar",
+    cancelText = "Cancelar"
 ) {
     return new Promise((resolve) => {
         console.log(type);
         const icon =
-        {
-            normal: "images/confirmNormal.png",
-            danger: "images/confirmDanger.png",
-        }[type] || "images/confirmNormal.png";
+            {
+                normal: "images/confirmNormal.png",
+                danger: "images/confirmDanger.png",
+            }[type] || "images/confirmNormal.png";
 
         const overlay = document.createElement("div");
         overlay.className = "confirmOverlay";
@@ -127,4 +127,81 @@ window.showNotification = async function showNotification(
             notification.remove();
         });
     }, duration);
+};
+
+window.setupAreaAutoComplete = function setupAreaAutocomplete(
+    inputElement,
+    areaId = 1
+) {
+    let autocompleteBox;
+
+    function createAutocompleteBox() {
+        autocompleteBox = document.createElement("div");
+        autocompleteBox.classList.add("autocomplete-list");
+        inputElement.parentNode.style.position = "relative";
+        inputElement.parentNode.appendChild(autocompleteBox);
+    }
+
+    function clearAutocomplete() {
+        if (autocompleteBox) autocompleteBox.innerHTML = "";
+    }
+
+    async function fetchAreas(query) {
+        if (!query.trim()) return [];
+        try {
+            const res = await fetch(
+                `http://localhost:8080/areas/search/${areaId}?q=${encodeURIComponent(
+                    query
+                )}`
+            );
+            const json = await res.json();
+            return json.result || [];
+        } catch (err) {
+            console.error("Erro ao buscar áreas:", err);
+            return [];
+        }
+    }
+
+    async function showSuggestions(query) {
+        if (!autocompleteBox) createAutocompleteBox();
+        clearAutocomplete();
+        inputElement.removeAttribute("data-id");
+
+        const areas = await fetchAreas(query);
+        if (areas.length === 0) {
+            const noResult = document.createElement("div");
+            noResult.textContent = "Nenhuma área encontrada";
+            noResult.classList.add("autocomplete-item");
+            autocompleteBox.appendChild(noResult);
+            return;
+        }
+
+        areas.forEach((area) => {
+            const item = document.createElement("div");
+            item.classList.add("autocomplete-item");
+            item.textContent = area.nomeArea;
+
+            item.addEventListener("click", () => {
+                inputElement.value = area.nomeArea;
+                inputElement.dataset.id = area.idArea;
+                clearAutocomplete();
+            });
+
+            autocompleteBox.appendChild(item);
+        });
+    }
+
+    // Attach listeners
+    inputElement.addEventListener("input", (e) =>
+        showSuggestions(e.target.value)
+    );
+
+    document.addEventListener("click", (e) => {
+        if (
+            !inputElement.contains(e.target) &&
+            !autocompleteBox?.contains(e.target)
+        ) {
+            clearAutocomplete();
+        }
+    });
 };

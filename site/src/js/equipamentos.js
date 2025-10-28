@@ -1,3 +1,4 @@
+/* ====================== TABLE HANDLING ====================== */
 const tableBody = document.querySelector("tbody");
 const pagination = document.querySelector(".pagination");
 const searchInput = document.getElementById("search");
@@ -37,7 +38,7 @@ async function deleteEquipment(id) {
             );
         }
 
-        loadTable();
+        loadEquipamentos("", getCurrentFilter());
     }
 }
 
@@ -121,101 +122,17 @@ function eqDisponivel(res) {
     else return "Não";
 }
 
-async function loadTable() {
+async function loadEquipamentos(query = "", filter = {}) {
     clearChildren(tableBody);
     clearChildren(pagination);
 
     const params = new URLSearchParams(window.location.search);
+
+    if (query) params.set("q", query);
     const page = parseInt(params.get("p")) ? parseInt(params.get("p")) : 1;
 
-    const result = await fetch(`http://localhost:8080/equipamentos/${page}`);
-    const json = await result.json();
-    const totalItens = json.result2[0].totalItens;
-    const totalPages = Math.ceil(totalItens / 8);
-    const itens = json.result;
-
-    itens.forEach(async (item) => {
-        const res = await fetch(
-            `http://localhost:8080/areas/find/${item.idArea}`
-        );
-        const json2 = await res.json();
-        const nomeArea = json2[0].nomeArea;
-
-        const res2 = await fetch(
-            `http://localhost:8080/emprestimos/equipamento/${item.idEquipamento}`
-        );
-        const json3 = await res2.json();
-
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-        <td class="showImg">
-            <img src="../images/uploads/${item.imagemEquipamento}" />
-        </td>
-      <td>${item.nomeEquipamento}</td>
-      <td>${item.codEquipamento}</td>
-      <td>${altoValorConvert(item.altoValor)}</td>
-      <td>${nomeArea}</td>
-      <td>${eqDisponivel(json3[0])}</td>
-      <td>
-        <button class="delete" data-id="${
-            item.idEquipamento
-        }"><img src="../images/icon-excluir.png" />Excluir</button>
-        <button class="edit" data-id="${
-            item.idEquipamento
-        }"><img src="../images/icon-editar.png" />Editar</button>
-        <button class="history" data-id="${
-            item.idEquipamento
-        }"><img src="../images/history.png" />Histórico</button>
-      </td>
-    `;
-        tr.querySelector(".delete").addEventListener("click", () =>
-            deleteEquipment(item.idEquipamento)
-        );
-        tr.querySelector(".edit").addEventListener("click", () =>
-            editEquipment(item.idEquipamento)
-        );
-        tr.querySelector(".history").addEventListener("click", () => {
-            viewHistoryEquipment(item.idEquipamento);
-        });
-        tableBody.appendChild(tr);
-    });
-
-    const btnPrev = makeButton("«", {
-        disabled: page === 1,
-        onClick: () => setPage(page - 1),
-    });
-    pagination.appendChild(btnPrev);
-
-    const slots = getVisibleSlots(page, totalPages);
-    slots.forEach((slot) => {
-        if (slot === "ellipsis") {
-            const ell = makeEllipsisInput(totalPages, page);
-            pagination.appendChild(ell);
-        } else {
-            const pageBtn = makeButton(slot, {
-                className: page === slot ? "active" : null,
-                onClick: () => setPage(slot),
-            });
-            if (page === slot) pageBtn.classList.add("active");
-            pagination.appendChild(pageBtn);
-        }
-    });
-
-    const btnNext = makeButton("»", {
-        disabled: page >= totalPages,
-        onClick: () => setPage(page + 1),
-    });
-    pagination.appendChild(btnNext);
-}
-
-async function searchEquipamentos(query, page = 1) {
-    clearChildren(tableBody);
-    clearChildren(pagination);
-
     const result = await fetch(
-        `http://localhost:8080/equipamentos/search/${page}?q=${encodeURIComponent(
-            query
-        )}`
+        `http://localhost:8080/equipamentos/filter/${page}?${params.toString()}`
     );
     const json = await result.json();
 
@@ -223,6 +140,8 @@ async function searchEquipamentos(query, page = 1) {
     const totalPages = Math.ceil(totalItens / 8);
     const itens = json.result;
 
+    if (page > totalPages && totalPages != 0) setPage(totalPages);
+
     itens.forEach(async (item) => {
         const res = await fetch(
             `http://localhost:8080/areas/find/${item.idArea}`
@@ -295,62 +214,6 @@ async function searchEquipamentos(query, page = 1) {
         onClick: () => setPage(page + 1),
     });
     pagination.appendChild(btnNext);
-}
-
-function createAutocompleteBox() {
-    autocompleteBox = document.createElement("div");
-    autocompleteBox.classList.add("autocomplete-list");
-    inputArea.parentNode.style.position = "relative";
-    inputArea.parentNode.appendChild(autocompleteBox);
-}
-
-function clearAutocomplete() {
-    if (autocompleteBox) autocompleteBox.innerHTML = "";
-}
-
-async function fetchAreas(query) {
-    if (!query.trim()) return [];
-    try {
-        const res = await fetch(
-            `http://localhost:8080/areas/search/1?q=${encodeURIComponent(
-                query
-            )}`
-        );
-        const json = await res.json();
-        return json.result || [];
-    } catch (err) {
-        console.error("Erro ao buscar áreas:", err);
-        return [];
-    }
-}
-
-async function showSuggestions(query) {
-    if (!autocompleteBox) createAutocompleteBox();
-    clearAutocomplete();
-    inputArea.removeAttribute("data-id");
-
-    const areas = await fetchAreas(query);
-    if (areas.length === 0) {
-        const noResult = document.createElement("div");
-        noResult.textContent = "Nenhuma área encontrada";
-        noResult.classList.add("autocomplete-item");
-        autocompleteBox.appendChild(noResult);
-        return;
-    }
-
-    areas.forEach((area) => {
-        const item = document.createElement("div");
-        item.classList.add("autocomplete-item");
-        item.textContent = area.nomeArea;
-
-        item.addEventListener("click", () => {
-            inputArea.value = area.nomeArea;
-            inputArea.dataset.id = area.idArea;
-            clearAutocomplete();
-        });
-
-        autocompleteBox.appendChild(item);
-    });
 }
 
 function getCurrentFilter() {
@@ -364,22 +227,28 @@ function getCurrentFilter() {
     }
 }
 
-inputArea.addEventListener("input", (e) => showSuggestions(e.target.value));
+async function filterValueLoad(idArea, checkState, selectValue) {
+    const areaRes = await fetch(`http://localhost:8080/areas/find/${idArea}`);
+    const areaJson = await areaRes.json();
+    const nomeArea = areaJson[0]?.nomeArea || "—";
 
-document.addEventListener("click", (e) => {
-    if (!inputArea.contains(e.target) && !autocompleteBox?.contains(e.target)) {
-        clearAutocomplete();
+    inputArea.value = nomeArea;
+    checkValor.checked = checkState;
+    selectDisp.value = selectValue;
+}
+
+async function searchEquipamentos(query) {
+    if (query.trim().length === 0) {
+        loadEquipamentos();
+        return;
     }
-});
+    loadEquipamentos(query, getCurrentFilter());
+}
 
 searchInput.addEventListener("input", (e) => {
     const query = e.target.value.trim();
-
-    if (query.length > 0) {
-        searchEquipamentos(query);
-    } else {
-        loadTable();
-    }
+    if (query.length > 0) searchEquipamentos(query);
+    else loadEquipamentos("", getCurrentFilter());
 });
 
 applyFilterBtn.addEventListener("click", () => {
@@ -404,9 +273,7 @@ applyFilterBtn.addEventListener("click", () => {
     window.location.search = params.toString();
 });
 
-closeFilterBtn.addEventListener("click", () => {
-    overlayFilter.style.display = "none";
-});
+setupAreaAutoComplete(inputArea);
 
 const params = new URLSearchParams(window.location.search);
 const currentPage = parseInt(params.get("p")) || 1;
@@ -414,7 +281,94 @@ const currentQuery = params.get("q") || "";
 const currentFilter = getCurrentFilter();
 
 searchInput.value = currentQuery;
-if (currentFilter.areaId && inputArea)
+if (currentFilter.areaId && inputArea) {
     inputArea.dataset.id = currentFilter.areaId;
+    filterValueLoad(
+        currentFilter.areaId,
+        currentFilter.checkState,
+        currentFilter.selectValue
+    );
+}
 
-loadTable();
+loadEquipamentos(currentQuery, currentFilter);
+
+/* ====================== FORM HANDLING ====================== */
+
+const nomeEquip = document.getElementById("nomeEquipamento");
+const codEquipe = document.getElementById("codId");
+const areaInput = document.getElementById("area");
+const imgEquip = document.getElementById("imagem");
+const checkAlto = document.getElementById("altoValor");
+const submit = document.querySelector(".formEditAdd .submit");
+
+setupAreaAutoComplete(areaInput);
+
+function isEmpty(str) {
+    return !str || str.trim() === "";
+}
+
+imgEquip.addEventListener("change", () => {
+    const file = imgEquip.files[0];
+    if (!file) return;
+
+    const maxSize = 20;
+    const maxSizeBytes = maxSize * 1024 * 1024;
+
+    if (file.size > maxSizeBytes) {
+        showNotification("failure", "Falha!", "O arquivo não pode ser maior que 20MB!");
+        imgEquip.value = "";
+        return;
+    }
+
+    const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+    if (!allowedTypes.includes(file.type)) {
+        showNotification("failure", "Falha!", "Formato inválido de arquivo! Use .jpg/.jpeg, .png ou .webp!");
+        imgEquip.value = "";
+        return;
+    }
+});
+
+submit.addEventListener("click", async (e) => {
+    e.preventDefault();
+
+    const { name, code, area, check } = {
+        name: nomeEquip.value,
+        code: codEquipe.value,
+        area: areaInput.dataset.id,
+        check: checkAlto.checked,
+    };
+
+    const img = imgEquip.files[0];
+
+    if(isEmpty(name)) {
+        showNotification("failure","Falha!", "O campo nome é obrigatório para adicionar um equipamento!");
+        return;
+    }else if(!area) {
+        showNotification("failure", "Falha!", "O campo área é obrigatório para adicionar um equipamento!");
+        return;
+    }else if(!img) {
+        showNotification("failure", "Falha!", "O campo imagem é obrigatório para adicionar um equipamento!");
+        return;
+    }
+
+    if(isEmpty(code)) code = 1;
+
+    const formData = new FormData();
+
+    formData.append("imagem", img);
+    formData.append("nome", name);
+    formData.append("codigo", code);
+    formData.append("areaId", area);
+    formData.append("altoValor", check);
+
+    try {
+        const res = await fetch("http://localhost:8080/equipamentos", {
+            method: "POST",
+            body: formData
+        });
+    } catch (err) {
+        showNotification("failure", "Falha!", "Ocorreu um erro ao tentar adicionar o equipamento!");
+        console.error("Error: ", err);
+        return;
+    }
+});

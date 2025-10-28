@@ -5,14 +5,11 @@ if (!page || page == 1) {
     const systemUser = document.getElementById("systemUser");
     const hiddenForm = document.querySelector(".form-group.hidden");
     
-
     const tableBody = document.querySelector("tbody");
     const pagination = document.querySelector(".pagination");
     const searchInput = document.getElementById("search");
     const inputArea = document.getElementById("inputArea");
     const applyFilterBtn = document.querySelector(".applyFilter");
-
-    let autocompleteBox;
 
     // ========================= DELETE MEMBER =========================
     async function deleteMember(id) {
@@ -131,7 +128,6 @@ if (!page || page == 1) {
 
         let page;
         if (query) params.set("q", query);
-        if (filter.areaId) params.set("areaId", filter.areaId);
         if (parseInt(params.get("p"))) page = parseInt(params.get("p"));
         else page = 1;
 
@@ -143,7 +139,7 @@ if (!page || page == 1) {
         const totalPages = Math.ceil(totalItens / 8);
         const itens = json.result;
 
-        if (page > totalPages) setPage(totalPages);
+        if (page > totalPages && totalPages != 0) setPage(totalPages);
 
         for (const item of itens) {
             const areaRes = await fetch(
@@ -215,10 +211,10 @@ if (!page || page == 1) {
     // ========================= SEARCH =========================
     async function searchEquipe(query, page = 1) {
         if (query.trim().length === 0) {
-            loadEquipe(page);
+            loadEquipe();
             return;
         }
-        loadEquipe(page, query, getCurrentFilter());
+        loadEquipe(query, getCurrentFilter());
     }
 
     function getCurrentFilter() {
@@ -231,87 +227,22 @@ if (!page || page == 1) {
             return {};
         }
     }
-
-    // ========================= AUTOCOMPLETE =========================
-    function createAutocompleteBox() {
-        autocompleteBox = document.createElement("div");
-        autocompleteBox.classList.add("autocomplete-list");
-        inputArea.parentNode.style.position = "relative";
-        inputArea.parentNode.appendChild(autocompleteBox);
-    }
-
-    function clearAutocomplete() {
-        if (autocompleteBox) autocompleteBox.innerHTML = "";
-    }
-
-    async function fetchAreas(query) {
-        if (!query.trim()) return [];
-        try {
-            const res = await fetch(
-                `http://localhost:8080/areas/search/1?q=${encodeURIComponent(
-                    query
-                )}`
-            );
-            const json = await res.json();
-            return json.result || [];
-        } catch (err) {
-            console.error("Erro ao buscar áreas:", err);
-            return [];
-        }
-    }
-
-    async function showSuggestions(query) {
-        if (!autocompleteBox) createAutocompleteBox();
-        clearAutocomplete();
-        inputArea.removeAttribute("data-id");
-
-        const areas = await fetchAreas(query);
-        if (areas.length === 0) {
-            const noResult = document.createElement("div");
-            noResult.textContent = "Nenhuma área encontrada";
-            noResult.classList.add("autocomplete-item");
-            autocompleteBox.appendChild(noResult);
-            return;
-        }
-
-        areas.forEach((area) => {
-            const item = document.createElement("div");
-            item.classList.add("autocomplete-item");
-            item.textContent = area.nomeArea;
-
-            item.addEventListener("click", () => {
-                inputArea.value = area.nomeArea;
-                inputArea.dataset.id = area.idArea;
-                clearAutocomplete();
-            });
-
-            autocompleteBox.appendChild(item);
-        });
-    }
-
-    // ========================= EVENT LISTENERS =========================
-    inputArea.addEventListener("input", (e) => showSuggestions(e.target.value));
-
-    document.addEventListener("click", (e) => {
-        if (
-            !inputArea.contains(e.target) &&
-            !autocompleteBox?.contains(e.target)
-        ) {
-            clearAutocomplete();
-        }
-    });
+    setupAreaAutoComplete(inputArea);
 
     // ========================= FILTER =========================
     applyFilterBtn.addEventListener("click", (e) => {
         const areaId = inputArea.dataset.id;
+        const params = new URLSearchParams(window.location.search);
         if (areaId) {
-            const params = new URLSearchParams(window.location.search);
             if (inputArea.value == "") params.delete("filter");
             else
                 params.set(
                     "filter",
                     JSON.stringify({ areaId: parseInt(areaId) })
                 );
+            window.location.search = params.toString();
+        } else if(params.get("filter") && inputArea.value == "") {
+            params.delete("filter");
             window.location.search = params.toString();
         } else {
             showNotification(
@@ -347,7 +278,7 @@ if (!page || page == 1) {
     searchInput.addEventListener("input", (e) => {
         const query = e.target.value.trim();
         if (query.length > 0) searchEquipe(query);
-        else loadEquipe(1, "", getCurrentFilter());
+        else loadEquipe("", getCurrentFilter());
     });
 
     systemUser.addEventListener("input", () => {

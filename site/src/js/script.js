@@ -262,6 +262,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     filterOverlay.classList.remove("active");
                 });
             }
+
         });
     });
 });

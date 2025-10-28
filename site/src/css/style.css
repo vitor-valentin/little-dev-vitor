@@ -971,6 +971,8 @@ input[type="number"] {
 }
 
 .autocomplete-list {
+    font-family: "Branding";
+    font-weight: 500;
     position: absolute;
     top: 100%;
     left: 0;
@@ -981,6 +983,7 @@ input[type="number"] {
     overflow-y: auto;
     z-index: 1000;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    color: var(--cor-escura);
 }
 
 .autocomplete-item {
