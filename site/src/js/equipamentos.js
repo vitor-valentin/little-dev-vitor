@@ -281,8 +281,12 @@ const currentQuery = params.get("q") || "";
 const currentFilter = getCurrentFilter();
 
 searchInput.value = currentQuery;
-if (currentFilter.areaId && inputArea) {
-    inputArea.dataset.id = currentFilter.areaId;
+if (
+    currentFilter.areaId ||
+    currentFilter.checkState ||
+    currentFilter.selectValue
+) {
+    inputArea.dataset.id = currentFilter.areaId || undefined;
     filterValueLoad(
         currentFilter.areaId,
         currentFilter.checkState,
@@ -307,6 +311,33 @@ function isEmpty(str) {
     return !str || str.trim() === "";
 }
 
+async function processImage(file) {
+    return new Promise((resolve, object) => {
+        const img = new Image();
+        img.onload = () => {
+            const scale = 70 / img.width;
+            const canvas = document.createElement("canvas");
+            canvas.width = 70;
+            canvas.height = img.height * scale;
+
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+            canvas.toBlob(
+                (blob) =>
+                    resolve(
+                        new File([blob], "image.webp", { type: "image/webp" })
+                    ),
+                "image/webp",
+                0.8
+            );
+        };
+
+        img.onerror = () => reject("Erro ao carregar imagem");
+        img.src = URL.createObjectURL(file);
+    });
+}
+
 imgEquip.addEventListener("change", () => {
     const file = imgEquip.files[0];
     if (!file) return;
@@ -315,14 +346,22 @@ imgEquip.addEventListener("change", () => {
     const maxSizeBytes = maxSize * 1024 * 1024;
 
     if (file.size > maxSizeBytes) {
-        showNotification("failure", "Falha!", "O arquivo não pode ser maior que 20MB!");
+        showNotification(
+            "failure",
+            "Falha!",
+            "O arquivo não pode ser maior que 20MB!"
+        );
         imgEquip.value = "";
         return;
     }
 
     const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
     if (!allowedTypes.includes(file.type)) {
-        showNotification("failure", "Falha!", "Formato inválido de arquivo! Use .jpg/.jpeg, .png ou .webp!");
+        showNotification(
+            "failure",
+            "Falha!",
+            "Formato inválido de arquivo! Use .jpg/.jpeg, .png ou .webp!"
+        );
         imgEquip.value = "";
         return;
     }
@@ -340,22 +379,36 @@ submit.addEventListener("click", async (e) => {
 
     const img = imgEquip.files[0];
 
-    if(isEmpty(name)) {
-        showNotification("failure","Falha!", "O campo nome é obrigatório para adicionar um equipamento!");
+    if (isEmpty(name)) {
+        showNotification(
+            "failure",
+            "Falha!",
+            "O campo nome é obrigatório para adicionar um equipamento!"
+        );
         return;
-    }else if(!area) {
-        showNotification("failure", "Falha!", "O campo área é obrigatório para adicionar um equipamento!");
+    } else if (!area) {
+        showNotification(
+            "failure",
+            "Falha!",
+            "O campo área é obrigatório para adicionar um equipamento!"
+        );
         return;
-    }else if(!img) {
-        showNotification("failure", "Falha!", "O campo imagem é obrigatório para adicionar um equipamento!");
+    } else if (!img) {
+        showNotification(
+            "failure",
+            "Falha!",
+            "O campo imagem é obrigatório para adicionar um equipamento!"
+        );
         return;
     }
 
-    if(isEmpty(code)) code = 1;
+    if (isEmpty(code)) code = 1;
+
+    const optmizedImage = await processImage(img);
 
     const formData = new FormData();
 
-    formData.append("imagem", img);
+    formData.append("imagem", optmizedImage);
     formData.append("nome", name);
     formData.append("codigo", code);
     formData.append("areaId", area);
@@ -364,11 +417,32 @@ submit.addEventListener("click", async (e) => {
     try {
         const res = await fetch("http://localhost:8080/equipamentos", {
             method: "POST",
-            body: formData
+            body: formData,
         });
+
+        if (!res.ok) {
+            throw new Error("Erro interno no servidor");
+        }
+
+        showNotification(
+            "success",
+            "Sucesso!",
+            "O equipamento foi cadastrado com sucesso!"
+        );
+
+        nomeEquip.value = "";
+        codEquipe.value = "";
+        areaInput.value = "";
+        areaInput.dataset.id = "";
+        checkAlto.checked = false;
+        imgEquip.value = "";
     } catch (err) {
-        showNotification("failure", "Falha!", "Ocorreu um erro ao tentar adicionar o equipamento!");
-        console.error("Error: ", err);
+        showNotification(
+            "failure",
+            "Falha!",
+            "Ocorreu um erro ao tentar adicionar o equipamento!"
+        );
+        console.error("Erro: ", err);
         return;
     }
 });

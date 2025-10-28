@@ -7,6 +7,7 @@ const cookieParser = require("cookie-parser");
 const bcrypt = require("bcrypt");
 const dayjs = require("dayjs");
 const multer = require("multer");
+const fs = require("fs");
 
 const saltRounds = 10;
 const itensPerPage = 8;
@@ -32,7 +33,7 @@ const storage = multer.diskStorage({
     filename: function (req, file, cb) {
         const ext = path.extname(file.originalname);
         cb(null, Date.now() + ext);
-    }
+    },
 });
 
 const upload = multer({
@@ -42,7 +43,7 @@ const upload = multer({
         const allowed = ["image/jpeg", "image/png", "image/webp"];
         if (allowed.includes(file.mimetype)) cb(null, true);
         else cb(new Error("Formato Inválido"));
-    }
+    },
 });
 
 app.use(express.json());
@@ -107,6 +108,10 @@ async function generateToken() {
     } catch (err) {
         console.error("Erro no MySQL: ", err);
     }
+}
+
+function isEmpty(str) {
+    return !str || str.trim() === "";
 }
 
 // GET
@@ -314,53 +319,6 @@ app.get("/equipe/find/:id", async (req, res) => {
     }
 });
 
-app.get("/equipamentos/:page", async (req, res) => {
-    const { page } = req.params;
-
-    try {
-        const result = await query(
-            "SELECT * FROM tbEquipamentos ORDER BY idEquipamento DESC LIMIT ?, ?",
-            [(parseInt(page) - 1) * itensPerPage, itensPerPage]
-        );
-        const result2 = await query(
-            "SELECT COUNT(*) AS totalItens FROM tbEquipamentos"
-        );
-        res.status(200).send({ result, result2 });
-    } catch (err) {
-        console.error("Erro no MySQL: ", err);
-        res.status(500).send({
-            message: "Erro ao tentar pegar itens da tabela",
-        });
-    }
-});
-
-app.get("/equipamentos/search/:page", async (req, res) => {
-    const { page } = req.params;
-    const { q } = req.query;
-
-    const itensPerPage = 8;
-    const offset = (parseInt(page) - 1) * itensPerPage;
-
-    try {
-        const result = await query(
-            "SELECT * FROM tbEquipamentos WHERE nomeEquipamento LIKE ? OR codEquipamento LIKE ? ORDER BY idEquipamento DESC LIMIT ?, ?",
-            [`%${q}%`, `%${q}%`, offset, itensPerPage]
-        );
-
-        const result2 = await query(
-            "SELECT COUNT(*) AS totalItens FROM tbEquipamentos WHERE nomeEquipamento LIKE ? OR codEquipamento LIKE ?",
-            [`%${q}%`, `%${q}%`]
-        );
-
-        res.status(200).send({ result, result2 });
-    } catch (err) {
-        console.error("Erro no MySQL: ", err);
-        res.status(500).send({
-            message: "Erro ao tentar buscar equipamentos no banco de dados",
-        });
-    }
-});
-
 app.get("/equipamentos/filter/:page", async (req, res) => {
     const { page } = req.params;
     const { q, filter } = req.query;
@@ -406,7 +364,6 @@ app.get("/equipamentos/filter/:page", async (req, res) => {
     if (checkState) {
         whereClauses.push("altoValor = 1");
     }
-    
 
     const whereSQL = whereClauses.length
         ? "WHERE " + whereClauses.join(" AND ")
@@ -627,7 +584,7 @@ app.post("/login", async (req, res) => {
     }
 });
 
-app.post("/avisos", async (req, res) => {
+app.post("/avisos", requireLogin, async (req, res) => {
     const { userId, mensagemAviso } = req.body;
 
     try {
@@ -642,10 +599,52 @@ app.post("/avisos", async (req, res) => {
     }
 });
 
-app.post("/equipamentos", upload.single("imagem"), (req, res) => {
-    console.log(req.body);
-    console.log(req.file);
-    res.status(200).send();
+app.post(
+    "/equipamentos",
+    requireLogin,
+    upload.single("imagem"),
+    async (req, res) => {
+        const { nome, codigo, areaId, altoValor } = req.body;
+        const nomeFile = req.file.filename;
+
+        try {
+            await query(
+                "INSERT INTO tbEquipamentos (imagemEquipamento, nomeEquipamento, codEquipamento, altoValor, idArea) VALUES (?, ?, ?, ?, ?)",
+                [nomeFile, nome, codigo, altoValor, areaId]
+            );
+            res.status(200).send();
+        } catch (err) {
+            console.error("Erro no MySQL: ", err);
+            res.status(500).send({ error: "Erro ao tentar cadastrar" });
+        }
+
+        res.status(200).send();
+    }
+);
+
+app.post("/equipe", requireLogin, async (req, res) => {
+    const {nome, email, fone, area, check, senha} = req.body;
+    const params = [nome, email, fone, area, check];
+    let sql = "?, ?, ?, ?, ?"; 
+    let hasSenha = "";
+
+    if(!isEmpty(senha)) {
+        params.push(await bcrypt.hash(senha, saltRounds));
+        sql += ", ?";
+        hasSenha = ", senhaMembro";
+    }
+
+    try {
+        await query(
+            `INSERT INTO tbEquipe (nomeMembro, emailMembro, foneMembro, idArea, acessoSistema${hasSenha}) VALUES (${sql})`,
+            params
+        );
+        
+        res.status(200).send();
+    } catch(err) {
+        console.error("Erro no MySQL: ", err);
+        res.status(500).send({error: "Erro ao tentar cadastrar"});
+    }
 });
 
 // PUT
@@ -690,7 +689,7 @@ app.put("/config", requireLogin, async (req, res) => {
 
 // DELETE
 
-app.delete("/areas/:id", async (req, res) => {
+app.delete("/areas/:id", requireLogin, async (req, res) => {
     const { id } = req.params;
 
     try {
@@ -732,7 +731,7 @@ app.delete("/areas/:id", async (req, res) => {
     }
 });
 
-app.delete("/equipe/:id", async (req, res) => {
+app.delete("/equipe/:id", requireLogin, async (req, res) => {
     const { id } = req.params;
 
     try {
@@ -751,23 +750,38 @@ app.delete("/equipe/:id", async (req, res) => {
     }
 });
 
-app.delete("/equipamentos/:id", async (req, res) => {
+app.delete("/equipamentos/:id", requireLogin, async (req, res) => {
     const { id } = req.params;
 
     try {
+        const result = await query(
+            "SELECT imagemEquipamento FROM tbEquipamentos WHERE idEquipamento = ?",
+            [id]
+        );
+
+        if (result.length === 0) res.status(500).send({message: "Equipamento com este não existe"});
+
+        const imagemNome = result[0].imagemEquipamento;
+
         await query(`DELETE FROM tbEmprestimos WHERE idEquipamento = ?;`, [id]);
         await query(`DELETE FROM tbEquipamentos WHERE idEquipamento = ?;`, [
             id,
         ]);
 
+        const imagePath = path.join(__dirname, "src/images/uploads", imagemNome);
+
+        fs.unlink(imagePath, (err) => {
+            if(err) res.status(500).send({message: "Erro ao tentar deletar a imagem!"});
+        });
+
         res.status(200).send({ message: "Equipamento deletado com sucesso!" });
     } catch (err) {
-        console.error("Erro no MySQL: ", err);
+        console.error("Erro no MySQL ou ao tentar deletar a imagem: ", err);
         res.status(500).send({ message: "Erro ao deletar o equipamento." });
     }
 });
 
-app.delete("/emprestimos/:id", async (req, res) => {
+app.delete("/emprestimos/:id", requireLogin, async (req, res) => {
     const { id } = req.params;
 
     try {

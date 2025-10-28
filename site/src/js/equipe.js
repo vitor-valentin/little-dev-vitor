@@ -4,7 +4,7 @@ const page = params.get("page");
 if (!page || page == 1) {
     const systemUser = document.getElementById("systemUser");
     const hiddenForm = document.querySelector(".form-group.hidden");
-    
+
     const tableBody = document.querySelector("tbody");
     const pagination = document.querySelector(".pagination");
     const searchInput = document.getElementById("search");
@@ -241,7 +241,7 @@ if (!page || page == 1) {
                     JSON.stringify({ areaId: parseInt(areaId) })
                 );
             window.location.search = params.toString();
-        } else if(params.get("filter") && inputArea.value == "") {
+        } else if (params.get("filter") && inputArea.value == "") {
             params.delete("filter");
             window.location.search = params.toString();
         } else {
@@ -283,7 +283,116 @@ if (!page || page == 1) {
 
     systemUser.addEventListener("input", () => {
         hiddenForm.classList.toggle("hidden");
-        hiddenForm.querySelector("input").setAttribute("required", "required");
+        hiddenForm
+            .querySelector("input")
+            .toggleAttribute("required", "required");
+    });
+
+    /* ================================ FORM HANDLING ================================ */
+
+    const nomeMembro = document.getElementById("nomeMembro");
+    const emailMembro = document.getElementById("emailMembro");
+    const telMembro = document.getElementById("telMembro");
+    const areaInput = document.getElementById("area");
+    const checkUserSys = document.getElementById("systemUser");
+    const senhaMembro = document.getElementById("senhaMembro");
+    const submitForm = document.querySelector(".formEditAdd .submit");
+
+    function isEmpty(str) {
+        return !str || str.trim() === "";
+    }
+
+    setupAreaAutoComplete(areaInput);
+
+    submitForm.addEventListener("click", async (e) => {
+        e.preventDefault();
+
+        const { nome, email, fone, area, check, senha } = {
+            nome: nomeMembro.value,
+            email: emailMembro.value,
+            fone: telMembro.value,
+            area: areaInput.dataset.id,
+            check: checkUserSys.checked,
+            senha: senhaMembro.value,
+        };
+
+        switch (true) {
+            case isEmpty(nome):
+                showNotification(
+                    "failure",
+                    "Falha!",
+                    "O campo nome é obrigatório para adicionar um membro!"
+                );
+                return;
+            case isEmpty(email):
+                showNotification(
+                    "failure",
+                    "Falha!",
+                    "O campo e-mail é obrigatório para adicionar um membro!"
+                );
+                return;
+            case isEmpty(fone):
+                showNotification(
+                    "failure",
+                    "Falha!",
+                    "O campo telefone é obrigatório para adicionar um membro!"
+                );
+                return;
+            case !area:
+                showNotification(
+                    "failure",
+                    "Falha!",
+                    "O campo área é obrigatório para adicionar um membro!"
+                );
+                return;
+        }
+
+        if (check && (isEmpty(senha) || !senha)) {
+            showNotification(
+                "failure",
+                "Falha!",
+                "O campo senha é obrigatório para membros com acesso ao sistema!"
+            );
+            return;
+        }
+
+        try {
+            const res = await fetch("http://localhost:8080/equipe", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ nome, email, fone, area, check, senha }),
+            });
+
+            if(!res.ok) {
+                throw new Error("Erro interno no servidor");
+            }
+
+            showNotification(
+                "success",
+                "Sucesso!",
+                "O membro foi adicionado ao sistema com sucesso!"
+            );
+
+            nomeMembro.value = "";
+            emailMembro.value = "";
+            telMembro.value = "";
+            areaInput.value = "";
+            areaInput.dataset.id = "";
+            checkUserSys.checked = false;
+            senhaMembro.value = "";
+            hiddenForm.classList.add("hidden");
+            hiddenForm
+                .querySelector("input")
+                .removeAttribute("required");
+        } catch (err) {
+            showNotification(
+                "failure",
+                "Falha!",
+                "Ocorreu um erro ao tentar adicionar o membro!"
+            );
+            console.error("Erro: ", err);
+            return;
+        }
     });
 } else {
     const nomeMembro = document.getElementById("nomeMembro");
@@ -295,28 +404,42 @@ if (!page || page == 1) {
 
     nomeMembro.value = username;
 
-
     postAviso.addEventListener("click", async (e) => {
         e.preventDefault();
 
-        if(avisoText.value.replaceAll(" ", '') != "") {
+        if (avisoText.value.replaceAll(" ", "") != "") {
             const textAviso = stripHTMLTags(avisoText.value);
-            
+
             try {
                 await fetch("http://localhost:8080/avisos", {
                     method: "POST",
-                    headers: {'Content-Type': "application/json"},
-                    body: JSON.stringify({mensagemAviso: textAviso, userId: userInfo.idMembro})
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        mensagemAviso: textAviso,
+                        userId: userInfo.idMembro,
+                    }),
                 });
 
-                showNotification("success", "Sucesso!", "Seu aviso foi postado com sucesso!");
+                showNotification(
+                    "success",
+                    "Sucesso!",
+                    "Seu aviso foi postado com sucesso!"
+                );
                 avisoText.value = "";
             } catch (err) {
                 console.error("Erro ao tentar postar aviso: ", err);
-                showNotification("failure", "Falha!", "Houve um erro ao tentar postar o aviso! Cheque os logs para mais informações");
+                showNotification(
+                    "failure",
+                    "Falha!",
+                    "Houve um erro ao tentar postar o aviso! Cheque os logs para mais informações"
+                );
             }
         } else {
-            showNotification("failure", "Falha!", "Por favor preencha o campo aviso!");
+            showNotification(
+                "failure",
+                "Falha!",
+                "Por favor preencha o campo aviso!"
+            );
         }
     });
 }
