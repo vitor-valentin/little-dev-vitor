@@ -245,7 +245,7 @@ window.setupEquipeAutoComplete = function setupEquipeAutocomplete(
         inputElement.removeAttribute("data-id");
 
         const membros = await fetchMembro(query);
-        if (areas.length === 0) {
+        if (membros.length === 0) {
             const noResult = document.createElement("div");
             noResult.textContent = "Nenhum membro encontrado";
             noResult.classList.add("autocomplete-item");
@@ -322,7 +322,7 @@ window.setupEquipamentosAutoComplete = function setupEquipamentosAutocomplete(
         inputElement.removeAttribute("data-id");
 
         const equipamentos = await fetchEquipamentos(query);
-        if (areas.length === 0) {
+        if (equipamentos.length === 0) {
             const noResult = document.createElement("div");
             noResult.textContent = "Nenhum equipamento encontrado";
             noResult.classList.add("autocomplete-item");

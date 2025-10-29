@@ -481,4 +481,37 @@ if (!page || page == 1) {
         if (query.length > 0) searchEmprestimos(query);
         else loadEmprestimos();
     });
+
+    /* ==================== FORM HANDLER ==================== */
+
+    const inputEquip = document.getElementById("nomeEquipamento");
+    const dataRecebimento = document.getElementById("dataRecebimento");
+    const dataDevolucao = document.getElementById("dataDevolucao");
+    const salaLocal = document.getElementById("salaLocal");
+    const inputMembro = document.getElementById("membro");
+    const obs = document.getElementById("obsText");
+    const submitBtn = document.getElementById("submit");
+
+    setupEquipamentosAutoComplete(inputEquip);
+    setupEquipeAutoComplete(inputMembro);
+
+    const now = new Date();
+
+    const options = { timeZone: "America/Sao_Paulo", hour12: false };
+    
+    const formatter = new Intl.DateTimeFormat("en-CA", {
+        ...options,
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+    });
+
+    const parts = formatter.formatToParts(now);
+    const values = Object.fromEntries(parts.map((p) => [p.type, p.value]));
+
+    const formatted = `${values.year}-${values.month}-${values.day}T${values.hour}:${values.minute}`;
+
+    dataRecebimento.value = formatted;
 }
