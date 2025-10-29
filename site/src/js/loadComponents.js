@@ -206,3 +206,156 @@ window.setupAreaAutoComplete = function setupAreaAutocomplete(
     });
 };
 
+window.setupEquipeAutoComplete = function setupEquipeAutocomplete(
+    inputElement,
+    equipeId = 1
+) {
+    let autocompleteBox;
+
+    function createAutocompleteBox() {
+        autocompleteBox = document.createElement("div");
+        autocompleteBox.classList.add("autocomplete-list");
+        inputElement.parentNode.style.position = "relative";
+        inputElement.parentNode.appendChild(autocompleteBox);
+    }
+
+    function clearAutocomplete() {
+        if (autocompleteBox) autocompleteBox.innerHTML = "";
+    }
+
+    async function fetchMembro(query) {
+        if (!query.trim()) return [];
+        try {
+            const res = await fetch(
+                `http://localhost:8080/equipe/filter/${equipeId}?q=${encodeURIComponent(
+                    query
+                )}`
+            );
+            const json = await res.json();
+            return json.result || [];
+        } catch (err) {
+            console.error("Erro ao buscar membro:", err);
+            return [];
+        }
+    }
+
+    async function showSuggestions(query) {
+        if (!autocompleteBox) createAutocompleteBox();
+        clearAutocomplete();
+        inputElement.removeAttribute("data-id");
+
+        const membros = await fetchMembro(query);
+        if (areas.length === 0) {
+            const noResult = document.createElement("div");
+            noResult.textContent = "Nenhum membro encontrado";
+            noResult.classList.add("autocomplete-item");
+            autocompleteBox.appendChild(noResult);
+            return;
+        }
+
+        membros.forEach((membro) => {
+            const item = document.createElement("div");
+            item.classList.add("autocomplete-item");
+            item.textContent = membro.nomeMembro;
+
+            item.addEventListener("click", () => {
+                inputElement.value = membro.nomeMembro;
+                inputElement.dataset.id = membro.idMembro;
+                clearAutocomplete();
+            });
+
+            autocompleteBox.appendChild(item);
+        });
+    }
+
+    // Attach listeners
+    inputElement.addEventListener("input", (e) =>
+        showSuggestions(e.target.value)
+    );
+
+    document.addEventListener("click", (e) => {
+        if (
+            !inputElement.contains(e.target) &&
+            !autocompleteBox?.contains(e.target)
+        ) {
+            clearAutocomplete();
+        }
+    });
+};
+
+window.setupEquipamentosAutoComplete = function setupEquipamentosAutocomplete(
+    inputElement,
+    equipamentoId = 1
+) {
+    let autocompleteBox;
+
+    function createAutocompleteBox() {
+        autocompleteBox = document.createElement("div");
+        autocompleteBox.classList.add("autocomplete-list");
+        inputElement.parentNode.style.position = "relative";
+        inputElement.parentNode.appendChild(autocompleteBox);
+    }
+
+    function clearAutocomplete() {
+        if (autocompleteBox) autocompleteBox.innerHTML = "";
+    }
+
+    async function fetchEquipamentos(query) {
+        if (!query.trim()) return [];
+        try {
+            const res = await fetch(
+                `http://localhost:8080/equipamentos/filter/${equipamentoId}?q=${encodeURIComponent(
+                    query
+                )}`
+            );
+            const json = await res.json();
+            return json.result || [];
+        } catch (err) {
+            console.error("Erro ao buscar equipamento:", err);
+            return [];
+        }
+    }
+
+    async function showSuggestions(query) {
+        if (!autocompleteBox) createAutocompleteBox();
+        clearAutocomplete();
+        inputElement.removeAttribute("data-id");
+
+        const equipamentos = await fetchEquipamentos(query);
+        if (areas.length === 0) {
+            const noResult = document.createElement("div");
+            noResult.textContent = "Nenhum equipamento encontrado";
+            noResult.classList.add("autocomplete-item");
+            autocompleteBox.appendChild(noResult);
+            return;
+        }
+
+        equipamentos.forEach((equipamento) => {
+            const item = document.createElement("div");
+            item.classList.add("autocomplete-item");
+            item.textContent = equipamento.nomeEquipamento;
+
+            item.addEventListener("click", () => {
+                inputElement.value = equipamento.nomeEquipamento;
+                inputElement.dataset.id = equipamento.idEquipamento;
+                clearAutocomplete();
+            });
+
+            autocompleteBox.appendChild(item);
+        });
+    }
+
+    // Attach listeners
+    inputElement.addEventListener("input", (e) =>
+        showSuggestions(e.target.value)
+    );
+
+    document.addEventListener("click", (e) => {
+        if (
+            !inputElement.contains(e.target) &&
+            !autocompleteBox?.contains(e.target)
+        ) {
+            clearAutocomplete();
+        }
+    });
+};
