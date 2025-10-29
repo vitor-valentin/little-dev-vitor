@@ -230,7 +230,7 @@ function getCurrentFilter() {
 async function filterValueLoad(idArea, checkState, selectValue) {
     const areaRes = await fetch(`http://localhost:8080/areas/find/${idArea}`);
     const areaJson = await areaRes.json();
-    const nomeArea = areaJson[0]?.nomeArea || "—";
+    const nomeArea = areaJson[0]?.nomeArea || "";
 
     inputArea.value = nomeArea;
     checkValor.checked = checkState;
@@ -371,8 +371,8 @@ submit.addEventListener("click", async (e) => {
     e.preventDefault();
 
     const { name, code, area, check } = {
-        name: nomeEquip.value,
-        code: codEquipe.value,
+        name: stripHTMLTags(nomeEquip.value),
+        code: stripHTMLTags(codEquipe.value),
         area: areaInput.dataset.id,
         check: checkAlto.checked,
     };
@@ -398,6 +398,20 @@ submit.addEventListener("click", async (e) => {
             "failure",
             "Falha!",
             "O campo imagem é obrigatório para adicionar um equipamento!"
+        );
+        return;
+    }else if (name.length > 70) {
+        showNotification(
+            "failure",
+            "Falha!",
+            "O campo nome não pode ter mais de 70 caracteres!"
+        );
+        return;
+    }else if (code.length > 50) {
+        showNotification(
+            "failure",
+            "Falha!",
+            "O campo código não pode ter mais de 50 caracteres!"
         );
         return;
     }
@@ -436,6 +450,8 @@ submit.addEventListener("click", async (e) => {
         areaInput.dataset.id = "";
         checkAlto.checked = false;
         imgEquip.value = "";
+
+        loadEquipamentos(currentQuery, currentFilter);
     } catch (err) {
         showNotification(
             "failure",
@@ -445,4 +461,42 @@ submit.addEventListener("click", async (e) => {
         console.error("Erro: ", err);
         return;
     }
+});
+
+/* ====================== Drag and Drop ====================== */
+const dropArea = document.getElementById("imgInput");
+const imgPreview = document.getElementById("imgPreview");
+
+function previewSelectedImage(file) {
+    const reader = new FileReader();
+    reader.onload = () => {
+        imgPreview.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+}
+
+dropArea.addEventListener("dragover", (e) => {
+    e.preventDefault();
+    dropArea.classList.add("dragover");
+});
+
+dropArea.addEventListener("dragleave", () => {
+    dropArea.classList.remove("dragover");
+});
+
+dropArea.addEventListener("drop", (e) => {
+    e.preventDefault();
+    dropArea.classList.remove("dragover");
+
+    const file = e.dataTransfer.files[0];
+    if (file) {
+        imgEquip.files = e.dataTransfer.files; 
+        imgPreview.src = URL.createObjectURL(file);
+        imgEquip.dispatchEvent(new Event("change"));
+    }
+});
+
+imgEquip.addEventListener("change", () => {
+    const file = imgEquip.files[0];
+    if (file) previewSelectedImage(file);
 });

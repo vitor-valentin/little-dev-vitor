@@ -117,13 +117,31 @@
         </div>
 
         <div class="filterOpt">
+            <label for="inputMembro">Mostrar apenas empréstimos do membro:</label>
+            <input
+                type="text"
+                placeholder="Digite o nome do membro ou deixe vazio para qualquer."
+                id="inputMembro"
+            />
+        </div>
+
+        <div class="filterOpt">
+            <label for="inputEq">Mostrar apenas empréstimos do equipamento:</label>
+            <input
+                type="text"
+                placeholder="Digite o nome do equipamento ou deixe vazio para qualquer."
+                id="inputEq"
+            />
+        </div>
+
+        <div class="filterOpt">
             <label>Mostrar apenas empréstimos entre as datas:</label>
             <div class="dateFilterGroup">
                 <div class="dateInputBox">
                     <label for="dataInicio">Início</label>
                     <div class="customDateInput">
                         <span class="calendarIcon"></span>
-                        <input type="text" id="dataInicio" placeholder="DD/MM/AAAA" />
+                        <input type="date" id="dataInicio" placeholder="DD/MM/AAAA" />
                     </div>
                 </div>
             
@@ -131,7 +149,7 @@
                     <label for="dataFim">Fim</label>
                     <div class="customDateInput">
                         <span class="calendarIcon"></span>
-                        <input type="text" id="dataFim" placeholder="DD/MM/AAAA" />
+                        <input type="date" id="dataFim" placeholder="DD/MM/AAAA" />
                     </div>
                 </div>
             </div>

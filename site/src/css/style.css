@@ -662,12 +662,18 @@ input[type="number"] {
     font-family: "Branding", sans-serif;
 }
 
-.customDateInput input[type="text"] {
+.customDateInput input[type="date"] {
     border: none;
     outline: none;
     font-size: 18px;
     color: var(--cor-escura);
     font-family: "Branding", sans-serif;
+}
+
+.customDateInput input[type="date"]::-webkit-inner-spin-button,
+.customDateInput input[type="date"]::-webkit-calendar-picker-indicator {
+    display: none;
+    -webkit-appearance: none;
 }
 
 .customDateInput input::placeholder {
@@ -702,7 +708,9 @@ input[type="number"] {
     background-color: #2d3375;
 }
 
-#inputArea {
+#inputArea,
+#inputMembro,
+#inputEq {
     padding: 12px 5px;
     font-size: 20px;
     font-weight: 500;
@@ -710,7 +718,9 @@ input[type="number"] {
     color: var(--cor-escura);
 }
 
-#inputArea::placeholder {
+#inputArea::placeholder,
+#inputMembro::placeholder,
+#inputEq::placeholder {
     color: var(--cor-escura);
     opacity: 0.7;
 }
@@ -811,6 +821,10 @@ input[type="number"] {
     margin-top: 5px;
     cursor: pointer;
     transition: 0.2s;
+}
+
+.formEditAdd #imgInput.dragover {
+    scale: 1.1;
 }
 
 .formEditAdd #imgInput:hover {

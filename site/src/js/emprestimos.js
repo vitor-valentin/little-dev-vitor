@@ -252,6 +252,16 @@ if (!page || page == 1) {
     const pagination = document.querySelector(".pagination");
     const searchInput = document.getElementById("search");
 
+    const checkValor = document.getElementById("checkValor");
+    const checkAtraso = document.getElementById("checkAtraso");
+    const selectStatus = document.getElementById("selectStatus");
+    const areaInput = document.getElementById("inputArea");
+    const membroInput = document.getElementById("inputMembro");
+    const eqInput = document.getElementById("inputEq");
+    const dataI = document.getElementById("dataInicio");
+    const dataF = document.getElementById("dataFim");
+    const applyFilterBtn = document.querySelector(".filterBox .applyFilter");
+
     async function deleteEmprestimo(id) {
         const confirm = await showConfirm(
             "danger",
@@ -364,22 +374,26 @@ if (!page || page == 1) {
         return `${day}/${month}/${year} ${hours}:${minutes}`;
     }
 
-    async function loadEmprestimos(page = 1, query = "") {
+    async function loadEmprestimos(query = "", filter = {}) {
         clearChildren(tableBody);
         clearChildren(pagination);
 
-        const endpoint = query
-            ? `http://localhost:8080/emprestimos/search/${page}?q=${encodeURIComponent(
-                  query
-              )}`
-            : `http://localhost:8080/emprestimos/${page}`;
+        const params = new URLSearchParams(window.location.search);
 
+        let page;
+        if (query) params.set("q", query);
+        if (parseInt(params.get("p"))) page = parseInt(params.get("p"));
+        else page = 1;
+
+        const endpoint = `http://localhost:8080/emprestimos/filter/${page}?${params.toString()}`;
         const result = await fetch(endpoint);
         const json = await result.json();
 
         const totalItens = json.result2[0]?.totalItens || 0;
         const totalPages = Math.ceil(totalItens / 8);
         const itens = json.result;
+
+        if (page > totalPages && totalPages != 0) setPage(totalPages);
 
         for (const item of itens) {
             const [equipamentoRes, membroRes] = await Promise.all([
@@ -461,25 +475,134 @@ if (!page || page == 1) {
         pagination.appendChild(btnNext);
     }
 
-    async function searchEmprestimos(query, page = 1) {
-        if (query.trim().length === 0) {
-            loadEmprestimos(page);
-            return;
+    function getCurrentFilter() {
+        const params = new URLSearchParams(window.location.search);
+        const filterStr = params.get("filter");
+        if (!filterStr) return {};
+        try {
+            return JSON.parse(filterStr);
+        } catch {
+            return {};
         }
-        loadEmprestimos(page, query);
     }
 
+    async function filterValueLoad(
+        idArea,
+        idMembro,
+        idEq,
+        checkV,
+        checkA,
+        selectValue,
+        dateI,
+        dateF
+    ) {
+        const areaRes = await fetch(
+            `http://localhost:8080/areas/find/${idArea}`
+        );
+        const areaJson = await areaRes.json();
+        const nomeArea = areaJson[0]?.nomeArea || "";
+
+        const membroRes = await fetch(
+            `http://localhost:8080/equipe/find/${idMembro}`
+        );
+        const membroJson = await membroRes.json();
+        const nomeMembro = membroJson[0]?.nomeMembro || "";
+
+        const eqRes = await fetch(
+            `http://localhost:8080/equipamentos/find/${idEq}`
+        );
+        const eqJson = await eqRes.json();
+        const nomeEq = eqJson[0]?.nomeEquipamento || "";
+
+        areaInput.value = nomeArea;
+        eqInput.value = nomeEq;
+        membroInput.value = nomeMembro;
+        checkAtraso.checked = checkA;
+        checkValor.checked = checkV;
+        selectStatus.value = selectValue;
+        dataI.value = dateI;
+        dataF.value = dateF;
+    }
+
+    async function searchEmprestimos(query) {
+        if (query.trim().length === 0) {
+            loadEmprestimos("", getCurrentFilter());
+            return;
+        }
+        loadEmprestimos(query, getCurrentFilter());
+    }
+
+    setupAreaAutoComplete(areaInput);
+    setupEquipamentosAutoComplete(eqInput);
+    setupEquipeAutoComplete(membroInput);
+
     const params = new URLSearchParams(window.location.search);
-    const currentPage = parseInt(params.get("p")) || 1;
     const currentQuery = params.get("q") || "";
+    const currentFilter = getCurrentFilter();
 
     searchInput.value = currentQuery;
-    loadEmprestimos(currentPage, currentQuery);
+    if (
+        currentFilter.areaId ||
+        currentFilter.eqId ||
+        currentFilter.membroId ||
+        currentFilter.checkV ||
+        currentFilter.checkA ||
+        currentFilter.selectValue ||
+        currentFilter.dateI ||
+        currentFilter.dateF
+    ) {
+        areaInput.dataset.id = currentFilter.areaId || undefined;
+        eqInput.dataset.id = currentFilter.eqId || undefined;
+        membroInput.dataset.id = currentDate.membroId || undefined;
+
+        filterValueLoad(
+            currentFilter.areaId,
+            currentFilter.membroId,
+            currentFilter.eqId,
+            currentFilter.checkV,
+            currentFilter.checkA,
+            currentFilter.selectValue,
+            currentFilter.dateI,
+            currentFilter.dateF
+        );
+    }
+    loadEmprestimos(currentQuery, currentFilter);
 
     searchInput.addEventListener("input", (e) => {
         const query = e.target.value.trim();
         if (query.length > 0) searchEmprestimos(query);
-        else loadEmprestimos();
+        else loadEmprestimos("", getCurrentFilter());
+    });
+
+    applyFilterBtn.addEventListener("click", () => {
+        const areaId = areaInput.dataset.id;
+        const eqId = eqInput.dataset.id;
+        const membroId = membroInput.dataset.id;
+        const checkV = checkValor.checked;
+        const checkA = checkAtraso.checked;
+        const selectValue = selectStatus.value;
+        const dateI = dataI.value;
+        const dateF = dataF.value;
+
+        const params = new URLSearchParams(window.location.search);
+        if ((areaId == "undefined" || !areaId ) && (eqId == "undefined" || !eqId) && (membroId == "undefined" || !membroId ) && !checkV && !checkA && isEmpty(dateI) && isEmpty(dateF) && selectValue == "todos") {
+            params.delete("filter");
+        } else {
+            params.set(
+                "filter",
+                JSON.stringify({
+                    areaId: parseInt(areaId),
+                    eqId: parseInt(eqId),
+                    membroId: parseInt(membroId),
+                    checkV,
+                    checkA,
+                    selectValue,
+                    dateI,
+                    dateF
+                })
+            );
+        }
+        window.location.search = params.toString();
     });
 
     /* ==================== FORM HANDLER ==================== */
@@ -489,29 +612,158 @@ if (!page || page == 1) {
     const dataDevolucao = document.getElementById("dataDevolucao");
     const salaLocal = document.getElementById("salaLocal");
     const inputMembro = document.getElementById("membro");
-    const obs = document.getElementById("obsText");
-    const submitBtn = document.getElementById("submit");
+    const obsText = document.getElementById("obsText");
+    const submitBtn = document.querySelector(".formEditAdd .submit");
+
+    function setDataNow() {
+        const now = new Date();
+
+        const options = { timeZone: "America/Sao_Paulo", hour12: false };
+
+        const formatter = new Intl.DateTimeFormat("en-CA", {
+            ...options,
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit",
+        });
+
+        const parts = formatter.formatToParts(now);
+        const values = Object.fromEntries(parts.map((p) => [p.type, p.value]));
+
+        const formatted = `${values.year}-${values.month}-${values.day}T${values.hour}:${values.minute}`;
+
+        dataRecebimento.value = formatted;
+    }
+
+    function isEmpty(str) {
+        return !str || str.trim() === "";
+    }
 
     setupEquipamentosAutoComplete(inputEquip);
     setupEquipeAutoComplete(inputMembro);
+    setDataNow();
 
-    const now = new Date();
+    submitBtn.addEventListener("click", async (e) => {
+        e.preventDefault();
 
-    const options = { timeZone: "America/Sao_Paulo", hour12: false };
-    
-    const formatter = new Intl.DateTimeFormat("en-CA", {
-        ...options,
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
+        const { idEquipamento, recebimento, devolucao, local, idMembro, obs } =
+            {
+                idEquipamento: inputEquip.dataset.id,
+                recebimento: stripHTMLTags(dataRecebimento.value),
+                devolucao: stripHTMLTags(dataDevolucao.value),
+                local: stripHTMLTags(salaLocal.value),
+                idMembro: inputMembro.dataset.id,
+                obs: stripHTMLTags(obsText.value),
+            };
+
+        switch (true) {
+            case isEmpty(idEquipamento):
+                showNotification(
+                    "failure",
+                    "Falha!",
+                    "O campo equipamento é obrigatório para registrar um empréstimo!"
+                );
+                return;
+            case isEmpty(recebimento):
+                showNotification(
+                    "failure",
+                    "Falha!",
+                    "A data de recebimento é obrigatório para registrar um empréstimo!"
+                );
+                return;
+            case isEmpty(devolucao):
+                showNotification(
+                    "failure",
+                    "Falha!",
+                    "A data de devolucao é obrigatório para registrar um empréstimo!"
+                );
+                return;
+            case isEmpty(local):
+                showNotification(
+                    "failure",
+                    "Falha!",
+                    "O campo local é obrigatório para registrar um empréstimo!"
+                );
+                return;
+            case isEmpty(idMembro):
+                showNotification(
+                    "failure",
+                    "Falha!",
+                    "O campo membro é obrigatório para registrar um empréstimo!"
+                );
+                return;
+        }
+
+        const dateReceb = new Date(recebimento);
+        const dateDev = new Date(devolucao);
+
+        if (dateDev < dateReceb) {
+            showNotification(
+                "failure",
+                "Falha!",
+                "A data de devolução deve ser maior que a data de recebimento!"
+            );
+            return;
+        } else if (obs.length > 200) {
+            showNotification(
+                "failure",
+                "Falha!",
+                "O campo observações não pode conter mais do que 200 caracteres!"
+            );
+            return;
+        } else if (local.length > 30) {
+            showNotification(
+                "failure",
+                "Falha!",
+                "O campo local não pode contar mais do que 30 caracteres!"
+            );
+            return;
+        }
+
+        try {
+            const res = await fetch("http://localhost:8080/emprestimos", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    idEquipamento,
+                    recebimento,
+                    devolucao,
+                    local,
+                    idMembro,
+                    obs,
+                }),
+            });
+
+            if (!res.ok) {
+                throw new Error("Erro interno no servidor");
+            }
+
+            showNotification(
+                "success",
+                "Sucesso!",
+                "O empréstimo foi registrado com sucesso no sistema!"
+            );
+
+            inputEquip.value = "";
+            inputEquip.dataset.id = "";
+            setDataNow();
+            dataDevolucao.value = "";
+            salaLocal.value = "";
+            inputMembro.value = "";
+            inputMembro.dataset.id = "";
+            obsText.value = "";
+
+            loadEmprestimos(currentQuery, currentFilter);
+        } catch (err) {
+            showNotification(
+                "failure",
+                "Falha!",
+                "Ocorreu um erro ao tentar registrar o empréstimo!"
+            );
+            console.error("Erro: ", err);
+            return;
+        }
     });
-
-    const parts = formatter.formatToParts(now);
-    const values = Object.fromEntries(parts.map((p) => [p.type, p.value]));
-
-    const formatted = `${values.year}-${values.month}-${values.day}T${values.hour}:${values.minute}`;
-
-    dataRecebimento.value = formatted;
 }

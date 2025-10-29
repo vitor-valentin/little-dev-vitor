@@ -1,8 +1,4 @@
-Add drag and drop on equipamentos image loading
-Add preview to image on equipamentos image loading
 Whole dashboard connection with db
-Add membro
-Add empréstimo
 Edit for every page
 History for equipe and equipamentos
 Vistoria
@@ -14,7 +10,5 @@ Backup on db
 Notifications for avisos
 Notifications for empréstimos
 Filter for emprestimos 
-Formatação para os campos especiais como telefone
-Limitar por qntd caracteres para adicionar itens
 Adicionar botão de limpar seleção no agendar empréstimos
 Na vistoria adicionar campo para quem devolveu

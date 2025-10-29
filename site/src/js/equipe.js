@@ -211,7 +211,7 @@ if (!page || page == 1) {
     // ========================= SEARCH =========================
     async function searchEquipe(query, page = 1) {
         if (query.trim().length === 0) {
-            loadEquipe();
+            loadEquipe("", getCurrentFilter());
             return;
         }
         loadEquipe(query, getCurrentFilter());
@@ -258,7 +258,7 @@ if (!page || page == 1) {
             `http://localhost:8080/areas/find/${idArea}`
         );
         const areaJson = await areaRes.json();
-        const nomeArea = areaJson[0]?.nomeArea || "—";
+        const nomeArea = areaJson[0]?.nomeArea || "";
 
         inputArea.value = nomeArea;
     }
@@ -302,18 +302,36 @@ if (!page || page == 1) {
         return !str || str.trim() === "";
     }
 
+    function maskPhone(input) {
+        input.value = input.value
+            .replace(/\D/g, "")
+            .replace(/^(\d{2})(\d)/, "($1) $2")
+            .replace(/(\d{5})(\d)/, "$1-$2")
+            .replace(/(-\d{4})\d+?$/, "$1");
+    }
+
+    function isValidPhone(phone) {
+        return /^\(\d{2}\) \d{5}-\d{4}$/.test(phone);
+    }
+
+    function isValidEmail(email) {
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    }
+
     setupAreaAutoComplete(areaInput);
+
+    telMembro.addEventListener("input", () => maskPhone(telMembro));
 
     submitForm.addEventListener("click", async (e) => {
         e.preventDefault();
 
         const { nome, email, fone, area, check, senha } = {
-            nome: nomeMembro.value,
-            email: emailMembro.value,
-            fone: telMembro.value,
+            nome: stripHTMLTags(nomeMembro.value),
+            email: stripHTMLTags(emailMembro.value),
+            fone: stripHTMLTags(telMembro.value),
             area: areaInput.dataset.id,
             check: checkUserSys.checked,
-            senha: senhaMembro.value,
+            senha: stripHTMLTags(senhaMembro.value),
         };
 
         switch (true) {
@@ -354,6 +372,41 @@ if (!page || page == 1) {
                 "O campo senha é obrigatório para membros com acesso ao sistema!"
             );
             return;
+        } else if (nome.length > 40) {
+            showNotification(
+                "failure",
+                "Falha!",
+                "O campo nome não pode conter mais do que 40 caracteres!"
+            );
+            return;
+        } else if (email.length > 60) {
+            showNotification(
+                "failure",
+                "Falha!",
+                "O campo email não pode conter mais do que 60 caracteres!"
+            );
+            return;
+        } else if (senha.length > 100) {
+            showNotification(
+                "failure",
+                "Falha!",
+                "O campo senha não pode conter mais do que 100 caracteres!"
+            );
+            return;
+        } else if (!isValidPhone(fone)) {
+            showNotification(
+                "failure",
+                "Falha!",
+                "O campo telefone não foi preenchido corretamento!"
+            );
+            return;
+        } else if(!isValidEmail(email)) {
+            showNotification(
+                "failure",
+                "Falha!",
+                "O campo e-mail não foi preenchido corretamento!"
+            );
+            return;
         }
 
         try {
@@ -363,7 +416,7 @@ if (!page || page == 1) {
                 body: JSON.stringify({ nome, email, fone, area, check, senha }),
             });
 
-            if(!res.ok) {
+            if (!res.ok) {
                 throw new Error("Erro interno no servidor");
             }
 
@@ -381,9 +434,9 @@ if (!page || page == 1) {
             checkUserSys.checked = false;
             senhaMembro.value = "";
             hiddenForm.classList.add("hidden");
-            hiddenForm
-                .querySelector("input")
-                .removeAttribute("required");
+            hiddenForm.querySelector("input").removeAttribute("required");
+
+            loadEquipe(currentQuery, currentFilter);
         } catch (err) {
             showNotification(
                 "failure",

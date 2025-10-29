@@ -12,15 +12,116 @@ async function deleteArea(id) {
 
     if (!confirm) return;
 
-    const res = await fetch(`http://localhost:8080/areas/${id}`, { method: "DELETE" });
+    const res = await fetch(`http://localhost:8080/areas/${id}`, {
+        method: "DELETE",
+    });
 
     if (res.status === 200) {
-        showNotification("success", "Sucesso!", "A área foi deletada com sucesso!");
+        showNotification(
+            "success",
+            "Sucesso!",
+            "A área foi deletada com sucesso!"
+        );
     } else {
-        showNotification("failure", "Falha", "Houve um erro ao tentar deletar a área!");
+        showNotification(
+            "failure",
+            "Falha",
+            "Houve um erro ao tentar deletar a área!"
+        );
     }
 
     loadAreas();
+}
+
+async function editArea(id) {
+    try {
+        const res = await fetch(`http://localhost:8080/areas/find/${id}`);
+        if (!res.ok) throw new Error("Erro ao buscar área no servidor.");
+
+        const [area] = await res.json();
+        if (!area) throw new Error("Área não encontrada.");
+
+        nomeArea.value = area.nomeArea;
+
+        const title = document.querySelector(".formEditAdd h2");
+        const submitBtn = document.querySelector(".formEditAdd .submit");
+
+        title.textContent = `EDITANDO ÁREA: ${area.nomeArea.toUpperCase()}`;
+        submitBtn.textContent = "Editar";
+
+        const newSubmitBtn = submitBtn.cloneNode(true);
+        submitBtn.parentNode.replaceChild(newSubmitBtn, submitBtn);
+
+        const pageTable = document.querySelector(".pageTable");
+        const pageEditAdd = document.querySelector(".pageEditAdd");
+        const returnButton = document.querySelector(".return");
+        pageTable.classList.remove("active");
+        pageEditAdd.classList.add("active");
+
+        newSubmitBtn.addEventListener("click", async (e) => {
+            e.preventDefault();
+
+            const nome = nomeArea.value;
+
+            if (isEmpty(nome)) {
+                showNotification(
+                    "failure",
+                    "Falha!",
+                    "O nome da área é obrigatório!"
+                );
+                return;
+            } else if (nome.length > 50) {
+                showNotification(
+                    "failure",
+                    "Falha!",
+                    "O nome não pode ter mais de 50 caracteres!"
+                );
+                return;
+            }
+
+            try {
+                const result = await fetch(
+                    `http://localhost:8080/areas/${id}`,
+                    {
+                        method: "PUT",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ nome }),
+                    }
+                );
+
+                if (!result.ok) throw new Error("Erro ao atualizar área.");
+
+                showNotification(
+                    "success",
+                    "Sucesso!",
+                    "A área foi atualizada com sucesso!"
+                );
+                title.textContent = "EDITANDO ÁREA: " + nome;
+
+                loadAreas(currentPage, currentQuery);
+            } catch (err) {
+                showNotification(
+                    "failure",
+                    "Falha!",
+                    "Erro ao atualizar a área!"
+                );
+                console.error(err);
+            }
+        });
+
+        returnButton.addEventListener("click", () => {
+            title.textContent = "ADICIONAR ÁREA";
+            newSubmitBtn.textContent = "Criar";
+            nomeArea.value = "";
+        });
+    } catch (err) {
+        showNotification(
+            "failure",
+            "Falha!",
+            "Erro ao carregar dados para edição!"
+        );
+        console.error(err);
+    }
 }
 
 function setPage(page, query = "") {
@@ -40,7 +141,8 @@ function makeButton(text, opts = {}) {
     btn.textContent = text;
     if (opts.disabled) btn.setAttribute("disabled", "disabled");
     if (opts.className) btn.classList.add(opts.className);
-    if (typeof opts.onClick === "function") btn.addEventListener("click", opts.onClick);
+    if (typeof opts.onClick === "function")
+        btn.addEventListener("click", opts.onClick);
     return btn;
 }
 
@@ -71,10 +173,17 @@ function makeEllipsisInput(totalPages, currentPage, onPageChange) {
 }
 
 function getVisibleSlots(page, totalPages) {
-    if (totalPages <= 7) return Array.from({ length: totalPages }, (_, i) => i + 1);
+    if (totalPages <= 7)
+        return Array.from({ length: totalPages }, (_, i) => i + 1);
     if (page <= 2) return [1, 2, "ellipsis", totalPages - 1, totalPages];
     if (page >= totalPages - 2)
-        return ["ellipsis", totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
+        return [
+            "ellipsis",
+            totalPages - 3,
+            totalPages - 2,
+            totalPages - 1,
+            totalPages,
+        ];
     return ["ellipsis", page - 1, page, page + 1, "ellipsis"];
 }
 
@@ -83,7 +192,9 @@ async function loadAreas(page = 1, query = "") {
     clearChildren(pagination);
 
     const endpoint = query
-        ? `http://localhost:8080/areas/search/${page}?q=${encodeURIComponent(query)}`
+        ? `http://localhost:8080/areas/search/${page}?q=${encodeURIComponent(
+              query
+          )}`
         : `http://localhost:8080/areas/${page}`;
 
     const result = await fetch(endpoint);
@@ -106,8 +217,12 @@ async function loadAreas(page = 1, query = "") {
                 </button>
             </td>
         `;
-        tr.querySelector(".delete").addEventListener("click", () => deleteArea(item.idArea));
-        tr.querySelector(".edit").addEventListener("click", () => editArea(item.idArea));
+        tr.querySelector(".delete").addEventListener("click", () =>
+            deleteArea(item.idArea)
+        );
+        tr.querySelector(".edit").addEventListener("click", () =>
+            editArea(item.idArea)
+        );
         tableBody.appendChild(tr);
     });
 
@@ -125,7 +240,9 @@ async function loadAreas(page = 1, query = "") {
     const slots = getVisibleSlots(page, totalPages);
     slots.forEach((slot) => {
         if (slot === "ellipsis") {
-            pagination.appendChild(makeEllipsisInput(totalPages, page, onPageChange));
+            pagination.appendChild(
+                makeEllipsisInput(totalPages, page, onPageChange)
+            );
         } else {
             const pageBtn = makeButton(slot, {
                 className: page === slot ? "active" : null,
@@ -161,4 +278,64 @@ searchInput.addEventListener("input", (e) => {
     const query = e.target.value.trim();
     if (query.length > 0) searchAreas(query);
     else loadAreas();
+});
+
+/* =============== FORM HANDLER =============== */
+const nomeArea = document.getElementById("nomeArea");
+const submitBtn = document.querySelector(".pageEditAdd .submit");
+
+function isEmpty(str) {
+    return !str || str.trim() === "";
+}
+
+submitBtn.addEventListener("click", async (e) => {
+    e.preventDefault();
+
+    const nome = nomeArea.value;
+
+    if (isEmpty(nome)) {
+        showNotification(
+            "failure",
+            "Falha!",
+            "O campo nome é obrigatório para criar uma área!"
+        );
+        return;
+    } else if (nome.length > 50) {
+        showNotification(
+            "failure",
+            "Falha!",
+            "O campo nome não pode ter mais de 50 caracteres!"
+        );
+        return;
+    }
+
+    try {
+        const res = await fetch("http://localhost:8080/areas", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ nome }),
+        });
+
+        if (!res.ok) {
+            throw new Error("Erro interno no servidor!");
+        }
+
+        showNotification(
+            "success",
+            "Sucesso!",
+            "A área foi criada com sucesso!"
+        );
+
+        nomeArea.value = "";
+
+        loadAreas(currentPage, currentQuery);
+    } catch (err) {
+        showNotification(
+            "failure",
+            "Falha!",
+            "Ocorreu um erro ao tentar adicionar o membro!"
+        );
+        console.error("Erro: ", err);
+        return;
+    }
 });
