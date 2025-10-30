@@ -12,6 +12,28 @@ if (!page || page == 1) {
     const applyFilterBtn = document.querySelector(".applyFilter");
 
     // ========================= DELETE MEMBER =========================
+    function viewHistoryMember(id) {
+        const params = new URLSearchParams(window.location.search);
+        const baseUrl = "http://localhost:8080/emprestimos";
+        params.set(
+            "filter",
+            JSON.stringify({
+                areaId: null,
+                eqId: null,
+                membroId: parseInt(id),
+                checkV: false,
+                checkA: false,
+                selectValue: "todos",
+                dateI: "",
+                dateF: "",
+            })
+        );
+
+        const finalUrl = `${baseUrl}?${params.toString()}`;
+
+        window.location.href = finalUrl;
+    }
+
     async function deleteMember(id) {
         const confirm = await showConfirm(
             "danger",
@@ -468,33 +490,33 @@ if (!page || page == 1) {
 
     async function updateMember(e, id) {
         e.preventDefault();
-    
+
         const nome = stripHTMLTags(nomeMembro.value);
         const email = stripHTMLTags(emailMembro.value);
         const foneMask = stripHTMLTags(telMembro.value);
         const area = areaInput.dataset.id;
         const check = checkUserSys.checked;
         const senha = stripHTMLTags(senhaMembro.value);
-    
+
         if (!isValidPhone(foneMask) || !isValidEmail(email)) {
             showNotification("failure", "Falha!", "Dados inválidos!");
             return;
         }
-    
+
         const fone = unmaskPhone(foneMask);
-    
+
         const updateRes = await fetch(`http://localhost:8080/equipe/${id}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ nome, email, fone, area, check, senha }),
         });
-    
+
         if (!updateRes.ok) {
             console.log(await updateRes.json());
             showNotification("failure", "Falha!", "Erro ao atualizar membro!");
             return;
         }
-    
+
         showNotification("success", "Sucesso!", "Membro atualizado!");
         loadEquipe(currentQuery, currentFilter);
     }
@@ -547,7 +569,7 @@ if (!page || page == 1) {
             pageEditAdd.classList.add("active");
 
             returnButton.addEventListener("click", () => {
-                editingId = null; 
+                editingId = null;
 
                 submitForm.textContent = "Criar";
                 document.querySelector(".formEditAdd h2").textContent =

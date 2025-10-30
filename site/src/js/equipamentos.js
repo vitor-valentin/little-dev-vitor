@@ -11,6 +11,28 @@ const checkValor = document.getElementById("checkValor");
 
 let autocompleteBox;
 
+function viewHistoryEquipment(id) {
+    const params = new URLSearchParams(window.location.search);
+    const baseUrl = "http://localhost:8080/emprestimos";
+    params.set(
+        "filter",
+        JSON.stringify({
+            areaId: null,
+            eqId: parseInt(id),
+            membroId: null,
+            checkV: false,
+            checkA: false,
+            selectValue: "todos",
+            dateI: "",
+            dateF: "",
+        })
+    );
+
+    const finalUrl = `${baseUrl}?${params.toString()}`;
+
+    window.location.href = finalUrl;
+}
+
 async function deleteEquipment(id) {
     const confirm = await showConfirm(
         "danger",
@@ -515,7 +537,9 @@ async function editEquipment(id) {
         codEquipe.value = equipamento.codEquipamento || "";
         checkAlto.checked = equipamento.altoValor === 1;
 
-        const resArea = await fetch(`http://localhost:8080/areas/find/${equipamento.idArea}`);
+        const resArea = await fetch(
+            `http://localhost:8080/areas/find/${equipamento.idArea}`
+        );
         if (!resArea.ok) throw new Error("Erro ao buscar área no servidor.");
 
         const [area] = await resArea.json();
