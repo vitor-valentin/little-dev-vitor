@@ -41,7 +41,7 @@ async function editArea(id) {
         const [area] = await res.json();
         if (!area) throw new Error("Área não encontrada.");
 
-        nomeArea.value = area.nomeArea;
+        nomeArea.value = stripHTMLTags(area.nomeArea);
 
         const title = document.querySelector(".formEditAdd h2");
         const submitBtn = document.querySelector(".formEditAdd .submit");
@@ -291,7 +291,7 @@ function isEmpty(str) {
 submitBtn.addEventListener("click", async (e) => {
     e.preventDefault();
 
-    const nome = nomeArea.value;
+    const nome = stripHTMLTags(nomeArea.value);
 
     if (isEmpty(nome)) {
         showNotification(

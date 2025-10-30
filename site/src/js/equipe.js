@@ -318,17 +318,31 @@ if (!page || page == 1) {
         return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
     }
 
+    function unmaskPhone(phone) {
+        return phone.replace(/\D/g, "");
+    }
+
     setupAreaAutoComplete(areaInput);
 
     telMembro.addEventListener("input", () => maskPhone(telMembro));
 
+    let editingId = null;
+
     submitForm.addEventListener("click", async (e) => {
+        if (editingId) {
+            updateMember(e, editingId);
+        } else {
+            addMember(e);
+        }
+    });
+
+    async function addMember(e) {
         e.preventDefault();
 
-        const { nome, email, fone, area, check, senha } = {
+        const { nome, email, foneMask, area, check, senha } = {
             nome: stripHTMLTags(nomeMembro.value),
             email: stripHTMLTags(emailMembro.value),
-            fone: stripHTMLTags(telMembro.value),
+            foneMask: stripHTMLTags(telMembro.value),
             area: areaInput.dataset.id,
             check: checkUserSys.checked,
             senha: stripHTMLTags(senhaMembro.value),
@@ -349,7 +363,7 @@ if (!page || page == 1) {
                     "O campo e-mail é obrigatório para adicionar um membro!"
                 );
                 return;
-            case isEmpty(fone):
+            case isEmpty(foneMask):
                 showNotification(
                     "failure",
                     "Falha!",
@@ -393,14 +407,14 @@ if (!page || page == 1) {
                 "O campo senha não pode conter mais do que 100 caracteres!"
             );
             return;
-        } else if (!isValidPhone(fone)) {
+        } else if (!isValidPhone(foneMask)) {
             showNotification(
                 "failure",
                 "Falha!",
                 "O campo telefone não foi preenchido corretamento!"
             );
             return;
-        } else if(!isValidEmail(email)) {
+        } else if (!isValidEmail(email)) {
             showNotification(
                 "failure",
                 "Falha!",
@@ -408,6 +422,8 @@ if (!page || page == 1) {
             );
             return;
         }
+
+        const fone = unmaskPhone(foneMask);
 
         try {
             const res = await fetch("http://localhost:8080/equipe", {
@@ -446,7 +462,110 @@ if (!page || page == 1) {
             console.error("Erro: ", err);
             return;
         }
-    });
+    }
+
+    let currentEditHandler = null;
+
+    async function updateMember(e, id) {
+        e.preventDefault();
+    
+        const nome = stripHTMLTags(nomeMembro.value);
+        const email = stripHTMLTags(emailMembro.value);
+        const foneMask = stripHTMLTags(telMembro.value);
+        const area = areaInput.dataset.id;
+        const check = checkUserSys.checked;
+        const senha = stripHTMLTags(senhaMembro.value);
+    
+        if (!isValidPhone(foneMask) || !isValidEmail(email)) {
+            showNotification("failure", "Falha!", "Dados inválidos!");
+            return;
+        }
+    
+        const fone = unmaskPhone(foneMask);
+    
+        const updateRes = await fetch(`http://localhost:8080/equipe/${id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ nome, email, fone, area, check, senha }),
+        });
+    
+        if (!updateRes.ok) {
+            console.log(await updateRes.json());
+            showNotification("failure", "Falha!", "Erro ao atualizar membro!");
+            return;
+        }
+    
+        showNotification("success", "Sucesso!", "Membro atualizado!");
+        loadEquipe(currentQuery, currentFilter);
+    }
+
+    async function editMember(id) {
+        try {
+            const res = await fetch(`http://localhost:8080/equipe/find/${id}`);
+            if (!res.ok) throw new Error("Falha ao buscar membro");
+
+            const data = await res.json();
+            const membro = data[0];
+            if (!membro) return;
+
+            const resArea = await fetch(
+                `http://localhost:8080/areas/find/${id}`
+            );
+            if (!resArea.ok)
+                throw new Error("Erro ao buscar área no servidor.");
+
+            const [area] = await resArea.json();
+
+            nomeMembro.value = membro.nomeMembro || "";
+            emailMembro.value = membro.emailMembro || "";
+            telMembro.value = membro.foneMembro || "";
+            maskPhone(telMembro);
+
+            areaInput.value = area.nomeArea || "";
+            areaInput.dataset.id = membro.idArea || "";
+
+            checkUserSys.checked = membro.acessoSistema === 1;
+            senhaMembro.value = "";
+            if (membro.acessoSistema === 1) {
+                hiddenForm.classList.remove("hidden");
+            }
+
+            editingId = id;
+            submitForm.textContent = "Editar";
+            document.querySelector(
+                ".formEditAdd h2"
+            ).textContent = `Editando Membro: ${membro.nomeMembro}`;
+
+            if (currentEditHandler) {
+                submitForm.removeEventListener("click", currentEditHandler);
+            }
+
+            const pageTable = document.querySelector(".pageTable");
+            const pageEditAdd = document.querySelector(".pageEditAdd");
+            const returnButton = document.querySelector(".return");
+            pageTable.classList.remove("active");
+            pageEditAdd.classList.add("active");
+
+            returnButton.addEventListener("click", () => {
+                editingId = null; 
+
+                submitForm.textContent = "Criar";
+                document.querySelector(".formEditAdd h2").textContent =
+                    "ADICIONAR MEMBRO";
+
+                nomeMembro.value = "";
+                emailMembro.value = "";
+                telMembro.value = "";
+                senhaMembro.value = "";
+                areaInput.value = "";
+                areaInput.dataset.id = "";
+                checkUserSys.checked = false;
+            });
+        } catch (err) {
+            showNotification("failure", "Falha!", "Erro ao carregar membro!");
+            console.error(err);
+        }
+    }
 } else {
     const nomeMembro = document.getElementById("nomeMembro");
     const avisoText = document.getElementById("avisoText");

@@ -366,11 +366,20 @@ imgEquip.addEventListener("change", () => {
         return;
     }
 });
+let editingId = null;
 
 submit.addEventListener("click", async (e) => {
+    if (editingId) {
+        updateEquipment(e, editingId);
+    } else {
+        addEquipment(e);
+    }
+});
+
+async function addEquipment(e) {
     e.preventDefault();
 
-    const { name, code, area, check } = {
+    let { name, code, area, check } = {
         name: stripHTMLTags(nomeEquip.value),
         code: stripHTMLTags(codEquipe.value),
         area: areaInput.dataset.id,
@@ -379,50 +388,42 @@ submit.addEventListener("click", async (e) => {
 
     const img = imgEquip.files[0];
 
-    if (isEmpty(name)) {
-        showNotification(
+    if (isEmpty(name))
+        return showNotification(
             "failure",
             "Falha!",
-            "O campo nome é obrigatório para adicionar um equipamento!"
+            "O campo nome é obrigatório!"
         );
-        return;
-    } else if (!area) {
-        showNotification(
+    if (!area)
+        return showNotification(
             "failure",
             "Falha!",
-            "O campo área é obrigatório para adicionar um equipamento!"
+            "O campo área é obrigatório!"
         );
-        return;
-    } else if (!img) {
-        showNotification(
+    if (!img)
+        return showNotification(
             "failure",
             "Falha!",
-            "O campo imagem é obrigatório para adicionar um equipamento!"
+            "O campo imagem é obrigatório!"
         );
-        return;
-    }else if (name.length > 70) {
-        showNotification(
+    if (name.length > 70)
+        return showNotification(
             "failure",
             "Falha!",
             "O campo nome não pode ter mais de 70 caracteres!"
         );
-        return;
-    }else if (code.length > 50) {
-        showNotification(
+    if (code.length > 50)
+        return showNotification(
             "failure",
             "Falha!",
             "O campo código não pode ter mais de 50 caracteres!"
         );
-        return;
-    }
-
     if (isEmpty(code)) code = 1;
 
-    const optmizedImage = await processImage(img);
+    const optimizedImage = await processImage(img);
 
     const formData = new FormData();
-
-    formData.append("imagem", optmizedImage);
+    formData.append("imagem", optimizedImage);
     formData.append("nome", name);
     formData.append("codigo", code);
     formData.append("areaId", area);
@@ -434,9 +435,7 @@ submit.addEventListener("click", async (e) => {
             body: formData,
         });
 
-        if (!res.ok) {
-            throw new Error("Erro interno no servidor");
-        }
+        if (!res.ok) throw new Error("Erro interno no servidor");
 
         showNotification(
             "success",
@@ -453,15 +452,108 @@ submit.addEventListener("click", async (e) => {
 
         loadEquipamentos(currentQuery, currentFilter);
     } catch (err) {
-        showNotification(
-            "failure",
-            "Falha!",
-            "Ocorreu um erro ao tentar adicionar o equipamento!"
-        );
-        console.error("Erro: ", err);
-        return;
+        showNotification("failure", "Falha!", "Erro ao adicionar equipamento!");
+        console.error(err);
     }
-});
+}
+
+async function updateEquipment(e, id) {
+    e.preventDefault();
+
+    let { name, code, area, check } = {
+        name: stripHTMLTags(nomeEquip.value),
+        code: stripHTMLTags(codEquipe.value),
+        area: areaInput.dataset.id,
+        check: checkAlto.checked,
+    };
+
+    const img = imgEquip.files[0];
+    const formData = new FormData();
+
+    formData.append("nome", name);
+    formData.append("codigo", code);
+    formData.append("areaId", area);
+    formData.append("altoValor", check);
+
+    if (img) {
+        const optimizedImage = await processImage(img);
+        formData.append("imagem", optimizedImage);
+    }
+
+    try {
+        const res = await fetch(`http://localhost:8080/equipamentos/${id}`, {
+            method: "PUT",
+            body: formData,
+        });
+
+        if (!res.ok) throw new Error("Erro ao atualizar equipamento");
+
+        showNotification(
+            "success",
+            "Sucesso!",
+            "O equipamento foi atualizado!"
+        );
+        loadEquipamentos(currentQuery, currentFilter);
+    } catch (err) {
+        showNotification("failure", "Falha!", "Erro ao atualizar equipamento!");
+        console.error(err);
+    }
+}
+
+async function editEquipment(id) {
+    try {
+        const res = await fetch(
+            `http://localhost:8080/equipamentos/find/${id}`
+        );
+        if (!res.ok) throw new Error("Erro ao buscar equipamento");
+
+        const data = await res.json();
+        const equipamento = data[0];
+        if (!equipamento) return;
+
+        nomeEquip.value = equipamento.nomeEquipamento || "";
+        codEquipe.value = equipamento.codEquipamento || "";
+        checkAlto.checked = equipamento.altoValor === 1;
+
+        const resArea = await fetch(`http://localhost:8080/areas/find/${equipamento.idArea}`);
+        if (!resArea.ok) throw new Error("Erro ao buscar área no servidor.");
+
+        const [area] = await resArea.json();
+
+        areaInput.value = area.nomeArea || "";
+        areaInput.dataset.id = equipamento.idArea || "";
+
+        imgEquip.value = "";
+
+        editingId = id;
+        submit.textContent = "Editar";
+        document.querySelector(
+            ".formEditAdd h2"
+        ).textContent = `Editando Equipamento: ${equipamento.nomeEquipamento}`;
+
+        const pageTable = document.querySelector(".pageTable");
+        const pageEditAdd = document.querySelector(".pageEditAdd");
+        const returnButton = document.querySelector(".return");
+        pageTable.classList.remove("active");
+        pageEditAdd.classList.add("active");
+
+        returnButton.addEventListener("click", () => {
+            editingId = null;
+            submit.textContent = "Criar";
+            document.querySelector(".formEditAdd h2").textContent =
+                "ADICIONAR EQUIPAMENTO";
+            nomeEquip.value = "";
+            codEquipe.value = "";
+            areaInput.value = "";
+            areaInput.dataset.id = "";
+            checkAlto.checked = false;
+            imgEquip.value = "";
+        });
+    } catch (err) {
+        showNotification("failure", "Falha!", "Erro ao carregar equipamento!");
+        console.error(err);
+    }
+}
 
 /* ====================== Drag and Drop ====================== */
 const dropArea = document.getElementById("imgInput");
@@ -490,7 +582,7 @@ dropArea.addEventListener("drop", (e) => {
 
     const file = e.dataTransfer.files[0];
     if (file) {
-        imgEquip.files = e.dataTransfer.files; 
+        imgEquip.files = e.dataTransfer.files;
         imgPreview.src = URL.createObjectURL(file);
         imgEquip.dispatchEvent(new Event("change"));
     }

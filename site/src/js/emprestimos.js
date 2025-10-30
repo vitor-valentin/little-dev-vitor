@@ -360,7 +360,7 @@ if (!page || page == 1) {
     }
 
     function devolvidoCheck(dataDevolvido) {
-        return !dataDevolvido ? "Não Devolvido" : formatDatetime(dataDevolvido);
+        return dataDevolvido == '1900-01-01T04:07:29.000Z' ? "Não Devolvido" : formatDatetime(dataDevolvido);
     }
 
     function formatDatetime(datetime) {
@@ -585,7 +585,16 @@ if (!page || page == 1) {
         const dateF = dataF.value;
 
         const params = new URLSearchParams(window.location.search);
-        if ((areaId == "undefined" || !areaId ) && (eqId == "undefined" || !eqId) && (membroId == "undefined" || !membroId ) && !checkV && !checkA && isEmpty(dateI) && isEmpty(dateF) && selectValue == "todos") {
+        if (
+            (areaId == "undefined" || !areaId) &&
+            (eqId == "undefined" || !eqId) &&
+            (membroId == "undefined" || !membroId) &&
+            !checkV &&
+            !checkA &&
+            isEmpty(dateI) &&
+            isEmpty(dateF) &&
+            selectValue == "todos"
+        ) {
             params.delete("filter");
         } else {
             params.set(
@@ -598,7 +607,7 @@ if (!page || page == 1) {
                     checkA,
                     selectValue,
                     dateI,
-                    dateF
+                    dateF,
                 })
             );
         }
@@ -645,18 +654,37 @@ if (!page || page == 1) {
     setupEquipeAutoComplete(inputMembro);
     setDataNow();
 
-    submitBtn.addEventListener("click", async (e) => {
+    let editingEmpId = null;
+
+    submitBtn.addEventListener("click", (e) => {
+        if (editingEmpId) {
+            console.log("a");
+            updateEmprestimo(e, editingEmpId);
+        } else {
+            addEmprestimo(e);
+        }
+    });
+
+    function clearEmprestimoForm() {
+        inputEquip.value = "";
+        inputEquip.dataset.id = "";
+        setDataNow();
+        dataDevolucao.value = "";
+        salaLocal.value = "";
+        inputMembro.value = "";
+        inputMembro.dataset.id = "";
+        obsText.value = "";
+    }
+
+    async function addEmprestimo(e) {
         e.preventDefault();
 
-        const { idEquipamento, recebimento, devolucao, local, idMembro, obs } =
-            {
-                idEquipamento: inputEquip.dataset.id,
-                recebimento: stripHTMLTags(dataRecebimento.value),
-                devolucao: stripHTMLTags(dataDevolucao.value),
-                local: stripHTMLTags(salaLocal.value),
-                idMembro: inputMembro.dataset.id,
-                obs: stripHTMLTags(obsText.value),
-            };
+        const idEquipamento = inputEquip.dataset.id;
+        const recebimento = stripHTMLTags(dataRecebimento.value);
+        const devolucao = stripHTMLTags(dataDevolucao.value);
+        const local = stripHTMLTags(salaLocal.value);
+        const idMembro = inputMembro.dataset.id;
+        const obs = stripHTMLTags(obsText.value);
 
         switch (true) {
             case isEmpty(idEquipamento):
@@ -695,10 +723,8 @@ if (!page || page == 1) {
                 );
                 return;
         }
-
         const dateReceb = new Date(recebimento);
         const dateDev = new Date(devolucao);
-
         if (dateDev < dateReceb) {
             showNotification(
                 "failure",
@@ -736,34 +762,187 @@ if (!page || page == 1) {
                 }),
             });
 
-            if (!res.ok) {
-                throw new Error("Erro interno no servidor");
-            }
+            if (!res.ok) throw new Error();
 
             showNotification(
                 "success",
                 "Sucesso!",
-                "O empréstimo foi registrado com sucesso no sistema!"
+                "Empréstimo criado com sucesso!"
             );
 
-            inputEquip.value = "";
-            inputEquip.dataset.id = "";
-            setDataNow();
-            dataDevolucao.value = "";
-            salaLocal.value = "";
-            inputMembro.value = "";
-            inputMembro.dataset.id = "";
-            obsText.value = "";
+            clearEmprestimoForm();
+            loadEmprestimos(currentQuery, currentFilter);
+        } catch (err) {
+            showNotification(
+                "failure",
+                "Falha!",
+                "Erro ao registrar o empréstimo!"
+            );
+        }
+    }
+
+    async function updateEmprestimo(e, id) {
+        e.preventDefault();
+
+        const idEquipamento = inputEquip.dataset.id;
+        const recebimento = stripHTMLTags(dataRecebimento.value);
+        const devolucao = stripHTMLTags(dataDevolucao.value);
+        const local = stripHTMLTags(salaLocal.value);
+        const idMembro = inputMembro.dataset.id;
+        const obs = stripHTMLTags(obsText.value);
+
+        switch (true) {
+            case isEmpty(idEquipamento):
+                showNotification(
+                    "failure",
+                    "Falha!",
+                    "O campo equipamento é obrigatório para registrar um empréstimo!"
+                );
+                return;
+            case isEmpty(recebimento):
+                showNotification(
+                    "failure",
+                    "Falha!",
+                    "A data de recebimento é obrigatório para registrar um empréstimo!"
+                );
+                return;
+            case isEmpty(devolucao):
+                showNotification(
+                    "failure",
+                    "Falha!",
+                    "A data de devolucao é obrigatório para registrar um empréstimo!"
+                );
+                return;
+            case isEmpty(local):
+                showNotification(
+                    "failure",
+                    "Falha!",
+                    "O campo local é obrigatório para registrar um empréstimo!"
+                );
+                return;
+            case isEmpty(idMembro):
+                showNotification(
+                    "failure",
+                    "Falha!",
+                    "O campo membro é obrigatório para registrar um empréstimo!"
+                );
+                return;
+        }
+        const dateReceb = new Date(recebimento);
+        const dateDev = new Date(devolucao);
+        if (dateDev < dateReceb) {
+            showNotification(
+                "failure",
+                "Falha!",
+                "A data de devolução deve ser maior que a data de recebimento!"
+            );
+            return;
+        } else if (obs.length > 200) {
+            showNotification(
+                "failure",
+                "Falha!",
+                "O campo observações não pode conter mais do que 200 caracteres!"
+            );
+            return;
+        } else if (local.length > 30) {
+            showNotification(
+                "failure",
+                "Falha!",
+                "O campo local não pode contar mais do que 30 caracteres!"
+            );
+            return;
+        }
+
+        try {
+            const res = await fetch(`http://localhost:8080/emprestimos/${id}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    idEquipamento,
+                    recebimento,
+                    devolucao,
+                    local,
+                    idMembro,
+                    obs,
+                }),
+            });
+
+            if (!res.ok) throw new Error();
+
+            showNotification("success", "Sucesso!", "Empréstimo atualizado!");
 
             loadEmprestimos(currentQuery, currentFilter);
         } catch (err) {
             showNotification(
                 "failure",
                 "Falha!",
-                "Ocorreu um erro ao tentar registrar o empréstimo!"
+                "Erro ao atualizar empréstimo!"
             );
-            console.error("Erro: ", err);
-            return;
+            console.error(err);
         }
-    });
+    }
+
+    async function editEmprestimo(id) {
+        try {
+            const res = await fetch(
+                `http://localhost:8080/emprestimos/find/${id}`
+            );
+            if (!res.ok) throw new Error("Erro ao buscar empréstimo");
+            const data = await res.json();
+            const emp = data[0];
+
+            if (!emp) return;
+
+            const resEq = await fetch(`http://localhost:8080/equipamentos/find/${emp.idEquipamento}`);
+            if (!resEq.ok) throw new Error("Falha ao buscar equipamento");
+
+            const dataEq = await resEq.json();
+            const eq = dataEq[0];
+
+            inputEquip.value = eq.nomeEquipamento || "";
+            inputEquip.dataset.id = emp.idEquipamento;
+
+            dataRecebimento.value = emp.dataRecebimento.slice(0, 16);
+            dataDevolucao.value = emp.dataDevolucao.slice(0, 16);
+
+            salaLocal.value = emp.localUso || "";
+
+            const resMembro = await fetch(`http://localhost:8080/equipe/find/${emp.idMembro}`);
+            if (!resMembro.ok) throw new Error("Falha ao buscar equipamento");
+
+            const dataMembro = await resMembro.json();
+            const membro = dataMembro[0];
+
+            inputMembro.value = membro.nomeMembro || "";
+            inputMembro.dataset.id = emp.idMembro;
+
+            obsText.value = emp.obsVistoria || "";
+
+            editingEmpId = id;
+            submitBtn.textContent = "Editar";
+            document.querySelector(
+                ".formEditAdd h2"
+            ).textContent = `Editando Empréstimo: ${id}`;
+
+            document.querySelector(".pageTable").classList.remove("active");
+            document.querySelector(".pageEditAdd").classList.add("active");
+
+            document.querySelector(".return").addEventListener("click", () => {
+                editingEmpId = null;
+                submitBtn.textContent = "Criar";
+                document.querySelector(".formEditAdd h2").textContent =
+                    "ADICIONAR EMPRÉSTIMO";
+                clearEmprestimoForm();
+            });
+        } catch (err) {
+            showNotification(
+                "failure",
+                "Falha!",
+                "Erro ao carregar empréstimo!"
+            );
+            console.error(err);
+        }
+
+        
+    }
 }

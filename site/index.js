@@ -180,9 +180,9 @@ app.get("/config/:id", async (req, res) => {
     try {
         const result = await query(
             "SELECT * FROM tbConfig WHERE idUsuario = ?",
-            [parseInt(2)]
+            [id]
         );
-        res.status(200).send(result[0]);
+        res.status(200).send(result);
     } catch (err) {
         console.error("Erro no MySQL: ", err);
         res.status(500).send({
@@ -337,7 +337,7 @@ app.get("/equipamentos/filter/:page", async (req, res) => {
             availabilityJoin = `
                 JOIN tbEmprestimos e 
                 ON tbEquipamentos.idEquipamento = e.idEquipamento 
-                AND e.dataDevolvido IS NULL
+                AND e.dataDevolvido '1900-01-01 01:01:01'
                 AND e.dataRecebimento <= NOW()
             `;
         } else {
@@ -345,7 +345,7 @@ app.get("/equipamentos/filter/:page", async (req, res) => {
             SELECT 1
             FROM tbEmprestimos emp
             WHERE emp.idEquipamento = tbEquipamentos.idEquipamento
-            AND emp.dataDevolvido IS NULL
+            AND emp.dataDevolvido '1900-01-01 01:01:01'
             AND emp.dataRecebimento <= NOW()
                 )`);
         }
@@ -417,7 +417,16 @@ app.get("/emprestimos/filter/:page", async (req, res) => {
     const { q, filter } = req.query;
     const filterJson = filter ? JSON.parse(filter) : null;
 
-    const { areaId, eqId, membroId, checkV, checkA, selectValue, dateI, dateF } = filterJson || {};
+    const {
+        areaId,
+        eqId,
+        membroId,
+        checkV,
+        checkA,
+        selectValue,
+        dateI,
+        dateF,
+    } = filterJson || {};
 
     const itensPerPage = 8;
     const offset = (parseInt(page) - 1) * itensPerPage;
@@ -461,19 +470,21 @@ app.get("/emprestimos/filter/:page", async (req, res) => {
     }
 
     if (checkA) {
-        whereClauses.push(`em.dataDevolucao < NOW() AND (em.dataDevolvido IS NULL OR em.dataDevolvido > em.dataDevolucao)`);
+        whereClauses.push(
+            `em.dataDevolucao < NOW() AND (em.dataDevolvido = '1900-01-01 01:01:01' OR em.dataDevolvido > em.dataDevolucao)`
+        );
     }
 
     if (selectValue && selectValue !== "todos") {
         if (selectValue === "finalizados") {
-            whereClauses.push("em.dataDevolvido <> '0000-00-00 00:00:00'");
+            whereClauses.push("em.dataDevolvido <> '1900-01-01 01:01:01'");
         } else if (selectValue === "agendados") {
             whereClauses.push("em.dataRecebimento > NOW()");
         } else if (selectValue === "em-uso") {
             whereClauses.push(`
                 em.dataRecebimento <= NOW()
                 AND em.dataDevolucao >= NOW()
-                AND em.dataDevolvido <> '0000-00-00 00:00:00'
+                AND em.dataDevolvido <> '1900-01-01 01:01:01'
             `);
         }
     }
@@ -488,7 +499,9 @@ app.get("/emprestimos/filter/:page", async (req, res) => {
         params.push(dateF);
     }
 
-    const whereSQL = whereClauses.length ? "WHERE " + whereClauses.join(" AND ") : "";
+    const whereSQL = whereClauses.length
+        ? "WHERE " + whereClauses.join(" AND ")
+        : "";
 
     try {
         const result = await query(
@@ -511,7 +524,24 @@ app.get("/emprestimos/filter/:page", async (req, res) => {
     } catch (err) {
         console.error("Erro no MySQL: ", err);
         res.status(500).send({
-            message: "Erro ao tentar buscar empréstimos no banco de dados"
+            message: "Erro ao tentar buscar empréstimos no banco de dados",
+        });
+    }
+});
+
+app.get("/emprestimos/find/:id", async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const result = await query(
+            "SELECT * FROM tbEmprestimos WHERE idEmprestimo = ?",
+            [id]
+        );
+        res.status(200).send(result);
+    } catch (err) {
+        console.error("Erro no MySQL: ", err);
+        res.status(500).send({
+            message: "Erro ao tentar pegar item da tabela",
         });
     }
 });
@@ -521,7 +551,7 @@ app.get("/emprestimos/equipamento/:id", async (req, res) => {
 
     try {
         const result = await query(
-            "SELECT * FROM tbEmprestimos WHERE idEquipamento = ? AND dataDevolvido IS NULL AND dataRecebimento <= NOW()",
+            "SELECT * FROM tbEmprestimos WHERE idEquipamento = ? AND dataDevolvido = '1900-01-01 01:01:01' AND dataRecebimento <= NOW()",
             [id]
         );
         res.status(200).send(result);
@@ -537,7 +567,7 @@ app.get("/emprestimos/equipamento/:id", async (req, res) => {
 app.get("/emprestimos/vencidos", async (req, res) => {
     try {
         const result = await query(
-            "SELECT * FROM tbEmprestimos WHERE dataDevolucao > NOW() AND dataDevolvido IS NULL"
+            "SELECT * FROM tbEmprestimos WHERE dataDevolucao > NOW() AND dataDevolvido = '1900-01-01 01:01:01'"
         );
         res.status(200).send(result);
     } catch (err) {
@@ -551,13 +581,103 @@ app.get("/emprestimos/vencidos", async (req, res) => {
 app.get("/emprestimos/proximos", async (req, res) => {
     try {
         const result = await query(
-            "SELECT * FROM tbEmprestimos WHERE dataDevolucao >= CURDATE() AND dataDevolucao < NOW();"
+            "SELECT * FROM tbEmprestimos WHERE DATE(dataDevolucao) = DATE(NOW()) AND dataDevolvido = '1900-01-01 01:01:01';"
         );
         res.status(200).send(result);
     } catch (err) {
         console.error("Erro no MySQL: ", err);
         res.status(500).send({
             message: "Erro ao tentar pegar os empréstimos próximos.",
+        });
+    }
+});
+
+app.get("/equipamentos/emuso", async (req, res) => {
+    try {
+        const result = await query(
+            `SELECT 
+                e.idEquipamento,
+                e.nomeEquipamento,
+                e.codEquipamento,
+                e.imagemEquipamento,
+                emp.idEmprestimo,
+                emp.dataRecebimento,
+                emp.dataDevolucao,
+                emp.idMembro,
+                emp.localUso
+            FROM tbEquipamentos e
+            INNER JOIN tbEmprestimos emp 
+                ON emp.idEquipamento = e.idEquipamento
+            WHERE emp.dataRecebimento < NOW()
+              AND (
+                    emp.dataDevolvido = '1900-01-01 01:01:01' 
+                    
+                  )`
+        );
+
+        res.status(200).send(result);
+    } catch (err) {
+        console.error("Erro no MySQL:", err);
+        res.status(500).send({
+            message: "Erro ao tentar pegar os equipamentos em uso.",
+        });
+    }
+});
+
+app.get("/emprestimos/mes", async (req, res) => {
+    try {
+        const result = await query(
+            `SELECT * 
+             FROM tbEmprestimos 
+             WHERE dataDevolvido <> '1900-01-01 01:01:01'
+               AND MONTH(dataDevolucao) = MONTH(CURDATE())
+               AND YEAR(dataDevolucao) = YEAR(CURDATE())`
+        );
+
+        res.status(200).send(result);
+    } catch (err) {
+        console.error("Erro no MySQL: ", err);
+        res.status(500).send({
+            message: "Erro ao tentar pegar os empréstimos do mês.",
+        });
+    }
+});
+
+app.get("/emprestimos/ultimos", async (req, res) => {
+    try {
+        const result = await query(
+            `SELECT *
+             FROM tbEmprestimos
+             WHERE dataDevolvido <> '1900-01-01 01:01:01'
+             ORDER BY dataDevolvido DESC
+             LIMIT 5`
+        );
+
+        res.status(200).send(result);
+    } catch (err) {
+        console.error("Erro no MySQL:", err);
+        res.status(500).send({
+            message: "Erro ao tentar pegar os últimos empréstimos devolvidos.",
+        });
+    }
+});
+
+app.get("/emprestimos/atrasados", async (req, res) => {
+    try {
+        const result = await query(
+            `SELECT *
+             FROM tbEmprestimos
+             WHERE dataDevolvido = '1900-01-01 01:01:01'
+               AND dataDevolucao < NOW()
+             ORDER BY dataDevolucao DESC
+             LIMIT 15`
+        );
+
+        res.status(200).send(result);
+    } catch (err) {
+        console.error("Erro no MySQL:", err);
+        res.status(500).send({
+            message: "Erro ao tentar pegar os empréstimos atrasados.",
         });
     }
 });
@@ -662,9 +782,15 @@ app.post("/equipe", requireLogin, async (req, res) => {
     }
 
     try {
-        await query(
+        const insert = await query(
             `INSERT INTO tbEquipe (nomeMembro, emailMembro, foneMembro, idArea, acessoSistema${hasSenha}) VALUES (${sql})`,
             params
+        );
+
+        const id = insert.insertId;
+        await query(
+            "INSERT INTO tbConfig (idUsuario, tempoAvisos, notificacoesSistema, modoDaltonismo, temaCor, somNotificacoes, volumeNotificacao) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            [id, 30, 1, 0, "claro", 1, 100]
         );
 
         res.status(200).send();
@@ -675,12 +801,13 @@ app.post("/equipe", requireLogin, async (req, res) => {
 });
 
 app.post("/emprestimos", requireLogin, async (req, res) => {
-    const { idEquipamento, recebimento, devolucao, local, idMembro, obs} = req.body;
-    const params = [idEquipamento, recebimento, devolucao, "", idMembro, local];
-    let sql = "?, ?, ?, ?, ?, ?";
+    const { idEquipamento, recebimento, devolucao, local, idMembro, obs } =
+        req.body;
+    const params = [idEquipamento, recebimento, devolucao, "1900-01-01 01:01:01", idMembro, local, "NOT-SET"];
+    let sql = "?, ?, ?, ?, ?, ?, ?";
     let hasObs = "";
 
-    if(!isEmpty(obs)) {
+    if (!isEmpty(obs)) {
         params.push(obs);
         sql += ", ?";
         hasObs = ", infoReserva";
@@ -688,28 +815,25 @@ app.post("/emprestimos", requireLogin, async (req, res) => {
 
     try {
         await query(
-            `INSERT INTO tbEmprestimos (idEquipamento, dataRecebimento, dataDevolucao, dataDevolvido, idMembro, localUso${hasObs}) VALUES (${sql})`,
-        params);
-        res.status(200).send();
-    } catch (err) {
-        console.error("Erro no MySQL: ", err);
-        res.status(500).send({error: "Erro ao tentar cadastrar"});
-    }
-
-});
-
-app.post("/areas", requireLogin, async (req, res) => {
-    const {nome} = req.body;
-
-    try {
-        await query(
-            "INSERT INTO tbAreas (nomeArea) VALUES (?)",
-            [nome]
+            `INSERT INTO tbEmprestimos (idEquipamento, dataRecebimento, dataDevolucao, dataDevolvido, idMembro, localUso, devolvidoPor${hasObs}) VALUES (${sql})`,
+            params
         );
         res.status(200).send();
     } catch (err) {
         console.error("Erro no MySQL: ", err);
-        res.status(500).send({error: "Erro ao tentar cadastrar"});
+        res.status(500).send({ error: "Erro ao tentar cadastrar" });
+    }
+});
+
+app.post("/areas", requireLogin, async (req, res) => {
+    const { nome } = req.body;
+
+    try {
+        await query("INSERT INTO tbAreas (nomeArea) VALUES (?)", [nome]);
+        res.status(200).send();
+    } catch (err) {
+        console.error("Erro no MySQL: ", err);
+        res.status(500).send({ error: "Erro ao tentar cadastrar" });
     }
 });
 
@@ -754,15 +878,152 @@ app.put("/config", requireLogin, async (req, res) => {
 });
 
 app.put("/areas/:id", requireLogin, async (req, res) => {
-    const {id} = req.params;
-    const {nome} = req.body;
+    const { id } = req.params;
+    const { nome } = req.body;
 
     try {
-        await query("UPDATE tbAreas SET nomeArea = ? WHERE idArea = ?", [nome, id]);
+        await query("UPDATE tbAreas SET nomeArea = ? WHERE idArea = ?", [
+            nome,
+            id,
+        ]);
         res.status(200).send();
-    } catch(err) {
+    } catch (err) {
         console.error("Erro no MySQL: ", err);
-        res.status(500).send({err: "Erro ao tentar editar área"});
+        res.status(500).send({ err: "Erro ao tentar editar área" });
+    }
+});
+
+app.put("/equipe/:id", async (req, res) => {
+    const { id } = req.params;
+    const { nome, email, fone, area, check, senha } = req.body;
+
+    try {
+        let queryStr = `
+            UPDATE tbEquipe 
+            SET nomeMembro=?, emailMembro=?, foneMembro=?, idArea=?, acessoSistema=?
+        `;
+
+        const params = [nome, email, fone, area, check ? 1 : 0];
+
+        if (senha && senha.trim() !== "") {
+            queryStr += `, senhaMembro=?`;
+            params.push(await bcrypt.hash(senha, saltRounds));
+        }
+
+        queryStr += ` WHERE idMembro=?`;
+        params.push(id);
+
+        await query(queryStr, params);
+
+        res.status(200).send({ message: "Atualizado com sucesso" });
+    } catch (err) {
+        res.status(500).send({ message: "Erro", err });
+    }
+});
+
+app.put(
+    "/equipamentos/:id",
+    requireLogin,
+    upload.single("imagem"),
+    async (req, res) => {
+        const { id } = req.params;
+        const { nome, codigo, areaId, altoValor } = req.body;
+        let newFile = req.file ? req.file.filename : null;
+
+        try {
+            const [old] = await query(
+                "SELECT imagemEquipamento FROM tbEquipamentos WHERE idEquipamento = ?",
+                [id]
+            );
+
+            if (!old) {
+                return res
+                    .status(404)
+                    .send({ error: "Equipamento não encontrado" });
+            }
+
+            if (newFile && old.imagemEquipamento) {
+                const fs = require("fs");
+                const path = require("path");
+                const filePath = path.join(
+                    __dirname,
+                    "src/images/uploads",
+                    old.imagemEquipamento
+                );
+                if (fs.existsSync(filePath)) {
+                    fs.unlinkSync(filePath);
+                }
+            }
+
+            const queryFields = [];
+            const queryValues = [];
+
+            if (newFile) {
+                queryFields.push("imagemEquipamento = ?");
+                queryValues.push(newFile);
+            }
+            if (nome !== undefined) {
+                queryFields.push("nomeEquipamento = ?");
+                queryValues.push(nome);
+            }
+            if (codigo !== undefined) {
+                queryFields.push("codEquipamento = ?");
+                queryValues.push(codigo);
+            }
+            if (altoValor !== undefined) {
+                queryFields.push("altoValor = ?");
+                queryValues.push(altoValor == "true" ? 1 : 0);
+            }
+            if (areaId !== undefined) {
+                queryFields.push("idArea = ?");
+                queryValues.push(areaId);
+            }
+
+            queryValues.push(id);
+
+            const sql = `UPDATE tbEquipamentos SET ${queryFields.join(
+                ", "
+            )} WHERE idEquipamento = ?`;
+
+            await query(sql, queryValues);
+
+            res.status(200).send({
+                message: "Equipamento atualizado com sucesso",
+            });
+        } catch (err) {
+            console.error("Erro no MySQL: ", err);
+            res.status(500).send({
+                error: "Erro ao tentar atualizar equipamento",
+            });
+        }
+    }
+);
+
+app.put("/emprestimos/:id", requireLogin, async (req, res) => {
+    const { id } = req.params;
+    const { idEquipamento, recebimento, devolucao, local, idMembro, obs } = req.body;
+
+    try {
+        const emprestimoExistente = await query(
+            "SELECT * FROM tbEmprestimos WHERE idEmprestimo = ?",
+            [id]
+        );
+
+        if (emprestimoExistente.length === 0) {
+            return res.status(404).send({ message: "Empréstimo não encontrado" });
+        }
+
+        await query(
+            `UPDATE tbEmprestimos
+             SET idEquipamento = ?, dataRecebimento = ?, dataDevolucao = ?, localUso = ?, idMembro = ?, infoReserva = ?
+             WHERE idEmprestimo = ?`,
+            [idEquipamento, recebimento, devolucao, local, idMembro, obs || null, id]
+        );
+
+        res.status(200).send({ message: "Empréstimo atualizado com sucesso!" });
+    } catch (err) {
+        console.error("Erro ao atualizar empréstimo:", err);
+        res.status(500).send({ message: "Erro ao atualizar empréstimo.", error: err });
     }
 });
 

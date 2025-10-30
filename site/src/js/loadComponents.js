@@ -41,7 +41,6 @@ window.showConfirm = async function showConfirm(
     cancelText = "Cancelar"
 ) {
     return new Promise((resolve) => {
-        console.log(type);
         const icon =
             {
                 normal: "images/confirmNormal.png",
@@ -114,8 +113,9 @@ window.showNotification = async function showNotification(
 
     const id = await window.getUserId();
 
-    const response = await fetch(`http://localhost:8080/config/id=${id}`);
-    const json = await response.json();
+    const response = await fetch(`http://localhost:8080/config/${id}`);
+    const jsonRes = await response.json();
+    const json = jsonRes[0];
     const soundNot = json.volumeNotificacao / 100;
 
     sound.volume = soundNot;
