@@ -12,6 +12,9 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
     window.componentsLoaded = Promise.all([sidebarPromise, headerPromise]);
+
+    checkNotifications();
+    setInterval(checkNotifications, 60000);
 });
 
 window.getUserId = async function getUserId() {
@@ -109,7 +112,7 @@ window.showNotification = async function showNotification(
         </div>
     `;
 
-    document.body.appendChild(notification);
+    document.getElementById("notification-container").appendChild(notification);
 
     const id = await window.getUserId();
 
@@ -333,10 +336,14 @@ window.setupEquipamentosAutoComplete = function setupEquipamentosAutocomplete(
         equipamentos.forEach((equipamento) => {
             const item = document.createElement("div");
             item.classList.add("autocomplete-item");
-            item.textContent = equipamento.nomeEquipamento;
+            item.textContent =
+                equipamento.nomeEquipamento +
+                ` (${equipamento.codEquipamento})`;
 
             item.addEventListener("click", () => {
-                inputElement.value = equipamento.nomeEquipamento;
+                inputElement.value =
+                    equipamento.nomeEquipamento +
+                    ` (${equipamento.codEquipamento})`;
                 inputElement.dataset.id = equipamento.idEquipamento;
                 clearAutocomplete();
             });
@@ -359,3 +366,45 @@ window.setupEquipamentosAutoComplete = function setupEquipamentosAutocomplete(
         }
     });
 };
+
+async function showPopupAndMark(notification) {
+    const msg = notification.mensagemAviso;
+    let type;
+    let text;
+    if (notification.avisoSistema == 1) {
+        const json = JSON.parse(msg);
+        const tipo = json.type;
+        if (tipo == 1) {
+            type = "information";
+            title = "Notificação";
+            text = json.msg;
+        } else {
+            type = "alert";
+            title = "Alerta!";
+            text = json.msg;
+        }
+    } else {
+        const res = await fetch(
+            `http://localhost:8080/equipe/find/${notification.idUsuario}`
+        );
+        const resJson = await res.json();
+
+        type = "information";
+        title = "Nova postagem!";
+        text = `O usuário ${resJson[0].nomeMembro} postou um novo aviso! Cheque seu dashboard para ver a mensagem.`;
+    }
+
+    showNotification(type, title, text);
+
+    fetch("/notifications/seen", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: notification.idAviso }),
+    });
+}
+
+async function checkNotifications() {
+    const res = await fetch("/notifications");
+    const notifs = await res.json();
+    notifs.forEach(showPopupAndMark);
+}

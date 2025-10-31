@@ -12,8 +12,9 @@ const notification = document.getElementById("notification");
 async function loadConfig() {
     const id = await window.getUserId();
 
-    const response = await fetch(`http://localhost:8080/config/id=${id}`);
-    const json = await response.json();
+    const response = await fetch(`http://localhost:8080/config/${id}`);
+    const resJson = await response.json();
+    const json = resJson[0];
 
     tempoDuracaoAvisos.value = json.tempoAvisos;
     notificacoesSistema.checked = json.notificacoesSistema;

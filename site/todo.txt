@@ -1,11 +1,8 @@
-Whole dashboard connection with db
-Vistoria
 Agendar empréstimos
 Relatórios
 Finish making the configurations work
 Logs
 Backup on db
-Notifications for avisos
 Notifications for empréstimos
 Adicionar botão de limpar seleção no agendar empréstimos
-Na vistoria adicionar campo para quem devolveu
+Bloquear empréstimo de equipamentos em uso

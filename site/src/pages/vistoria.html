@@ -35,11 +35,15 @@
             </div>
         </div>
 
-        <div class="centerInfo">
-            <div class="inputAlone">
-                <label for="dateNow">Atual</label>
-                <input type="datetime-local" id="dateNow" disabled />
-                <p>Atraso de 1 hora e 20 minutos.</p>
+        <div class="rowInfo">
+            <div class="groupInput">
+                <label for="codeEqInfo">Devolvido por</label>
+                <input type="text" id="devolvidoPor" />
+            </div>
+            <div class="groupInpute" id="timeNow">
+                <label for="dateNow">Devolvido</label>
+                <input type="datetime-local" id="dateNow" />
+                <p></p>
             </div>
         </div>
 
@@ -113,7 +117,7 @@
 
             <label for="conditionDeclaration">
                 <input type="checkbox" id="conditionDeclaration" />
-                Eu, USERNAME, declaro que, após vistoria, o equipamento foi devolvido em 
+                Eu, <span>USERNAME</span>, declaro que, após vistoria, o equipamento foi devolvido em 
                 boas condições de uso e está apto para futuros empréstimos.
             </label>
         </div>

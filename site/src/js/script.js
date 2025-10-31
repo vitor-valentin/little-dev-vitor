@@ -6,6 +6,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const username = document.querySelector(".user p");
         const sidebar = document.querySelector(".sidebar");
+        const header = document.getElementById("headerContent-container");
+        const content = document.getElementById("content-container");
         const headerDashboard = document.getElementById("dashboardHeader");
         const headerEquipe = document.getElementById("equipeHeader");
         const headerEmprestimos = document.getElementById("emprestimosHeader");
@@ -37,6 +39,8 @@ document.addEventListener("DOMContentLoaded", () => {
                             document.getElementById(
                                 "content-container"
                             ).innerHTML = html;
+
+                            import("./dashboard.js");
                         });
                 }
 
@@ -141,7 +145,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     .then((html) => {
                         document.getElementById("content-container").innerHTML =
                             html;
-                        
+
                         import("./equipamentos.js");
                     });
 
@@ -175,6 +179,8 @@ document.addEventListener("DOMContentLoaded", () => {
                     .then((html) => {
                         document.getElementById("content-container").innerHTML =
                             html;
+                        
+                        import("./vistoria.js");
                     });
 
                 sidebar
@@ -208,14 +214,17 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             } catch (err) {
                 mainPage.classList.add("active");
-                showNotification("failure", "Falha!", "Nenhuma página com este id nesta seção!");
+                showNotification(
+                    "failure",
+                    "Falha!",
+                    "Nenhuma página com este id nesta seção!"
+                );
             }
 
             activeHeader.querySelectorAll("p").forEach((element) => {
                 element.addEventListener("click", (e) => {
                     const active = e.target.classList.contains("active");
-
-                    if (!active) {
+                    if (!active && e.target.tagName != "SPAN") {
                         const page =
                             e.target.id == "page-main"
                                 ? "1"
@@ -243,6 +252,34 @@ document.addEventListener("DOMContentLoaded", () => {
                 pageEditAdd.classList.toggle("active");
             }
 
+            sidebar.addEventListener("mouseenter", () => {
+                header.style.marginLeft = "300px";
+                header.style.width = "calc(100% - 300px)";
+                content.style.marginLeft = "300px";
+                content.style.width = "calc(100% - 300px)";
+
+                sidebar.querySelector(".logo img").src = "images/logo.png";
+
+                document.querySelectorAll("tbody td button").forEach((item) => {
+                    item.style.fontSize = "16px";
+                    item.style.gap = "0";
+                });
+            });
+
+            sidebar.addEventListener("mouseleave", () => {
+                header.style.marginLeft = "";
+                header.style.width = "";
+                content.style.marginLeft = "";
+                content.style.width = "";
+
+                sidebar.querySelector(".logo img").src = "images/small-logo.png";
+
+                document.querySelectorAll("tbody td button").forEach((item) => {
+                    item.style.fontSize = "20px";
+                    item.style.gap = "8px";
+                });
+            });
+
             if (pageTable && pageEditAdd) {
                 addButton.addEventListener("click", () => {
                     togglePage();
@@ -262,7 +299,6 @@ document.addEventListener("DOMContentLoaded", () => {
                     filterOverlay.classList.remove("active");
                 });
             }
-
         });
     });
 });

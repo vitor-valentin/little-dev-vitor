@@ -73,27 +73,51 @@ body {
 }
 
 .sidebar {
-    width: 300px;
+    width: 125px; 
     height: 100%;
     position: fixed;
     background-color: var(--cor-primaria);
     text-align: center;
+    transition: width 0.3s; 
+    overflow: hidden;
 }
 
 .sidebar .logo {
     margin-top: 35px;
 }
 
+.sidebar .logo img {
+    width: 60px;
+    height: 60px;
+}
+
+.sidebar:hover .logo img {
+    width: auto;
+    height: auto;
+}
+
 .sidebar .user {
-    margin-top: 50px;
+    margin-top: 0px;
 }
 
 .sidebar .user img {
+    width: 64px;
+    height: 64px;
+    margin-top: 50px;
+    transition: all 0.3s;
+}
+
+.sidebar:hover .user img {
     width: 96px;
     height: 96px;
 }
 
 .sidebar .user p {
+    display: none; 
+}
+
+.sidebar:hover .user p {
+    display: block;
     font-family: "Branding";
     font-weight: 500;
     font-size: 20px;
@@ -110,18 +134,38 @@ body {
     list-style-type: none;
     position: fixed;
     bottom: 10px;
+    display: flex;
+    flex-direction: column;
+    width: 125px;
+    justify-content: center;
+    transition: all 0.3s;
+}
+
+.sidebar:hover .nav-bottom {
+    display: inherit;
+    width: 300px;
 }
 
 .sidebar a {
-    width: 300px;
     display: flex;
     align-items: center;
+    justify-content: center;
     height: 72px;
     color: var(--cor-textos);
     font-size: 20px;
     font-family: "Branding";
     font-weight: 800;
     text-decoration: none;
+    padding: 0 5px;
+    transition: all 0.3s;
+}
+
+.sidebar:hover a {
+    justify-content: left;
+}
+
+.sidebar:hover {
+    width: 300px;
 }
 
 .sidebar li.active {
@@ -136,15 +180,33 @@ body {
 .sidebar li img {
     width: 36px;
     height: 36px;
-    margin: 0 19px;
+    margin-right: 0;
+    transition: all 0.3s;
 }
 
-.sidebar i {
-    font-size: 36px;
+.sidebar:hover li img {
+    margin-right: 19px; 
+}
+
+.sidebar li a span {
+    display: none;
+    transition: opacity 0.3s;
+}
+
+.sidebar:hover li a span {
+    display: inline;
+    opacity: 1;
 }
 
 #headerContent-container,
 #content-container {
+    margin-left: 125px;
+    width: calc(100% - 125px);
+    transition: margin-left 0.3s, width 0.3s;
+}
+
+.sidebar:hover ~ #headerContent-container,
+.sidebar:hover ~ #content-container {
     margin-left: 300px;
     width: calc(100% - 300px);
 }
@@ -250,7 +312,7 @@ body {
     border-radius: 12px;
     padding: 6px 12px;
     width: 100%;
-    max-width: 800px;
+    max-width: 750px;
     background-color: var(--cor-caixas);
     box-sizing: border-box;
     gap: 8px;
@@ -855,16 +917,23 @@ input[type="number"] {
     color: var(--cor-textos);
 }
 
-.notification {
+#notification-container {
     position: fixed;
-    right: 10px;
     top: 30px;
+    right: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 9999;
+}
+
+.notification {
     background-color: var(--cor-caixas);
     border: 2px solid var(--cor-primaria);
     display: flex;
     justify-content: left;
     align-items: center;
-    width: 35%;
+    width: 500px;
     padding: 8px;
     gap: 10px;
     box-shadow: 4px 4px 4px 0 rgba(0, 0, 0, 0.25);
@@ -1007,4 +1076,26 @@ input[type="number"] {
 
 .autocomplete-item:hover {
     background-color: #f0f0f0;
+}
+
+@media (max-width: 1280px) {
+    .sidebar a {
+        height: 60px;
+        font-size: 18px;
+    }
+
+    .estatisticas .info {
+        flex: 1 1 130px !important;
+        min-width: 100px !important;
+    }
+}
+
+@media (max-height: 850px) {
+    .filterBox {
+        max-height: 700px;
+        overflow-y: auto;
+    }
+    .pageEditAdd {
+        margin-top: 80px;
+    }
 }

@@ -46,8 +46,19 @@ const upload = multer({
     },
 });
 
+const SEEN_FILE = "./seenNotifications.json";
+
+let seenData = {};
+if (fs.existsSync(SEEN_FILE)) {
+    seenData = JSON.parse(fs.readFileSync(SEEN_FILE, "utf-8"));
+}
+
 app.use(express.json());
 app.use(cookieParser());
+
+function saveSeen() {
+    fs.writeFileSync(SEEN_FILE, JSON.stringify(seenData, null, 2));
+}
 
 async function requireLogin(req, res, next) {
     const userToken = req.cookies.userToken;
@@ -114,6 +125,19 @@ function isEmpty(str) {
     return !str || str.trim() === "";
 }
 
+async function getUserId(token) {
+    const res = await query(
+        "SELECT idMembro FROM tbEquipe WHERE tokenAcesso = ?",
+        [token]
+    );
+    return res[0].idMembro;
+}
+
+async function getUserConfig(id) {
+    const res = await query("SELECT * FROM tbConfig WHERE idUsuario = ?", [id]);
+    return res[0];
+}
+
 // GET
 
 mainRoutes.forEach((route) => {
@@ -175,7 +199,7 @@ app.get("/getInfo", requireLogin, async (req, res) => {
     }
 });
 
-app.get("/config/:id", async (req, res) => {
+app.get("/config/:id", requireLogin, async (req, res) => {
     const { id } = req.params;
     try {
         const result = await query(
@@ -192,7 +216,7 @@ app.get("/config/:id", async (req, res) => {
     }
 });
 
-app.get("/areas/:page", async (req, res) => {
+app.get("/areas/:page", requireLogin, async (req, res) => {
     const { page } = req.params;
 
     try {
@@ -212,7 +236,7 @@ app.get("/areas/:page", async (req, res) => {
     }
 });
 
-app.get("/areas/search/:page", async (req, res) => {
+app.get("/areas/search/:page", requireLogin, async (req, res) => {
     const { page } = req.params;
     const { q } = req.query;
 
@@ -239,7 +263,7 @@ app.get("/areas/search/:page", async (req, res) => {
     }
 });
 
-app.get("/areas/find/:id", async (req, res) => {
+app.get("/areas/find/:id", requireLogin, async (req, res) => {
     const { id } = req.params;
 
     try {
@@ -255,7 +279,7 @@ app.get("/areas/find/:id", async (req, res) => {
     }
 });
 
-app.get("/equipe/filter/:page", async (req, res) => {
+app.get("/equipe/filter/:page", requireLogin, async (req, res) => {
     const { page } = req.params;
     const { q, filter } = req.query;
     const filterJson = filter ? JSON.parse(filter) : null;
@@ -302,7 +326,7 @@ app.get("/equipe/filter/:page", async (req, res) => {
     }
 });
 
-app.get("/equipe/find/:id", async (req, res) => {
+app.get("/equipe/find/:id", requireLogin, async (req, res) => {
     const { id } = req.params;
 
     try {
@@ -319,7 +343,22 @@ app.get("/equipe/find/:id", async (req, res) => {
     }
 });
 
-app.get("/equipamentos/filter/:page", async (req, res) => {
+app.get("/equipe/get-count", requireLogin, async (req, res) => {
+    try {
+        const result = await query(
+            "SELECT COUNT(*) AS totalItens FROM tbEquipe"
+        );
+
+        res.status(200).send(result);
+    } catch (err) {
+        console.error("Erro no MySQL: ", err);
+        res.status(500).send({
+            message: "Erro ao tentar buscar equipamentos no banco de dados",
+        });
+    }
+});
+
+app.get("/equipamentos/filter/:page", requireLogin, async (req, res) => {
     const { page } = req.params;
     const { q, filter } = req.query;
     const filterJson = filter ? JSON.parse(filter) : null;
@@ -395,7 +434,7 @@ app.get("/equipamentos/filter/:page", async (req, res) => {
     }
 });
 
-app.get("/equipamentos/find/:id", async (req, res) => {
+app.get("/equipamentos/find/:id", requireLogin, async (req, res) => {
     const { id } = req.params;
 
     try {
@@ -412,7 +451,54 @@ app.get("/equipamentos/find/:id", async (req, res) => {
     }
 });
 
-app.get("/emprestimos/filter/:page", async (req, res) => {
+app.get("/equipamentos/emuso", requireLogin, async (req, res) => {
+    try {
+        const result = await query(
+            `SELECT 
+                e.idEquipamento,
+                e.nomeEquipamento,
+                e.codEquipamento,
+                e.imagemEquipamento,
+                emp.idEmprestimo,
+                emp.dataRecebimento,
+                emp.dataDevolucao,
+                emp.idMembro,
+                emp.localUso
+            FROM tbEquipamentos e
+            INNER JOIN tbEmprestimos emp 
+                ON emp.idEquipamento = e.idEquipamento
+            WHERE emp.dataRecebimento < NOW()
+              AND (
+                    emp.dataDevolvido = '1900-01-01 01:01:01' 
+                    
+                  )`
+        );
+
+        res.status(200).send(result);
+    } catch (err) {
+        console.error("Erro no MySQL:", err);
+        res.status(500).send({
+            message: "Erro ao tentar pegar os equipamentos em uso.",
+        });
+    }
+});
+
+app.get("/equipamentos/get-count", requireLogin, async (req, res) => {
+    try {
+        const result = await query(
+            "SELECT COUNT(*) AS totalItens FROM tbEquipamentos"
+        );
+
+        res.status(200).send(result);
+    } catch (err) {
+        console.error("Erro no MySQL: ", err);
+        res.status(500).send({
+            message: "Erro ao tentar buscar equipamentos no banco de dados",
+        });
+    }
+});
+
+app.get("/emprestimos/filter/:page", requireLogin, async (req, res) => {
     const { page } = req.params;
     const { q, filter } = req.query;
     const filterJson = filter ? JSON.parse(filter) : null;
@@ -490,7 +576,7 @@ app.get("/emprestimos/filter/:page", async (req, res) => {
     }
 
     if (dateI) {
-        whereClauses.push(`em.dataRecebimento >= ?`);
+        whereClauses.push(`em.datadevolucao >= ?`);
         params.push(dateI);
     }
 
@@ -529,7 +615,7 @@ app.get("/emprestimos/filter/:page", async (req, res) => {
     }
 });
 
-app.get("/emprestimos/find/:id", async (req, res) => {
+app.get("/emprestimos/find/:id", requireLogin, async (req, res) => {
     const { id } = req.params;
 
     try {
@@ -546,7 +632,7 @@ app.get("/emprestimos/find/:id", async (req, res) => {
     }
 });
 
-app.get("/emprestimos/equipamento/:id", async (req, res) => {
+app.get("/emprestimos/equipamento/:id", requireLogin, async (req, res) => {
     const { id } = req.params;
 
     try {
@@ -563,11 +649,10 @@ app.get("/emprestimos/equipamento/:id", async (req, res) => {
     }
 });
 
-//TODO IMPLEMENT THESE
-app.get("/emprestimos/vencidos", async (req, res) => {
+app.get("/emprestimos/vencidos", requireLogin, async (req, res) => {
     try {
         const result = await query(
-            "SELECT * FROM tbEmprestimos WHERE dataDevolucao > NOW() AND dataDevolvido = '1900-01-01 01:01:01'"
+            "SELECT * FROM tbEmprestimos WHERE dataDevolucao < NOW() AND dataDevolvido = '1900-01-01 01:01:01'"
         );
         res.status(200).send(result);
     } catch (err) {
@@ -578,7 +663,7 @@ app.get("/emprestimos/vencidos", async (req, res) => {
     }
 });
 
-app.get("/emprestimos/proximos", async (req, res) => {
+app.get("/emprestimos/proximos", requireLogin, async (req, res) => {
     try {
         const result = await query(
             "SELECT * FROM tbEmprestimos WHERE DATE(dataDevolucao) = DATE(NOW()) AND dataDevolvido = '1900-01-01 01:01:01';"
@@ -592,39 +677,7 @@ app.get("/emprestimos/proximos", async (req, res) => {
     }
 });
 
-app.get("/equipamentos/emuso", async (req, res) => {
-    try {
-        const result = await query(
-            `SELECT 
-                e.idEquipamento,
-                e.nomeEquipamento,
-                e.codEquipamento,
-                e.imagemEquipamento,
-                emp.idEmprestimo,
-                emp.dataRecebimento,
-                emp.dataDevolucao,
-                emp.idMembro,
-                emp.localUso
-            FROM tbEquipamentos e
-            INNER JOIN tbEmprestimos emp 
-                ON emp.idEquipamento = e.idEquipamento
-            WHERE emp.dataRecebimento < NOW()
-              AND (
-                    emp.dataDevolvido = '1900-01-01 01:01:01' 
-                    
-                  )`
-        );
-
-        res.status(200).send(result);
-    } catch (err) {
-        console.error("Erro no MySQL:", err);
-        res.status(500).send({
-            message: "Erro ao tentar pegar os equipamentos em uso.",
-        });
-    }
-});
-
-app.get("/emprestimos/mes", async (req, res) => {
+app.get("/emprestimos/mes", requireLogin, async (req, res) => {
     try {
         const result = await query(
             `SELECT * 
@@ -643,7 +696,7 @@ app.get("/emprestimos/mes", async (req, res) => {
     }
 });
 
-app.get("/emprestimos/ultimos", async (req, res) => {
+app.get("/emprestimos/ultimos", requireLogin, async (req, res) => {
     try {
         const result = await query(
             `SELECT *
@@ -662,7 +715,7 @@ app.get("/emprestimos/ultimos", async (req, res) => {
     }
 });
 
-app.get("/emprestimos/atrasados", async (req, res) => {
+app.get("/emprestimos/atrasados", requireLogin, async (req, res) => {
     try {
         const result = await query(
             `SELECT *
@@ -680,6 +733,65 @@ app.get("/emprestimos/atrasados", async (req, res) => {
             message: "Erro ao tentar pegar os empréstimos atrasados.",
         });
     }
+});
+
+app.get("/avisos/equipe", requireLogin, async (req, res) => {
+    try {
+        const config = await getUserConfig(
+            await getUserId(req.cookies.userToken)
+        );
+        const result = await query(
+            "SELECT * FROM tbAvisos WHERE avisoSistema = ? AND dataAviso > DATE_SUB(CURRENT_DATE, INTERVAL ? DAY)",
+            [false, config.tempoAvisos]
+        );
+
+        res.status(200).send(result);
+    } catch (err) {
+        console.error("Erro no MySQL: ", err);
+        res.status(500).send(err);
+    }
+});
+
+app.get("/avisos/sistema", requireLogin, async (req, res) => {
+    try {
+        const config = await getUserConfig(
+            await getUserId(req.cookies.userToken)
+        );
+        const result = await query(
+            "SELECT * FROM tbAvisos WHERE avisoSistema = ? AND dataAviso > DATE_SUB(CURRENT_DATE, INTERVAL ? DAY)",
+            [true, config.tempoAvisos]
+        );
+
+        res.status(200).send(result);
+    } catch (err) {
+        console.error("Erro no MySql: ", err);
+        res.status(500).send(err);
+    }
+});
+
+app.get("/notifications", requireLogin, async (req, res) => {
+    const userId = await getUserId(req.cookies.userToken);
+    const config = await getUserConfig(userId);
+
+    const param = config.notificacoesSistema == true ? "%%" : '{"type": 2%';
+
+    const sysNotifications = await query(
+        "SELECT * FROM tbAvisos WHERE avisoSistema = 1 AND mensagemAviso LIKE ? ORDER BY idAviso DESC",
+        [param]
+    );
+    const eqNotifications = await query(
+        "SELECT * FROM tbAvisos WHERE avisoSistema = 0"
+    );
+
+    const notifications = sysNotifications.concat(eqNotifications);
+
+    const seen = seenData[userId] || [];
+
+    const unseen = notifications.filter(
+        (n) => !seen.includes(String(n.idAviso))
+    );
+
+    res.status(200).json(unseen);
 });
 
 // POST
@@ -803,7 +915,15 @@ app.post("/equipe", requireLogin, async (req, res) => {
 app.post("/emprestimos", requireLogin, async (req, res) => {
     const { idEquipamento, recebimento, devolucao, local, idMembro, obs } =
         req.body;
-    const params = [idEquipamento, recebimento, devolucao, "1900-01-01 01:01:01", idMembro, local, "NOT-SET"];
+    const params = [
+        idEquipamento,
+        recebimento,
+        devolucao,
+        "1900-01-01 01:01:01",
+        idMembro,
+        local,
+        "NOT-SET",
+    ];
     let sql = "?, ?, ?, ?, ?, ?, ?";
     let hasObs = "";
 
@@ -834,6 +954,23 @@ app.post("/areas", requireLogin, async (req, res) => {
     } catch (err) {
         console.error("Erro no MySQL: ", err);
         res.status(500).send({ error: "Erro ao tentar cadastrar" });
+    }
+});
+
+app.post("/notifications/seen", requireLogin, async (req, res) => {
+    const userId = await getUserId(req.cookies.userToken);
+    const { id } = req.body;
+    try {
+        if (!seenData[userId]) seenData[userId] = [];
+        if (!seenData[userId].includes(String(id))) {
+            seenData[userId].push(String(id));
+            saveSeen();
+        }
+
+        res.status(200).send();
+    } catch (err) {
+        console.error("Erro ao marcar notificação como vista: ", err);
+        res.status(500).send(err);
     }
 });
 
@@ -893,7 +1030,7 @@ app.put("/areas/:id", requireLogin, async (req, res) => {
     }
 });
 
-app.put("/equipe/:id", async (req, res) => {
+app.put("/equipe/:id", requireLogin, async (req, res) => {
     const { id } = req.params;
     const { nome, email, fone, area, check, senha } = req.body;
 
@@ -1001,7 +1138,8 @@ app.put(
 
 app.put("/emprestimos/:id", requireLogin, async (req, res) => {
     const { id } = req.params;
-    const { idEquipamento, recebimento, devolucao, local, idMembro, obs } = req.body;
+    const { idEquipamento, recebimento, devolucao, local, idMembro, obs } =
+        req.body;
 
     try {
         const emprestimoExistente = await query(
@@ -1010,20 +1148,48 @@ app.put("/emprestimos/:id", requireLogin, async (req, res) => {
         );
 
         if (emprestimoExistente.length === 0) {
-            return res.status(404).send({ message: "Empréstimo não encontrado" });
+            return res
+                .status(404)
+                .send({ message: "Empréstimo não encontrado" });
         }
 
         await query(
             `UPDATE tbEmprestimos
              SET idEquipamento = ?, dataRecebimento = ?, dataDevolucao = ?, localUso = ?, idMembro = ?, infoReserva = ?
              WHERE idEmprestimo = ?`,
-            [idEquipamento, recebimento, devolucao, local, idMembro, obs || null, id]
+            [
+                idEquipamento,
+                recebimento,
+                devolucao,
+                local,
+                idMembro,
+                obs || null,
+                id,
+            ]
         );
 
         res.status(200).send({ message: "Empréstimo atualizado com sucesso!" });
     } catch (err) {
         console.error("Erro ao atualizar empréstimo:", err);
-        res.status(500).send({ message: "Erro ao atualizar empréstimo.", error: err });
+        res.status(500).send({
+            message: "Erro ao atualizar empréstimo.",
+            error: err,
+        });
+    }
+});
+
+app.put("/vistoria", requireLogin, async (req, res) => {
+    const { id, dataDevolvido, devolvidoPor, userId, allObs } = req.body;
+
+    try {
+        await query(
+            "UPDATE tbEmprestimos SET dataDevolvido = ?, devolvidoPor = ?, idMembroVistoria = ?, obsVistoria = ? WHERE idEmprestimo = ?",
+            [dataDevolvido, devolvidoPor, userId, allObs, id]
+        );
+        res.status(200).send();
+    } catch (err) {
+        console.error("Erro no MySQL: ", err);
+        res.status(500).send(err);
     }
 });
 
@@ -1101,7 +1267,7 @@ app.delete("/equipamentos/:id", requireLogin, async (req, res) => {
 
         if (result.length === 0)
             res.status(500).send({
-                message: "Equipamento com este não existe",
+                message: "Equipamento com este id não existe",
             });
 
         const imagemNome = result[0].imagemEquipamento;

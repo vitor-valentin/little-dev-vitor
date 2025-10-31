@@ -262,6 +262,10 @@ if (!page || page == 1) {
     const dataF = document.getElementById("dataFim");
     const applyFilterBtn = document.querySelector(".filterBox .applyFilter");
 
+    function vistoriaEmprestimo(id) {
+        window.location.href = `http://localhost:8080/vistoria?id=${id}`;
+    }
+
     async function deleteEmprestimo(id) {
         const confirm = await showConfirm(
             "danger",
