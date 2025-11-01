@@ -1,8 +1,2 @@
-Agendar empréstimos
-Relatórios
 Finish making the configurations work
-Logs
 Backup on db
-Notifications for empréstimos
-Adicionar botão de limpar seleção no agendar empréstimos
-Bloquear empréstimo de equipamentos em uso

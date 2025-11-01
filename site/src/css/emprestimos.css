@@ -151,6 +151,22 @@
     opacity: 0.7;
 }
 
+.btn-clear {
+    margin-top: 8px;
+    background-color: transparent;
+    border: 1px solid var(--cor-primaria);
+    color: var(--cor-primaria);
+    font-family: "Branding";
+    font-weight: 500;
+    font-size: 24px;
+    padding: 9px 0;
+    border-radius: 6px;
+    cursor: pointer;
+    width: 100%;
+    user-select: none;
+    transition: 0.2s;
+}
+
 .btn-apply {
     margin-top: 8px;
     background-color: var(--cor-primaria);
@@ -177,6 +193,14 @@
     gap: 15px;
 }
 
+.box-form {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+    margin: 10px 0;
+}
+
 .equipment-form label {
     font-family: "Open Sans";
     font-size: 18px;
@@ -185,6 +209,7 @@
 }
 
 .equipment-form input[type="text"] {
+    width: 100%;
     padding: 8px 10px;
     font-family: "Branding", sans-serif;
     font-weight: 500;
@@ -207,6 +232,7 @@
     font-weight: 500;
     color: var(--cor-escura);
     font-size: 18px;
+    width: 100%;
 }
 
 .btn-schedule {

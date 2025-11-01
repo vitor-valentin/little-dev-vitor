@@ -156,7 +156,7 @@ body {
     font-family: "Branding";
     font-weight: 800;
     text-decoration: none;
-    padding: 0 5px;
+    padding: 0 10px;
     transition: all 0.3s;
 }
 
@@ -1042,7 +1042,7 @@ input[type="number"] {
 }
 
 .danger .cBtn.bConfirm {
-    background-color: var(--cor-not-falha);
+    background-color: var(--cor-botao-excluir);
     color: var(--cor-textos);
     border: 0;
 }

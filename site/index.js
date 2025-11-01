@@ -8,9 +8,11 @@ const bcrypt = require("bcrypt");
 const dayjs = require("dayjs");
 const multer = require("multer");
 const fs = require("fs");
+const puppeteer = require("puppeteer");
 
 const saltRounds = 10;
 const itensPerPage = 8;
+const INTERVAL = 10 * 60 * 1000;
 
 const app = express();
 
@@ -98,6 +100,52 @@ async function requireLogin(req, res, next) {
     }
 }
 
+async function gerarPdf(req, res, filter = {}) {
+    try {
+        const userToken = req.cookies?.userToken;
+
+        const filterParam = encodeURIComponent(JSON.stringify(filter));
+        const url = `http://localhost:8080/relatorio?filter=${filterParam}`;
+
+        const browser = await puppeteer.launch();
+        const page = await browser.newPage();
+
+        await page.setCookie({
+            name: "userToken",
+            value: userToken,
+            domain: "localhost", 
+            path: "/"
+        });
+
+        await page.goto(url, {
+            waitUntil: "networkidle0",
+        });
+
+        const css = fs.readFileSync(
+            path.join(__dirname, "src/css/relatorios.css"),
+            "utf-8"
+        );
+        await page.addStyleTag({ content: css });
+
+        const pdfBuffer = await page.pdf({
+            format: "A4",
+            printBackground: true,
+        });
+
+        await browser.close();
+
+        res.set({
+            "Content-Type": "application/pdf",
+            "Content-Disposition": `attachment; filename="relatorio.pdf"`,
+            "Content-Length": pdfBuffer.length,
+        });
+        res.send(pdfBuffer);
+    } catch (err) {
+        console.error("Erro ao gerar PDF: ", err);
+        res.status(500).send(err);
+    }
+}
+
 async function generateToken() {
     const chars =
         "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -138,12 +186,269 @@ async function getUserConfig(id) {
     return res[0];
 }
 
+async function verificarEmprestimos() {
+    console.log(`[AVISOS] Verificando empréstimos...`);
+
+    try {
+        const rows = await query(`
+            SELECT e.idEmprestimo, e.idMembro, e.idEquipamento,
+                   e.dataDevolucao, e.dataDevolvido,
+                   eq.nomeEquipamento
+            FROM tbEmprestimos e
+            JOIN tbEquipamentos eq ON e.idEquipamento = eq.idEquipamento
+            WHERE e.dataDevolvido = '1900-01-01 01:01:01'
+        `);
+
+        const agora = new Date();
+
+        for (const emp of rows) {
+            const devolucao = new Date(emp.dataDevolucao);
+            const diffHoras = (devolucao - agora) / 36e5;
+
+            if (diffHoras <= 1 && diffHoras >= 0) {
+                const msg = JSON.stringify({
+                    type: 1,
+                    msg: `O empréstimo do equipamento: ${emp.nomeEquipamento} acabará em uma hora!`
+                });
+
+                await registrarAviso(emp.idMembro, msg);
+            }
+
+            if (diffHoras < 0) {
+                const msg = JSON.stringify({
+                    type: 2,
+                    msg: `O empréstimo do equipamento: ${emp.nomeEquipamento} está atrasado para devolução!`
+                });
+
+                await registrarAviso(emp.idMembro, msg);
+            }
+        }
+    } catch (err) {
+        console.error(`[ERRO AO VERIFICAR AVISOS]`, err);
+    }
+}
+
+async function registrarAviso(idUsuario, mensagemAviso) {
+    const existe = await query(`
+        SELECT idAviso FROM tbAvisos
+        WHERE idUsuario = ? AND mensagemAviso = ?
+        AND dataAviso >= (NOW() - INTERVAL 24 HOUR)
+        LIMIT 1
+    `, [idUsuario, mensagemAviso]);
+
+    if (existe.length > 0) return;
+
+    await query(`
+        INSERT INTO tbAvisos (avisoSistema, idUsuario, mensagemAviso, dataAviso)
+        VALUES (1, ?, ?, NOW())
+    `, [idUsuario, mensagemAviso]);
+
+    console.log(`[AVISO CRIADO] ${mensagemAviso}`);
+}
+
+setInterval(verificarEmprestimos, INTERVAL);
+verificarEmprestimos();
+
 // GET
 
 mainRoutes.forEach((route) => {
     app.get(route, requireLogin, async (req, res) => {
         res.sendFile(path.join(__dirname, "src", "index.html"));
     });
+});
+
+app.get("/relatorio", requireLogin, async (req, res) => {
+    try {
+        let filter = {};
+        if (req.query.filter) {
+            try {
+                filter = JSON.parse(decodeURIComponent(req.query.filter));
+            } catch (e) {
+                console.log("Erro ao parsear filtro:", e);
+            }
+        }
+
+        const { dateI, dateF, eqId, mbId, altoV, devA } = filter;
+
+        let sql = `
+            SELECT 
+                e.nomeEquipamento,
+                e.codEquipamento,
+                e.altoValor,
+                DATE_FORMAT(em.dataRecebimento, '%d/%m/%Y %H:%i') AS dataRecebimento,
+                DATE_FORMAT(em.dataDevolucao, '%d/%m/%Y %H:%i') AS dataDevolucao,
+                DATE_FORMAT(em.dataDevolvido, '%d/%m/%Y %H:%i') AS dataDevolvido,
+                m.nomeMembro AS recebidoPor,
+                em.localUso,
+                em.infoReserva AS obs,
+                em.devolvidoPor,
+                mv.nomeMembro AS vistoriadoPor,
+                em.obsVistoria
+            FROM tbEmprestimos em
+            JOIN tbEquipamentos e ON em.idEquipamento = e.idEquipamento
+            JOIN tbEquipe m ON em.idMembro = m.idMembro
+            LEFT JOIN tbEquipe mv ON em.idMembroVistoria = mv.idMembro
+            WHERE dataDevolvido <> '1900-01-01 01:01:01'
+        `;
+
+        const params = [];
+
+        if (dateI && dateI.trim() !== "") {
+            sql += " AND em.dataDevolucao >= ?";
+            params.push(dateI);
+        }
+
+        if (dateF && dateF.trim() !== "") {
+            sql += " AND em.dataDevolucao <= ?";
+            params.push(dateF);
+        }
+
+        if (eqId !== null && eqId !== "" && eqId !== undefined) {
+            sql += " AND em.idEquipamento = ?";
+            params.push(eqId);
+        }
+
+        if (mbId !== null && mbId !== "" && mbId !== undefined) {
+            sql += " AND em.idMembro = ?";
+            params.push(mbId);
+        }
+
+        if (altoV === true) {
+            sql += " AND e.altoValor = 1";
+        }
+
+        if (devA === true) {
+            sql += " AND em.dataDevolvido > em.dataDevolucao";
+        }
+
+        const rows = await query(sql, params);
+
+        let html = `
+            <!DOCTYPE html>
+            <html lang="pt-BR">
+            <head>
+                <meta charset="UTF-8" />
+                <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+                <link href="/css/relatorios.css" type="text/css" rel="stylesheet" />
+                <title>SIGEQ</title>
+            </head>
+            <body>
+                <header>
+                    <img src="/images/logo_azul.png" />
+                    <img class="senai" src="/images/sistema_fiep_senai.png" />
+                </header>
+                <div class="title">
+                    <h2>Relatório de Empréstimos</h2>
+                    <p>Período: ${
+                        dateI && dateF
+                            ? dateI + " - " + dateF
+                            : "Todos os registros"
+                    }</p>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Equipamento</th>
+                            <th>Código</th>
+                            <th>Alto Valor</th>
+                            <th>Rec.</th>
+                            <th>Dev. Prev.</th>
+                            <th>Dev. Real</th>
+                            <th>Recebido Por</th>
+                            <th>Local</th>
+                            <th>Obs</th>
+                            <th>Devolvido Por</th>
+                            <th>Vistoriado Por</th>
+                            <th>Obs Vistoria</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+        `;
+
+        const obsCompletas = [];
+
+        rows.forEach((r, index) => {
+            let obsVistoriaCurta = r.obsVistoria || "";
+            const pos = obsVistoriaCurta.indexOf("Observações do Usuário:");
+            if (pos !== -1) {
+                obsVistoriaCurta = obsVistoriaCurta
+                    .slice(pos + "Observações do Usuário:".length)
+                    .trim();
+            }
+
+            html += `
+                <tr>
+                    <td>${r.nomeEquipamento}</td>
+                    <td>${r.codEquipamento}</td>
+                    <td>${r.altoValor ? "Sim" : "Não"}</td>
+                    <td>${r.dataRecebimento}</td>
+                    <td>${r.dataDevolucao}</td>
+                    <td>${r.dataDevolvido}</td>
+                    <td>${r.recebidoPor}</td>
+                    <td>${r.localUso}</td>
+                    <td>${r.obs || ""}</td>
+                    <td>${r.devolvidoPor}</td>
+                    <td>${r.vistoriadoPor || ""}</td>
+                    <td>${obsVistoriaCurta}</td>
+                </tr>
+            `;
+
+            obsCompletas.push(r.obsVistoria || "");
+        });
+
+        html += `
+                    </tbody>
+                </table>
+        `;
+
+        html += `
+            <div class="title">
+                <h2>Observações Completas</h2>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Posição</th>
+                        <th>Obs Vistoria</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+
+        obsCompletas.forEach((obs, i) => {
+            html += `
+                <tr>
+                    <td>${i + 1}</td>
+                    <td>${obs}</td>
+                </tr>
+            `;
+        });
+
+        html += `
+                </tbody>
+            </table>
+            </body>
+            </html>
+        `;
+
+        res.send(html);
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Erro ao gerar relatório");
+    }
+});
+
+app.get("/relatorio/emitir", requireLogin, async (req, res) => {
+    let filter = {};
+    if (req.query.filter) {
+        try {
+            filter = JSON.parse(decodeURIComponent(req.query.filter));
+        } catch (e) {
+            console.log("Erro ao parsear filtro:", e);
+        }
+    }
+
+    gerarPdf(req, res, filter);
 });
 
 app.get("/login", async (req, res) => {
@@ -741,7 +1046,7 @@ app.get("/avisos/equipe", requireLogin, async (req, res) => {
             await getUserId(req.cookies.userToken)
         );
         const result = await query(
-            "SELECT * FROM tbAvisos WHERE avisoSistema = ? AND dataAviso > DATE_SUB(CURRENT_DATE, INTERVAL ? DAY)",
+            "SELECT * FROM tbAvisos WHERE avisoSistema = ? AND dataAviso > DATE_SUB(CURRENT_DATE, INTERVAL ? DAY) ORDER BY idAviso DESC",
             [false, config.tempoAvisos]
         );
 
@@ -758,7 +1063,7 @@ app.get("/avisos/sistema", requireLogin, async (req, res) => {
             await getUserId(req.cookies.userToken)
         );
         const result = await query(
-            "SELECT * FROM tbAvisos WHERE avisoSistema = ? AND dataAviso > DATE_SUB(CURRENT_DATE, INTERVAL ? DAY)",
+            "SELECT * FROM tbAvisos WHERE avisoSistema = ? AND dataAviso > DATE_SUB(CURRENT_DATE, INTERVAL ? DAY) ORDER BY idAviso DESC",
             [true, config.tempoAvisos]
         );
 
@@ -780,7 +1085,8 @@ app.get("/notifications", requireLogin, async (req, res) => {
         [param]
     );
     const eqNotifications = await query(
-        "SELECT * FROM tbAvisos WHERE avisoSistema = 0"
+        "SELECT * FROM tbAvisos WHERE avisoSistema = 0 AND idUsuario <> ?",
+        [userId]
     );
 
     const notifications = sysNotifications.concat(eqNotifications);
@@ -795,6 +1101,54 @@ app.get("/notifications", requireLogin, async (req, res) => {
 });
 
 // POST
+
+app.post("/check-use", async (req, res) => {
+    const { idEquipamento, reservas } = req.body;
+
+    if (!idEquipamento || !Array.isArray(reservas) || reservas.length === 0) {
+        return res.status(400).json({ error: "Dados inválidos." });
+    }
+
+    try {
+        const parsedReservas = reservas.map(([start, end]) => [
+            new Date(start.replace(" ", "T")),
+            new Date(end.replace(" ", "T")),
+        ]);
+
+        const q = `
+            SELECT dataRecebimento, dataDevolucao
+            FROM tbEmprestimos
+            WHERE idEquipamento = ?
+            AND dataDevolvido = '1900-01-01 01:01:01'
+        `;
+        const existing = await query(q, [idEquipamento]);
+
+        for (let [newStart, newEnd] of parsedReservas) {
+            for (let row of existing) {
+                const existingStart = new Date(row.dataRecebimento);
+                const existingEnd = new Date(row.dataDevolucao);
+
+                const overlap =
+                    newStart < existingEnd && newEnd > existingStart;
+
+                if (overlap) {
+                    return res.status(500).json({
+                        error: "Conflito detectado.",
+                        detalhes: {
+                            requisitado: [newStart, newEnd],
+                            conflitoCom: [existingStart, existingEnd],
+                        },
+                    });
+                }
+            }
+        }
+
+        res.status(200).send();
+    } catch (err) {
+        console.error("Erro ao checar uso de equipamento: ", err);
+        res.status(500).send(err);
+    }
+});
 
 app.post("/login", async (req, res) => {
     if (req.cookies.userToken) {
@@ -942,6 +1296,54 @@ app.post("/emprestimos", requireLogin, async (req, res) => {
     } catch (err) {
         console.error("Erro no MySQL: ", err);
         res.status(500).send({ error: "Erro ao tentar cadastrar" });
+    }
+});
+
+app.post("/emprestimos/agendar", requireLogin, async (req, res) => {
+    const { idEquipamento, datas, idMembro, local, obs } = req.body;
+
+    if (!Array.isArray(datas) || datas.length === 0) {
+        return res.status(400).send({ error: "Datas inválidas." });
+    }
+
+    const baseDevolvido = "1900-01-01 01:01:01";
+    const devolvidoPor = "NOT-SET";
+
+    try {
+        for (const [recebimento, devolucao] of datas) {
+            const params = [
+                idEquipamento,
+                recebimento,
+                devolucao,
+                baseDevolvido,
+                idMembro,
+                local,
+                devolvidoPor,
+            ];
+
+            let sqlCols =
+                "(idEquipamento, dataRecebimento, dataDevolucao, dataDevolvido, idMembro, localUso, devolvidoPor";
+            let sqlVals = "?, ?, ?, ?, ?, ?, ?";
+
+            if (obs && obs.trim() !== "") {
+                sqlCols += ", infoReserva";
+                sqlVals += ", ?";
+                params.push(obs);
+            }
+
+            sqlCols += ")";
+
+            await query(
+                `INSERT INTO tbEmprestimos ${sqlCols} VALUES (${sqlVals})`,
+                params
+            );
+        }
+        res.status(200).send({ message: "Registros inseridos com sucesso!" });
+    } catch (err) {
+        console.error("Erro no MySQL:", err);
+        res.status(500).send({
+            error: "Erro ao tentar cadastrar múltiplos registros",
+        });
     }
 });
 

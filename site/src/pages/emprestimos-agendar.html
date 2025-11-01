@@ -42,30 +42,39 @@
             >
             <input type="date" id="applyDate" placeholder="DD/MM/AAAA" />
 
+            <button type="button" class="btn-clear">Limpar</button>
             <button type="button" class="btn-apply">Aplicar</button>
         </form>
     </div>
 
     <form class="equipment-form">
-        <label for="equipName">Nome do Equipamento</label>
-        <input
-            type="text"
-            id="equipName"
-            placeholder="Procure um equipamento por nome ou código."
-        />
+        <div class="box-form">
+            <label for="equipName">Nome do Equipamento</label>
+            <input
+                type="text"
+                id="equipName"
+                placeholder="Procure um equipamento por nome ou código."
+            />
+        </div>
 
-        <label for="location">Sala/Local</label>
-        <input type="text" id="location" />
+        <div class="box-form">
+            <label for="location">Sala/Local</label>
+            <input type="text" id="location" />
+        </div>
 
-        <label for="member">Membro</label>
-        <input
-            type="text"
-            id="member"
-            placeholder="Procure um membro por nome, e-mail ou telefone."
-        />
+        <div class="box-form">
+            <label for="member">Membro</label>
+            <input
+                type="text"
+                id="member"
+                placeholder="Procure um membro por nome, e-mail ou telefone."
+            />
+        </div>
 
-        <label for="obsEmprestimo">Observações</label>
-        <textarea id="obsEmprestimo"></textarea>
+        <div class="box-form">
+            <label for="obsEmprestimo">Observações</label>
+            <textarea id="obsEmprestimo"></textarea>
+        </div>
 
         <button type="submit" class="btn-schedule">Agendar</button>
     </form>
@@ -73,31 +82,29 @@
 
 <div id="horarioModal" class="horario-modal hidden">
     <div class="horario-box">
-      <h4>DEFINIR HORÁRIOS</h4>
-  
-      <div class="horario-inputs">
-        <div class="horario-group">
-          <label for="horarioRetirada">Horário Retirada</label>
-          <div class="horario-wrapper">
-            <img src="../images/data.png" alt="Ícone calendário" />
-            <input type="time" id="horarioRetirada" />
-          </div>
-        </div>
-  
-        <div class="horario-group">
-          <label for="horarioDevolucao">Horário Devolução</label>
-          <div class="horario-wrapper">
-            <img src="../images/data.png" alt="Ícone calendário" />
-            <input type="time" id="horarioDevolucao" />
-          </div>
-        </div>
-      </div>
-  
-      <div class="horario-buttons">
-        <button id="removerData" class="btn-remover">Remover</button>
-        <button id="confirmarHorario" class="btn-confirmar">Definir</button>
-      </div>
-    </div>
-  </div>
-  
+        <h4>DEFINIR HORÁRIOS</h4>
 
+        <div class="horario-inputs">
+            <div class="horario-group">
+                <label for="horarioRetirada">Horário Retirada</label>
+                <div class="horario-wrapper">
+                    <img src="../images/data.png" alt="Ícone calendário" />
+                    <input type="time" id="horarioRetirada" />
+                </div>
+            </div>
+
+            <div class="horario-group">
+                <label for="horarioDevolucao">Horário Devolução</label>
+                <div class="horario-wrapper">
+                    <img src="../images/data.png" alt="Ícone calendário" />
+                    <input type="time" id="horarioDevolucao" />
+                </div>
+            </div>
+        </div>
+
+        <div class="horario-buttons">
+            <button id="removerData" class="btn-remover">Remover</button>
+            <button id="confirmarHorario" class="btn-confirmar">Definir</button>
+        </div>
+    </div>
+</div>

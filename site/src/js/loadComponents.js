@@ -13,6 +13,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
     window.componentsLoaded = Promise.all([sidebarPromise, headerPromise]);
 
+    if(checkDaltonismo()) {
+        const root = document.documentElement;
+        root.style.setProperty("--cor-not-sucesso", "#00B7C2");
+        root.style.setProperty("--cor-not-falha", "#7B1FA2");
+        root.style.setProperty("--cor-not-alerta", "#FFB300");
+    }
+
     checkNotifications();
     setInterval(checkNotifications, 60000);
 });
@@ -95,13 +102,14 @@ window.showNotification = async function showNotification(
     const notification = document.createElement("div");
     const sound = document.getElementById("notification");
     notification.className = `notification ${type}`;
+    const daltonico = checkDaltonismo();
 
     const iconSrc =
         {
-            success: "images/notSucesso.png",
-            failure: "images/notFalha.png",
+            success: !daltonico ? "images/notSucesso.png" : "images/notSucesso_dalt.png",
+            failure: !daltonico ? "images/notFalha.png" : "images/notFalha_dalt.png",
             information: "images/notInfo.png",
-            alert: "images/notAlerta.png",
+            alert: !daltonico ? "images/notAlerta.png" : "images/notAlerta_dalt.png",
         }[type] || "images/notInfo.png";
 
     notification.innerHTML = `
@@ -367,6 +375,38 @@ window.setupEquipamentosAutoComplete = function setupEquipamentosAutocomplete(
     });
 };
 
+window.checkEqUso = async function checkEqUso(id, dates) {
+    const res = await fetch("/check-use", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ idEquipamento: id, reservas: dates }),
+    });
+
+    if (!res.ok) {
+        const json = await res.json();
+        if (json.error && json.detalhes) {
+            let text = `Houve um erro ao agendar empréstimo pois a data selecionada: ${toBrazilianDateTime(
+                json.detalhes.requisitado[0]
+            )} - ${toBrazilianDateTime(
+                json.detalhes.requisitado[1]
+            )} conflita com outro agendamento: ${toBrazilianDateTime(
+                json.detalhes.conflitoCom[0]
+            )} - ${toBrazilianDateTime(json.detalhes.conflitoCom[1])}`;
+            showNotification("failure", "Falha!", text, 15000);
+            return true;
+        } else {
+            showNotification(
+                "failure",
+                "Falha!",
+                "Erro interno do servidor ao tentar checar conflito entre agendamentos."
+            );
+            return true;
+        }
+    } else {
+        return false;
+    }
+};
+
 async function showPopupAndMark(notification) {
     const msg = notification.mensagemAviso;
     let type;
@@ -407,4 +447,24 @@ async function checkNotifications() {
     const res = await fetch("/notifications");
     const notifs = await res.json();
     notifs.forEach(showPopupAndMark);
+}
+
+async function checkDaltonismo() {
+    const userId = await window.getUserId();
+    const response = await fetch(`http://localhost:8080/config/${userId}`);
+    const resJson = await response.json();
+    const json = resJson[0];
+    return json.modoDaltonismo;
+}
+
+function toBrazilianDateTime(isoString) {
+    const date = new Date(isoString);
+    return date.toLocaleString("pt-BR", {
+        timeZone: "America/Sao_Paulo",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+    });
 }
