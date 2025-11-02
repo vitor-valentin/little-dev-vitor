@@ -14,7 +14,7 @@
 .estatisticas .divider {
     width: 2px;
     height: 120px;
-    background-color: var(--cor-escura);
+    background-color: var(--cor-separacoes);
 }
 
 .estatisticas .info {
@@ -27,7 +27,7 @@
 .info p {
     font-family: "Branding";
     font-weight: 800;
-    color: var(--cor-secundaria);
+    color: var(--cor-secundaria-textos);
     font-size: 18px;
     text-align: center;
     max-width: 125px;
@@ -50,7 +50,7 @@
 }
 
 .table-wrapper {
-    background: white;
+    background: var(--cor-caixas);
     padding: 20px;
 }
 
@@ -66,7 +66,7 @@
     font-size: 20px;
     font-family: "Branding";
     font-weight: 800;
-    color: var(--cor-escura);
+    color: var(--cor-escura-textos);
     text-align: center;
     width: 100%;
     margin-bottom: 12px;
@@ -80,14 +80,14 @@ table {
 }
 
 thead {
-    background: white;
-    border-bottom: 2px solid var(--cor-secundaria);
+    background: var(--cor-caixas);
+    border-bottom: 2px solid var(--cor-separacoes);
     font-family: "Open Sans";
     font-weight: bold;
 }
 
 th {
-    color: var(--cor-escura);
+    color: var(--cor-escura-textos);
     font-weight: bold;
     text-align: left;
     padding: 8px 6px;
@@ -95,7 +95,7 @@ th {
 
 td {
     padding: 8px 6px;
-    color: var(--cor-escura);
+    color: var(--cor-texto-tabela-dash);
     font-family: "Open Sans";
     font-weight: 300;
 }
@@ -126,7 +126,7 @@ tbody tr:nth-child(even) {
 
 .avisos-container {
     width: 100%;
-    background: #fff;
+    background: var(--cor-caixas);
     border-radius: 6px;
     text-align: center;
 }
@@ -136,7 +136,7 @@ tbody tr:nth-child(even) {
     font-size: 18px;
     padding-top: 18px;
     font-weight: 800;
-    color: var(--cor-escura);
+    color: var(--cor-escura-textos);
     margin-bottom: 10px;
 }
 
@@ -170,7 +170,7 @@ tbody tr:nth-child(even) {
 }
 
 .aviso-text strong {
-    color: var(--cor-escura);
+    color: var(--cor-escura-textos);
     font-weight: bold;
     font-family: "Branding";
     font-size: 18px;
@@ -182,7 +182,7 @@ tbody tr:nth-child(even) {
     font-family: "Open Sans";
     font-weight: 300;
     font-size: 18px;
-    color: var(--cor-escura);
+    color: var(--cor-escura-textos);
     line-height: 1.5em;
     margin: 0;
 }
@@ -191,7 +191,6 @@ tbody tr:nth-child(even) {
 .arrow {
     background: none;
     border: none;
-    color: #001848;
     font-size: 28px;
     cursor: pointer;
     position: absolute;
@@ -219,7 +218,7 @@ tbody tr:nth-child(even) {
     height: 15px;
     width: 15px;
     margin: 0 4px;
-    background-color: #ccc;
+    background-color: var(--cor-dot-inativo);
     border-radius: 50%;
     display: inline-block;
     transition: all 0.2s;
@@ -231,7 +230,7 @@ tbody tr:nth-child(even) {
 }
 
 .dot.active {
-    background-color: var(--cor-escura);
+    background-color: var(--cor-dot-ativo);
 }
 
 .sistema-container {
@@ -255,7 +254,7 @@ tbody tr:nth-child(even) {
     font-size: 24px;
     text-align: center;
     margin-bottom: 5px;
-    color: var(--cor-escura);
+    color: var(--cor-escura-textos);
 }
 
 .notificacao {
@@ -269,14 +268,14 @@ tbody tr:nth-child(even) {
 .notificacao strong {
     font-family: "Branding";
     font-weight: 800;
-    color: var(--cor-escura);
+    color: var(--cor-escura-textos);
     font-size: 18px;
 }
 
 .notificacao p {
     font-family: "Open Sans";
     font-weight: 300;
-    color: var(--cor-escura);
+    color: var(--cor-escura-textos);
     font-size: 18px;
 }
 
@@ -287,7 +286,7 @@ tbody tr:nth-child(even) {
     font-size: 18px;
     font-weight: 800;
     font-family: "Branding";
-    color: var(--cor-escura);
+    color: var(--cor-escura-textos);
 }
 
 .navegacao {
@@ -321,4 +320,20 @@ tbody tr:nth-child(even) {
 
 .notificacoes-slide.active {
   display: block;
+}
+
+thead th:first-child {
+    border-top-left-radius: 0 !important;
+}
+
+thead th:last-child {
+    border-top-right-radius: 0 !important;
+}
+
+tbody tr:last-child td:first-child {
+    border-bottom-left-radius: 0 !important;
+}
+
+tbody tr:last-child td:last-child {
+    border-bottom-right-radius: 0 !important;
 }

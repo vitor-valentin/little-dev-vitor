@@ -211,7 +211,7 @@ async function verificarEmprestimos() {
                     msg: `O empréstimo do equipamento: ${emp.nomeEquipamento} acabará em uma hora!`
                 });
 
-                await registrarAviso(emp.idMembro, msg);
+                await registrarAviso( msg);
             }
 
             if (diffHoras < 0) {

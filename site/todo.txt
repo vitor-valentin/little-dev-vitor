@@ -1,2 +1,0 @@
-Finish making the configurations work
-Backup on db

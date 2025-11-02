@@ -24,6 +24,13 @@ async function loadConfig() {
     volumeNotificacoes.value = json.volumeNotificacao;
     notification.volume = json.volumeNotificacao / 100;
     displayVolume.textContent = `${json.volumeNotificacao}%`;
+
+    if(modoDaltonico.checked) {
+        const root = document.documentElement;
+        root.style.setProperty("--cor-not-sucesso", "#00B7C2");
+        root.style.setProperty("--cor-not-falha", "#7B1FA2");
+        root.style.setProperty("--cor-not-alerta", "#FFB300");
+    }
 }
 
 async function saveConfig() {
@@ -69,6 +76,7 @@ testarVolume.addEventListener("click", () => {
 
 saveConfigBtn.addEventListener("click", () => {
     saveConfig();
+    window.location.reload();
 });
 
 loadConfig();

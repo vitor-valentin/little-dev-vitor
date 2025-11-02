@@ -12,6 +12,7 @@
     font-size: 24px;
     text-align: center;
     margin-bottom: 22px;
+    color: var(--cor-escura-textos);
 }
 
 /* Parte superior: calendário e configurações */
@@ -25,7 +26,7 @@
 .calendar-box {
     width: 52%;
     height: auto;
-    border: 1.5px solid #112a61;
+    border: 1.5px solid var(--cor-primaria);
     border-radius: 6px;
     padding: 15px 18px;
 }
@@ -36,7 +37,7 @@
     justify-content: space-between;
     font-size: 14px;
     font-weight: 300;
-    color: var(--cor-escura);
+    color: var(--cor-escura-textos);
     font-size: 22px;
     margin-bottom: 10px;
 }
@@ -48,7 +49,7 @@
 .arrow-btn {
     background: none;
     border: none;
-    color: var(--cor-escura);
+    color: var(--cor-escura-textos);
     font-size: 22px;
     cursor: pointer;
     font-weight: 700;
@@ -65,7 +66,7 @@
     grid-template-columns: repeat(7, 1fr);
     font-weight: 300;
     font-size: 16px;
-    color: var(--cor-escura);
+    color: var(--cor-escura-textos);
     opacity: 0.6;
     font-family: "Open Sans";
     margin-bottom: 8px;
@@ -80,7 +81,7 @@
     grid-template-columns: repeat(7, 1fr);
     font-weight: bold;
     font-size: 22px;
-    color: var(--cor-escura);
+    color: var(--cor-escura-textos);
     gap: 3px 6px;
 }
 
@@ -92,12 +93,12 @@
 }
 
 .calendar-dates span.selected {
-    background-color: var(--cor-escura);
+    background-color: var(--cor-calendario-selected);
     color: var(--cor-textos);
 }
 
 .calendar-dates span:hover:not(.selected) {
-    background-color: #e0e7ff;
+    background-color: var(--cor-calendario-hover);
 }
 
 /* Configurações à direita */
@@ -117,13 +118,14 @@
     font-family: "Open Sans";
     font-weight: 300;
     font-size: 18px;
-    color: var(--cor-escura);
+    color: var(--cor-escura-textos);
 }
 
 .checkbox-label input[type="checkbox"] {
     width: 22px;
     height: 22px;
     cursor: pointer;
+    accent-color: var(--cor-check-cfg-mark);
 }
 
 .apply-label {
@@ -131,7 +133,7 @@
     font-family: "Open Sans";
     font-weight: 300;
     font-size: 18px;
-    color: var(--cor-escura);
+    color: var(--cor-escura-textos);
 }
 
 .config-form input[type="date"] {
@@ -139,23 +141,24 @@
     font-family: "Branding", sans-serif;
     font-weight: 500;
     font-size: 13px;
-    color: var(--cor-escura);
+    color: var(--cor-escura-textos);
     border: 1px solid var(--cor-primaria);
+    background-color: var(--cor-caixas);
     border-radius: 4px;
     outline: none;
     width: 100%;
 }
 
 .config-form input[type="date"]::placeholder {
-    color: var(--cor-escura);
+    color: var(--cor-escura-textos);
     opacity: 0.7;
 }
 
 .btn-clear {
     margin-top: 8px;
     background-color: transparent;
-    border: 1px solid var(--cor-primaria);
-    color: var(--cor-primaria);
+    border: 1px solid var(--cor-btn);
+    color: var(--cor-btn);
     font-family: "Branding";
     font-weight: 500;
     font-size: 24px;
@@ -169,8 +172,8 @@
 
 .btn-apply {
     margin-top: 8px;
-    background-color: var(--cor-primaria);
-    color: white;
+    background-color: var(--cor-btn);
+    color: var(--cor-textos);
     font-family: "Branding";
     font-weight: 500;
     font-size: 24px;
@@ -205,7 +208,7 @@
     font-family: "Open Sans";
     font-size: 18px;
     font-weight: 300;
-    color: var(--cor-escura);
+    color: var(--cor-escura-textos);
 }
 
 .equipment-form input[type="text"] {
@@ -216,10 +219,12 @@
     font-size: 18px;
     border: 1px solid var(--cor-primaria);
     border-radius: 4px;
-    color: var(--cor-escura);
+    color: var(--cor-escura-textos);
+    background-color: var(--cor-caixas);
 }
 
 .equipment-form input::placeholder {
+    color: var(--cor-escura-textos);
     opacity: 0.7;
 }
 
@@ -230,14 +235,16 @@
     padding-left: 7px;
     font-family: "Branding";
     font-weight: 500;
-    color: var(--cor-escura);
+    color: var(--cor-escura-textos);
     font-size: 18px;
     width: 100%;
+    background-color: var(--cor-caixas);
+    border: 1px solid var(--cor-primaria);
 }
 
 .btn-schedule {
     font-family: "Branding";
-    background-color: var(--cor-primaria);
+    background-color: var(--cor-btn);
     color: var(--cor-textos);
     font-weight: 500;
     font-size: 22px;
@@ -267,7 +274,7 @@
 }
 
 .horario-box {
-    background: white;
+    background: var(--cor-caixas);
     padding: 30px 35px;
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
@@ -281,7 +288,7 @@
     margin-bottom: 25px;
     font-size: 20px;
     font-weight: bold;
-    color: var(--cor-escura);
+    color: var(--cor-escura-textos);
     text-transform: uppercase;
 }
 
@@ -302,7 +309,7 @@
 .horario-group label {
     font-size: 18px;
     margin-bottom: 6px;
-    color: var(--cor-escura);
+    color: var(--cor-escura-textos);
     font-family: "Open Sans";
     font-weight: 300;
 }
@@ -310,7 +317,7 @@
 .horario-wrapper {
     display: flex;
     align-items: center;
-    border: 1.5px solid #0a0a2a;
+    border: 1.5px solid var(--cor-primaria);
     border-radius: 4px;
     padding: 4px 8px;
     width: 100%;
@@ -328,7 +335,7 @@
     font-size: 16px;
     width: 80px;
     outline: none;
-    color: var(--cor-escura);
+    color: var(--cor-escura-textos);
     font-family: "Branding";
     font-weight: 500;
     background: transparent;
@@ -389,7 +396,7 @@ span.disabled {
     font-family: "Branding";
     font-weight: 800;
     font-size: 25px;
-    color: var(--cor-escura);
+    color: var(--cor-escura-textos);
     margin: 20px 0;
 }
 
@@ -400,7 +407,7 @@ span.disabled {
     font-family: "Open Sans";
     font-weight: 300;
     font-size: 20px;
-    color: var(--cor-escura);
+    color: var(--cor-escura-textos);
     opacity: 0.6;
     margin: 15px 0;
 }
@@ -410,7 +417,7 @@ span.disabled {
     opacity: 0.6;
     content: "";
     flex: 1;
-    border-bottom: 1px solid var(--cor-escura);
+    border-bottom: 1px solid var(--cor-escura-textos);
     margin: 0 10px;
 }
 
@@ -430,7 +437,7 @@ span.disabled {
 .inputGroup label {
     font-family: "Open Sans";
     font-weight: 300;
-    color: var(--cor-escura);
+    color: var(--cor-escura-textos);
     font-size: 16px;
     margin-bottom: 5px;
     text-align: left;
@@ -444,7 +451,8 @@ span.disabled {
     border-radius: 5px;
     padding: 8px 12px;
     font-size: 18px;
-    color: var(--cor-secundaria);
+    color: var(--cor-secundaria-textos);
+    background-color: var(--cor-caixas);
     outline: none;
 }
 
@@ -465,12 +473,13 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     border-radius: 4px;
     padding: 12px 12px;
     font-size: 16px;
-    color: var(--cor-secundaria);
+    color: var(--cor-secundaria-textos);
     outline: none;
+    background-color: var(--cor-caixas);
 }
 
 .inputGroup input[type="text"]::placeholder {
-    color: var(--cor-escura);
+    color: var(--cor-escura-textos);
     opacity: 0.7;
 }
 
@@ -482,7 +491,7 @@ label[for="lateDevolution"] {
     display: flex;
     align-items: center;
     gap: 8px;
-    color: #0a2d64;
+    color: var(--cor-escura-textos);
     font-size: 18px;
     margin-bottom: 6px;
     font-weight: 300;
@@ -494,7 +503,7 @@ input[type="checkbox"] {
     height: 22px;
     border: 1px solid #aeb3c2;
     border-radius: 3px;
-    accent-color: var(--cor-escura); /* modern browsers */
+    accent-color: var(--cor-check-cfg-mark); /* modern browsers */
 }
 
 /* button section */
@@ -507,7 +516,7 @@ input[type="checkbox"] {
 .button-group button {
     font-family: "Branding";
     font-weight: 500;
-    background-color: var(--cor-primaria);
+    background-color: var(--cor-btn);
     color: var(--cor-textos);
     border: none;
     border-radius: 6px;

@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
     const sidebarPromise = fetch("/components/sidebar.html")
         .then((res) => res.text())
         .then((html) => {
@@ -13,11 +13,109 @@ document.addEventListener("DOMContentLoaded", () => {
 
     window.componentsLoaded = Promise.all([sidebarPromise, headerPromise]);
 
-    if(checkDaltonismo()) {
+    if (await checkDaltonismo()) {
         const root = document.documentElement;
         root.style.setProperty("--cor-not-sucesso", "#00B7C2");
         root.style.setProperty("--cor-not-falha", "#7B1FA2");
         root.style.setProperty("--cor-not-alerta", "#FFB300");
+    }
+
+    if (await checkModoEscuro()) {
+        const root = document.documentElement;
+        root.style.setProperty("--cor-fundo", "#1E242C");
+        root.style.setProperty("--cor-caixas", "#2E3540");
+        root.style.setProperty("--cor-primaria", "#252C36");
+        root.style.setProperty("--cor-escura", "#2E3540");
+        root.style.setProperty("--cor-tabela-1", "#2E3540");
+        root.style.setProperty("--cor-tabela-2", "rgba(19, 23, 28, 0.19)");
+        root.style.setProperty("--cor-escura-textos", "#FFFFFF");
+        root.style.setProperty("--cor-texto-tabela-dash", "#C1CAD6");
+        root.style.setProperty("--cor-separacoes", "#13171C");
+        root.style.setProperty("--cor-texto-claro", "#8E9AAF");
+        root.style.setProperty("--cor-secundaria-textos", "#FFFFFF");
+        root.style.setProperty("--cor-ver-mais", "#535B67");
+        root.style.setProperty("--cor-secundaria", "rgba(19, 23, 28, 0.19)");
+        root.style.setProperty("--cor-avisos-bg", "rgba(19, 23, 28, 0.19)");
+        root.style.setProperty("--cor-dot-ativo", "#13171C");
+        root.style.setProperty("--cor-dot-inativo", "#535B67");
+        root.style.setProperty("--cor-bg-config", "rgba(19, 23, 28, 0.19)");
+        root.style.setProperty("--cor-check-cfg-mark", "#1E242C");
+        root.style.setProperty("--cor-slider", "#13171C");
+        root.style.setProperty("--cor-tabela-3", "rgba(19, 23, 28, 0.19)");
+        root.style.setProperty("--cor-botao-excluir", "#b63f3f");
+        root.style.setProperty("--cor-botao-editar", "#d89c4f");
+        root.style.setProperty("--cor-primaria-bg", "#13171C");
+        root.style.setProperty("--cor-bg-input", "rgba(19, 23, 28, 0.19)");
+        root.style.setProperty("--cor-btn", "#13171C");
+        root.style.setProperty("--cor-botao-historico", "#0099b0");
+        root.style.setProperty(
+            "--cor-calendario-hover",
+            "rgba(19, 23, 28, 0.19)"
+        );
+        root.style.setProperty("--cor-calendario-selected", "#13171C");
+        root.style.setProperty("--cor-not-sucesso", "#4caf50");
+        root.style.setProperty("--cor-not-falha", "#e57373");
+        root.style.setProperty("--cor-not-alerta", "#ffb74d");
+        root.style.setProperty("--cor-not-information", "#64b5f6");
+
+        root.style.setProperty("--buttonMove", `url("../images/buttonMove_dark.png") center/contain no-repeat`)
+
+        window.componentsLoaded.then(async () => {
+            document.querySelector(".senai-logo img").src =
+                "../images/sistema_fiep_senai_branco.png";
+
+            if (document.getElementById("searchIcon")) {
+                document.getElementById("searchIcon").src =
+                    "../images/search_dark.png";
+            }
+
+            if (document.querySelector(".calendarIcon")) {
+                document.querySelectorAll(".calendarIcon").forEach((icon) => {
+                    icon.style.backgroundImage = "url(../images/data_dark.png)";
+                });
+            }
+
+            if (document.querySelector("img.move")) {
+                document.querySelectorAll("img.move").forEach((move) => {
+                    move.src = "../images/buttonMove_dark.png";
+                });
+            }
+
+            if (document.getElementById("imgPreview")) {
+                document.getElementById("imgPreview").src =
+                    "../images/image-upload_dark.png";
+                document.getElementById(
+                    "imgInput"
+                ).style.backgroundImage = `url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' stroke='white' stroke-width='3' stroke-dasharray='3%2c 12' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e")`;
+            }
+
+            if (
+                document.querySelector(
+                    '.formEditAdd input[type="datetime-local"]'
+                )
+            ) {
+                document
+                    .querySelectorAll(
+                        '.formEditAdd input[type="datetime-local"]'
+                    )
+                    .forEach((item) => (item.style.colorScheme = "dark"));
+            }
+
+            if (document.querySelector('.config-form input[type="date"]'))
+                document
+                    .querySelectorAll('.config-form input[type="date"]')
+                    .forEach((item) => (item.style.colorScheme = "dark"));
+
+            if (document.querySelector('.horario-wrapper input[type="time"]'))
+                document
+                    .querySelectorAll('.horario-wrapper input[type="time"]')
+                    .forEach((item) => (item.style.colorScheme = "dark"));
+
+            if (document.querySelector('.inputGroup input[type="date"]'))
+                document
+                    .querySelectorAll('.inputGroup input[type="date"]')
+                    .forEach((item) => item.style.colorScheme = "dark");
+        });
     }
 
     checkNotifications();
@@ -102,14 +200,32 @@ window.showNotification = async function showNotification(
     const notification = document.createElement("div");
     const sound = document.getElementById("notification");
     notification.className = `notification ${type}`;
-    const daltonico = checkDaltonismo();
+    const daltonico = await checkDaltonismo();
+    const dark = await checkModoEscuro();
 
     const iconSrc =
         {
-            success: !daltonico ? "images/notSucesso.png" : "images/notSucesso_dalt.png",
-            failure: !daltonico ? "images/notFalha.png" : "images/notFalha_dalt.png",
-            information: "images/notInfo.png",
-            alert: !daltonico ? "images/notAlerta.png" : "images/notAlerta_dalt.png",
+            success:
+                !daltonico && !dark
+                    ? "images/notSucesso.png"
+                    : dark
+                    ? "images/notSucesso_dark.png"
+                    : "images/notSucesso_dalt.png",
+            failure:
+                !daltonico && !dark
+                    ? "images/notFalha.png"
+                    : dark
+                    ? "images/notFalha_dark.png"
+                    : "images/notFalha_dalt.png",
+            information: !dark
+                ? "images/notInfo.png"
+                : "images/notInfo_dark.png",
+            alert:
+                !daltonico && !dark
+                    ? "images/notAlerta.png"
+                    : dark
+                    ? "images/notAlerta_dark.png"
+                    : "images/notAlerta_dalt.png",
         }[type] || "images/notInfo.png";
 
     notification.innerHTML = `
@@ -456,6 +572,14 @@ async function checkDaltonismo() {
     const json = resJson[0];
     return json.modoDaltonismo;
 }
+
+window.checkModoEscuro = async function checkModoEscuro() {
+    const userId = await window.getUserId();
+    const response = await fetch(`http://localhost:8080/config/${userId}`);
+    const resJson = await response.json();
+    const json = resJson[0];
+    return json.temaCor == "escuro" ? true : false;
+};
 
 function toBrazilianDateTime(isoString) {
     const date = new Date(isoString);

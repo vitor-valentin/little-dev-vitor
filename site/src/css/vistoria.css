@@ -23,7 +23,7 @@
     font-weight: 800;
     font-size: 26px;
     text-align: center;
-    color: var(--cor-escura);
+    color: var(--cor-escura-textos);
     margin-bottom: 25px;
 }
 
@@ -42,7 +42,7 @@
 .groupInput label,
 .dateInput label {
     font-family: "Open Sans", sans-serif;
-    color: var(--cor-escura);
+    color: var(--cor-escura-textos);
     font-size: 18px;
     font-weight: 300;
     margin-bottom: 5px;
@@ -52,11 +52,11 @@
 .dateInput input {
     font-family: "Branding", sans-serif;
     font-weight: 500;
-    border: 1px solid #0a2d64;
+    border: 1px solid var(--cor-primaria);
     border-radius: 5px;
     padding: 12px 10px;
     font-size: 15px;
-    color: var(--cor-secundaria);
+    color: var(--cor-secundaria-textos);
     outline: none;
     background-color: var(--cor-caixas);
 }
@@ -91,7 +91,7 @@
     font-weight: 300;
     font-size: 18px;
     margin-bottom: 5px;
-    color: var(--cor-escura);
+    color: var(--cor-escura-textos);
 }
 
 #timeNow input.atrasado {
@@ -102,7 +102,8 @@
     border: 1px solid var(--cor-primaria);
     border-radius: 5px;
     padding: 12px 10px;
-    color: var(--cor-escura);
+    background-color: var(--cor-caixas);
+    color: var(--cor-escura-textos);
     font-weight: 500;
     font-family: "Branding";
 }
@@ -123,7 +124,7 @@
     font-family: "Open Sans";
     font-weight: 400;
     font-size: 18px;
-    color: var(--cor-escura);
+    color: var(--cor-escura-textos);
     opacity: 0.6;
     margin: 25px 0 15px 0;
 }
@@ -132,7 +133,7 @@
 .divider::after {
     content: "";
     flex: 1;
-    border-bottom: 1px solid var(--cor-escura);
+    border-bottom: 1px solid var(--cor-escura-textos);
     opacity: 0.6;
     margin: 0 10px;
 }
@@ -152,14 +153,14 @@
     font-family: "Open Sans";
     font-weight: 300;
     font-size: 16px;
-    color: var(--cor-escura);
+    color: var(--cor-escura-textos);
     line-height: 1.4;
 }
 
 .checkVerifications input[type="checkbox"] {
     width: 22px;
     height: 22px;
-    accent-color: var(--cor-primaria);
+    accent-color: var(--cor-check-cfg-mark);
     margin-top: 2px;
 }
 
@@ -167,7 +168,7 @@ label[for="obsVistoria"] {
     font-family: "Open Sans";
     font-weight: 300;
     font-size: 18px;
-    color: var(--cor-escura);
+    color: var(--cor-escura-textos);
     margin: 7px 0;
 }
 
@@ -181,7 +182,8 @@ label[for="obsVistoria"] {
     font-family: "Branding";
     font-weight: 500;
     font-size: 18px;
-    color: var(--cor-secundaria);
+    color: var(--cor-secundaria-textos);
+    background-color: var(--cor-caixas);
     resize: none;
     outline: none;
     margin-bottom: 20px;
@@ -208,12 +210,12 @@ label[for="obsVistoria"] {
 
 button.return {
     background-color: transparent;
-    color: var(--cor-primaria);
-    border: 1px solid var(--cor-primaria);
+    color: var(--cor-btn);
+    border: 1px solid var(--cor-btn);
 }
 
 button.done {
-    background-color: var(--cor-primaria);
+    background-color: var(--cor-btn);
     color: var(--cor-textos);
 }
 

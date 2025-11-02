@@ -1,12 +1,3 @@
-:root {
-    --azul-escuro: #132d63;
-    --azul-claro: #e9edf7;
-    --branco: #ffffff;
-    --texto-principal: #1a1a1a;
-    --texto-secundario: #6f6f6f;
-    --sombra: rgba(0, 0, 0, 0.08);
-}
-
 .configPage {
     display: flex;
     flex-direction: column;
@@ -22,7 +13,7 @@
     background: var(--cor-caixas);
     border-radius: 14px;
     padding: 18px 28px;
-    box-shadow: 0 2px 6px var(--sombra);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
     transition: box-shadow 0.2s ease;
 }
 
@@ -31,7 +22,7 @@
 }
 
 .configOpt:hover {
-    box-shadow: 0 4px 10px var(--sombra);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
 }
 
 .configDesc {
@@ -42,14 +33,14 @@
 .configDesc h3 {
     font-size: 20px;
     font-weight: 800;
-    color: var(--cor-secundaria);
+    color: var(--cor-secundaria-textos);
     font-family: "Branding";
     margin-bottom: 6px;
 }
 
 .configDesc p {
     font-size: 16px;
-    color: var(--cor-secundaria);
+    color: var(--cor-secundaria-textos);
     font-family: "Open Sans";
     font-weight: 300;
     line-height: 1.4;
@@ -71,7 +62,7 @@
     border: none;
     border-radius: 10px;
     background: var(--cor-bg-config);
-    color: var(--cor-secundaria);
+    color: var(--cor-secundaria-textos);
     font-family: "Branding";
     font-weight: 800;
     outline: none;
@@ -90,7 +81,7 @@ input[type="number"] {
 .configInput p {
     font-family: "Branding";
     font-weight: 800;
-    color: var(--cor-secundaria);
+    color: var(--cor-secundaria-textos);
     font-size: 20px;
 }
 
@@ -99,13 +90,13 @@ input[type="number"] {
     width: 40px;
     height: 40px;
     border-radius: 10px;
-    background: #e8e8ec;
+    background: var(--cor-bg-config);
     cursor: pointer;
     transition: background 0.2s ease;
 }
 
 .configInput input[type="checkbox"]:checked {
-    background: var(--cor-secundaria);
+    background: var(--cor-check-cfg-mark);
 }
 
 .configInput:has(select) {
@@ -117,7 +108,7 @@ input[type="number"] {
     font-size: 28px;
     border: none;
     background: var(--cor-bg-config);
-    color: var(--cor-secundaria);
+    color: var(--cor-secundaria-textos);
     font-family: "Branding";
     font-weight: 500;
     padding: 10px 80px;
@@ -135,7 +126,7 @@ input[type="number"] {
     right: 12px;
     width: 42px;
     height: 42px;
-    background: url("../images/buttonMove.png") center/contain no-repeat;
+    background: var(--buttonMove);
     transform: translateY(-50%) rotate(90deg);
     transition: 0.3s;
     pointer-events: none;
@@ -186,14 +177,14 @@ input[type="number"] {
     width: 18px;
     height: 18px;
     border-radius: 50%;
-    background: var(--azul-escuro);
+    background: var(--cor-slider);
     cursor: pointer;
 }
 
 .configInputBelow span {
     font-family: "Branding";
     font-weight: 800;
-    color: var(--cor-secundaria);
+    color: var(--cor-secundaria-textos);
     min-width: 50px;
     font-size: 18px;
     text-align: right;

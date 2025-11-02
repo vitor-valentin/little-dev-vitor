@@ -280,11 +280,12 @@ if (!page || page == 1) {
         const avisosDots = document.querySelector(".avisos-container .dots");
         const res = await fetch("http://localhost:8080/avisos/equipe");
         const json = await res.json();
+        const darkMode = await checkModoEscuro();
 
         const arrowLeft = document.createElement("img");
         arrowLeft.classList.add("arrow");
         arrowLeft.classList.add("left");
-        arrowLeft.src = "../images/buttonMove.png";
+        arrowLeft.src = !darkMode ? "../images/buttonMove.png" : "../images/buttonMove_dark.png";
 
         avisosEquipe.appendChild(arrowLeft);
 
@@ -302,7 +303,7 @@ if (!page || page == 1) {
 
             const img = document.createElement("img");
             img.classList.add("user-icon");
-            img.src = "../images/userAzul.png";
+            img.src = !darkMode ? "../images/userAzul.png" : "../images/userAzul_dark.png";
 
             const avisoText = document.createElement("div");
             avisoText.classList.add("aviso-text");
@@ -331,7 +332,7 @@ if (!page || page == 1) {
         const arrowRight = document.createElement("img");
         arrowRight.classList.add("arrow");
         arrowRight.classList.add("right");
-        arrowRight.src = "../images/buttonMove.png";
+        arrowRight.src = !darkMode ? "../images/buttonMove.png" : "../images/buttonMove_dark.png";
 
         avisosEquipe.appendChild(arrowRight);
     }
