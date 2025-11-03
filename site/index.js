@@ -113,8 +113,8 @@ async function gerarPdf(req, res, filter = {}) {
         await page.setCookie({
             name: "userToken",
             value: userToken,
-            domain: "localhost", 
-            path: "/"
+            domain: "localhost",
+            path: "/",
         });
 
         await page.goto(url, {
@@ -208,16 +208,16 @@ async function verificarEmprestimos() {
             if (diffHoras <= 1 && diffHoras >= 0) {
                 const msg = JSON.stringify({
                     type: 1,
-                    msg: `O empréstimo do equipamento: ${emp.nomeEquipamento} acabará em uma hora!`
+                    msg: `O empréstimo do equipamento: ${emp.nomeEquipamento} acabará em uma hora!`,
                 });
 
-                await registrarAviso( msg);
+                await registrarAviso(null, msg);
             }
 
             if (diffHoras < 0) {
                 const msg = JSON.stringify({
                     type: 2,
-                    msg: `O empréstimo do equipamento: ${emp.nomeEquipamento} está atrasado para devolução!`
+                    msg: `O empréstimo do equipamento: ${emp.nomeEquipamento} está atrasado para devolução!`,
                 });
 
                 await registrarAviso(emp.idMembro, msg);
@@ -229,19 +229,25 @@ async function verificarEmprestimos() {
 }
 
 async function registrarAviso(idUsuario, mensagemAviso) {
-    const existe = await query(`
+    const existe = await query(
+        `
         SELECT idAviso FROM tbAvisos
         WHERE idUsuario = ? AND mensagemAviso = ?
         AND dataAviso >= (NOW() - INTERVAL 24 HOUR)
         LIMIT 1
-    `, [idUsuario, mensagemAviso]);
+    `,
+        [idUsuario, mensagemAviso]
+    );
 
     if (existe.length > 0) return;
 
-    await query(`
+    await query(
+        `
         INSERT INTO tbAvisos (avisoSistema, idUsuario, mensagemAviso, dataAviso)
         VALUES (1, ?, ?, NOW())
-    `, [idUsuario, mensagemAviso]);
+    `,
+        [idUsuario, mensagemAviso]
+    );
 
     console.log(`[AVISO CRIADO] ${mensagemAviso}`);
 }
@@ -1125,7 +1131,17 @@ app.post("/check-use", async (req, res) => {
         for (let [newStart, newEnd] of parsedReservas) {
             for (let row of existing) {
                 const existingStart = new Date(row.dataRecebimento);
-                const existingEnd = new Date(row.dataDevolucao);
+                let existingEnd;
+
+                if (
+                    (row.dataDevolvido === "1900-01-01 01:01:01" ||
+                        !row.dataDevolvido) &&
+                    new Date() >= new Date(row.dataDevolucao)
+                ) {
+                    existingEnd = new Date();
+                } else {
+                    existingEnd = new Date(row.dataDevolvido);
+                }
 
                 const overlap =
                     newStart < existingEnd && newEnd > existingStart;
@@ -1222,7 +1238,13 @@ app.post(
         try {
             await query(
                 "INSERT INTO tbEquipamentos (imagemEquipamento, nomeEquipamento, codEquipamento, altoValor, idArea) VALUES (?, ?, ?, ?, ?)",
-                [nomeFile, nome, codigo, altoValor == 'true' || altoValor ? true : false, areaId]
+                [
+                    nomeFile,
+                    nome,
+                    codigo,
+                    altoValor == "true" || altoValor ? true : false,
+                    areaId,
+                ]
             );
             res.status(200).send();
         } catch (err) {
@@ -1685,7 +1707,7 @@ app.delete("/equipamentos/:id", requireLogin, async (req, res) => {
         );
 
         fs.unlink(imagePath, (err) => {
-            if (err){
+            if (err) {
                 res.status(500).send({
                     message: "Imagem não existe!",
                 });

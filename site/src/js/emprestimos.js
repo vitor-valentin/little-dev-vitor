@@ -668,8 +668,21 @@ if (!page || page == 1) {
             inputEquip.value = eq.nomeEquipamento || "";
             inputEquip.dataset.id = emp.idEquipamento;
 
-            dataRecebimento.value = emp.dataRecebimento.slice(0, 16);
-            dataDevolucao.value = emp.dataDevolucao.slice(0, 16);
+            function toDatetimeLocal(date) {
+                const pad = (n) => n.toString().padStart(2, "0");
+                const year = date.getFullYear();
+                const month = pad(date.getMonth() + 1); // months are 0-indexed
+                const day = pad(date.getDate());
+                const hours = pad(date.getHours());
+                const minutes = pad(date.getMinutes());
+
+                return `${year}-${month}-${day}T${hours}:${minutes}`;
+            }
+
+            dataRecebimento.value = toDatetimeLocal(
+                new Date(emp.dataRecebimento)
+            );
+            dataDevolucao.value = toDatetimeLocal(new Date(emp.dataDevolucao));
 
             salaLocal.value = emp.localUso || "";
 
@@ -939,7 +952,7 @@ if (!page || page == 1) {
         const devolucao = `${dateStr} ${inputHorarioDevolucao.value}`;
 
         if (retirada >= devolucao) {
-            alert("A devolução deve ser após a retirada.");
+            showNotification("failure", "Falha!", "A devolução deve ser após a retirada.");
             return;
         }
 
@@ -951,6 +964,13 @@ if (!page || page == 1) {
             selectedDateTimes[existingIndex] = [retirada, devolucao];
         } else {
             selectedDateTimes.push([retirada, devolucao]);
+        }
+
+        const d = new Date(retirada);
+        if (!(d >= new Date())
+        ) {
+            showNotification("failure", "Falha!", "O horário de retirada deve ser após o horário atual!");
+            return;
         }
 
         horarioModal.classList.add("hidden");

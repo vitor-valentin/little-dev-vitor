@@ -46,16 +46,16 @@ INSERT INTO tbEquipamentos (imagemEquipamento, nomeEquipamento, codEquipamento, 
 
 -- Inserir empréstimos (tbEmprestimos)
 INSERT INTO tbEmprestimos (idEquipamento, dataRecebimento, dataDevolucao, dataDevolvido, idMembro, localUso, infoReserva, devolvidoPor, idMembroVistoria, obsVistoria) VALUES
-(1, '2025-10-25 09:00:00', '2025-10-30 18:00:00', '2025-10-30 17:30:00', 2, 'Sala TI', 'Uso em treinamento interno', 'Bruno Lima', 1, 'Equipamento em bom estado'),
-(2, '2025-10-26 08:00:00', '2025-10-29 17:00:00', '1900-01-01 01:01:01', 1, 'Auditório', 'Apresentação institucional', '', NULL, NULL),
-(3, '2025-10-20 07:30:00', '2025-10-25 17:00:00', '2025-10-25 16:00:00', 3, 'Oficina', 'Manutenção preventiva', 'Carla Mendes', 5, 'Limpo e funcional'),
-(4, '2025-10-15 09:00:00', '2025-10-20 17:00:00', '2025-10-20 16:30:00', 5, 'Portaria', 'Teste de vigilância', 'Eduardo Alves', 2, 'Sem danos'),
-(5, '2025-10-22 10:00:00', '2025-10-23 18:00:00', '2025-10-23 18:10:00', 6, 'Galpão', 'Comunicação interna', 'Fernanda Rocha', 1, 'OK'),
-(6, '2025-10-10 09:00:00', '2025-10-15 18:00:00', '2025-10-15 17:45:00', 6, 'Depósito', 'Limpeza geral', 'Fernanda Rocha', 3, 'Normal'),
-(7, '2025-10-28 08:00:00', '2025-11-03 18:00:00', '1900-01-01 01:01:01', 7, 'Armazém', 'Movimentação de pallets', '', NULL, NULL),
-(8, '2025-10-12 09:00:00', '2025-10-18 17:00:00', '2025-10-18 16:45:00', 8, 'Laboratório', 'Análise de amostras', 'Helena Dias', 4, 'Perfeito'),
-(9, '2025-10-05 08:00:00', '2025-10-12 17:00:00', '2025-10-12 17:10:00', 9, 'Fábrica', 'Teste de produção', 'Igor Ferreira', 10, 'Funcionando bem'),
-(10, '2025-10-29 10:00:00', '2025-11-05 17:00:00', '1900-01-01 01:01:01', 10, 'Escritório Financeiro', 'Cálculos internos', '', NULL, NULL);
+(1, '2025-10-25 09:00:00', '2025-10-25 18:00:00', '2025-10-30 17:30:00', 2, 'Sala TI', 'Uso em treinamento interno', 'Bruno Lima', 1, 'Observações do Usuário: Equipamento em bom estado'),
+(2, '2025-10-26 08:00:00', '2025-10-26 17:00:00', '1900-01-01 01:01:01', 1, 'Auditório', 'Apresentação institucional', '', NULL, NULL),
+(3, '2025-10-20 07:30:00', '2025-10-20 17:00:00', '2025-10-25 16:00:00', 3, 'Oficina', 'Manutenção preventiva', 'Carla Mendes', 1, 'Observações do Usuário: Limpo e funcional'),
+(4, '2025-10-15 09:00:00', '2025-10-15 17:00:00', '2025-10-20 16:30:00', 5, 'Portaria', 'Teste de vigilância', 'Eduardo Alves', 1, 'Observações do Usuário: Sem danos'),
+(5, '2025-10-22 10:00:00', '2025-10-22 18:00:00', '2025-10-23 18:10:00', 6, 'Galpão', 'Comunicação interna', 'Fernanda Rocha', 1, 'Observações do Usuário: OK'),
+(6, '2025-10-10 09:00:00', '2025-10-10 18:00:00', '2025-10-15 17:45:00', 6, 'Depósito', 'Limpeza geral', 'Fernanda Rocha', 1, 'Observações do Usuário: Normal'),
+(7, '2025-10-28 08:00:00', '2025-10-28 18:00:00', '1900-01-01 01:01:01', 7, 'Armazém', 'Movimentação de pallets', '', NULL, NULL),
+(8, '2025-10-12 09:00:00', '2025-10-12 17:00:00', '2025-10-18 16:45:00', 8, 'Laboratório', 'Análise de amostras', 'Helena Dias', 1, 'Observações do Usuário: Perfeito'),
+(9, '2025-10-05 08:00:00', '2025-10-05 17:00:00', '2025-10-12 17:10:00', 9, 'Fábrica', 'Teste de produção', 'Igor Ferreira', 1, 'Observações do Usuário: Funcionando bem'),
+(10, '2025-10-29 10:00:00', '2025-10-29 17:00:00', '1900-01-01 01:01:01', 10, 'Escritório Financeiro', 'Cálculos internos', '', NULL, NULL);
 
 -- Inserir configurações (tbConfig)
 INSERT INTO tbConfig (idUsuario, tempoAvisos, notificacoesSistema, modoDaltonismo, temaCor, somNotificacoes, volumeNotificacao) VALUES
