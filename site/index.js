@@ -681,7 +681,7 @@ app.get("/equipamentos/filter/:page", requireLogin, async (req, res) => {
             availabilityJoin = `
                 JOIN tbEmprestimos e 
                 ON tbEquipamentos.idEquipamento = e.idEquipamento 
-                AND e.dataDevolvido '1900-01-01 01:01:01'
+                AND e.dataDevolvido = '1900-01-01 01:01:01'
                 AND e.dataRecebimento <= NOW()
             `;
         } else {
@@ -689,7 +689,7 @@ app.get("/equipamentos/filter/:page", requireLogin, async (req, res) => {
             SELECT 1
             FROM tbEmprestimos emp
             WHERE emp.idEquipamento = tbEquipamentos.idEquipamento
-            AND emp.dataDevolvido '1900-01-01 01:01:01'
+            AND emp.dataDevolvido = '1900-01-01 01:01:01'
             AND emp.dataRecebimento <= NOW()
                 )`);
         }
@@ -874,19 +874,18 @@ app.get("/emprestimos/filter/:page", requireLogin, async (req, res) => {
         } else if (selectValue === "em-uso") {
             whereClauses.push(`
                 em.dataRecebimento <= NOW()
-                AND em.dataDevolucao >= NOW()
-                AND em.dataDevolvido <> '1900-01-01 01:01:01'
+                AND em.dataDevolvido = '1900-01-01 01:01:01'
             `);
         }
     }
 
     if (dateI) {
-        whereClauses.push(`em.datadevolucao >= ?`);
+        whereClauses.push(`em.dataRecebimento >= ?`);
         params.push(dateI);
     }
 
     if (dateF) {
-        whereClauses.push(`em.dataDevolucao <= ?`);
+        whereClauses.push(`em.dataRecebimento <= ?`);
         params.push(dateF);
     }
 
@@ -1223,7 +1222,7 @@ app.post(
         try {
             await query(
                 "INSERT INTO tbEquipamentos (imagemEquipamento, nomeEquipamento, codEquipamento, altoValor, idArea) VALUES (?, ?, ?, ?, ?)",
-                [nomeFile, nome, codigo, altoValor, areaId]
+                [nomeFile, nome, codigo, altoValor == 'true' || altoValor ? true : false, areaId]
             );
             res.status(200).send();
         } catch (err) {
@@ -1686,10 +1685,12 @@ app.delete("/equipamentos/:id", requireLogin, async (req, res) => {
         );
 
         fs.unlink(imagePath, (err) => {
-            if (err)
+            if (err){
                 res.status(500).send({
-                    message: "Erro ao tentar deletar a imagem!",
+                    message: "Imagem não existe!",
                 });
+                return;
+            }
         });
 
         res.status(200).send({ message: "Equipamento deletado com sucesso!" });

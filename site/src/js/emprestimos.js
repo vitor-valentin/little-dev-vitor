@@ -418,6 +418,7 @@ if (!page || page == 1) {
 
     submitBtn.addEventListener("click", (e) => {
         if (editingEmpId) {
+            console.log("po");
             updateEmprestimo(e, editingEmpId);
         } else {
             addEmprestimo(e);
@@ -612,7 +613,7 @@ if (!page || page == 1) {
                 "O campo local não pode contar mais do que 30 caracteres!"
             );
             return;
-        } else if (checkEqUso(idEquipamento, [[dateReceb, dateDev]])) {
+        } else if (await checkEqUso(idEquipamento, [[dateReceb, dateDev]])) {
             return;
         }
 

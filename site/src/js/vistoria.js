@@ -193,6 +193,7 @@ if (emp.dataDevolvido == "1900-01-01T04:07:29.000Z") {
                 dataAtual.value,
                 devolucao.value
             )}\n`;
+        console.log(devolvidoPor != jsonMb[0].nomeMembro);
         if (devolvidoPor != jsonMb[0].nomeMembro)
             allObs += `O equipamento não foi devolvido por quem o recebeu, foi devolvido por: ${devolvidoPor}\n`;
 
