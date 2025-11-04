@@ -199,7 +199,7 @@ if (!page || page == 1) {
                     membroId: null,
                     checkV: false,
                     checkA: true,
-                    selectValue: "todos",
+                    selectValue: "em-uso",
                     dateI: "",
                     dateF: "",
                 })
