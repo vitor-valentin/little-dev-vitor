@@ -39,7 +39,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         root.style.setProperty("--cor-dot-ativo", "#13171C");
         root.style.setProperty("--cor-dot-inativo", "#535B67");
         root.style.setProperty("--cor-bg-config", "rgba(19, 23, 28, 0.19)");
-        root.style.setProperty("--cor-check-cfg-mark", "#1E242C");
+        root.style.setProperty("--cor-check-cfg-mark", "#000308");
         root.style.setProperty("--cor-slider", "#13171C");
         root.style.setProperty("--cor-tabela-3", "rgba(19, 23, 28, 0.19)");
         root.style.setProperty("--cor-botao-excluir", "#b63f3f");

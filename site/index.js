@@ -139,7 +139,7 @@ async function gerarPdf(req, res, filter = {}) {
             "Content-Disposition": `attachment; filename="relatorio.pdf"`,
             "Content-Length": pdfBuffer.length,
         });
-        res.send(pdfBuffer);
+        return res.send(pdfBuffer);
     } catch (err) {
         console.error("Erro ao gerar PDF: ", err);
         res.status(500).send(err);
@@ -392,7 +392,7 @@ app.get("/relatorio", requireLogin, async (req, res) => {
                     <td>${r.dataDevolvido}</td>
                     <td>${r.recebidoPor}</td>
                     <td>${r.localUso}</td>
-                    <td>${r.obs || ""}</td>
+                    <td>${r.obs || "Sem observações"}</td>
                     <td>${r.devolvidoPor}</td>
                     <td>${r.vistoriadoPor || ""}</td>
                     <td>${obsVistoriaCurta}</td>
@@ -404,7 +404,7 @@ app.get("/relatorio", requireLogin, async (req, res) => {
 
         html += `
                     </tbody>
-                </table>
+                </table>    
         `;
 
         html += `
@@ -1082,27 +1082,31 @@ app.get("/avisos/sistema", requireLogin, async (req, res) => {
 app.get("/notifications", requireLogin, async (req, res) => {
     const userId = await getUserId(req.cookies.userToken);
     const config = await getUserConfig(userId);
+    try {
+        const param = config.notificacoesSistema == true ? "%%" : '{"type": 2%';
 
-    const param = config.notificacoesSistema == true ? "%%" : '{"type": 2%';
+        const sysNotifications = await query(
+            "SELECT * FROM tbAvisos WHERE avisoSistema = 1 AND mensagemAviso LIKE ? ORDER BY idAviso DESC",
+            [param]
+        );
+        const eqNotifications = await query(
+            "SELECT * FROM tbAvisos WHERE avisoSistema = 0 AND idUsuario <> ?",
+            [userId]
+        );
 
-    const sysNotifications = await query(
-        "SELECT * FROM tbAvisos WHERE avisoSistema = 1 AND mensagemAviso LIKE ? ORDER BY idAviso DESC",
-        [param]
-    );
-    const eqNotifications = await query(
-        "SELECT * FROM tbAvisos WHERE avisoSistema = 0 AND idUsuario <> ?",
-        [userId]
-    );
+        const notifications = sysNotifications.concat(eqNotifications);
 
-    const notifications = sysNotifications.concat(eqNotifications);
+        const seen = seenData[userId] || [];
 
-    const seen = seenData[userId] || [];
+        const unseen = notifications.filter(
+            (n) => !seen.includes(String(n.idAviso))
+        );
 
-    const unseen = notifications.filter(
-        (n) => !seen.includes(String(n.idAviso))
-    );
-
-    res.status(200).json(unseen);
+        res.status(200).json(unseen);
+    } catch (err) {
+        console.error("Erro ao pegar notificacoes: ", err);
+        res.status(500).send();
+    }
 });
 
 // POST
@@ -1158,7 +1162,7 @@ app.post("/check-use", async (req, res) => {
             }
         }
 
-        res.status(200).send();
+        return res.status(200).send();
     } catch (err) {
         console.error("Erro ao checar uso de equipamento: ", err);
         res.status(500).send(err);
@@ -1167,7 +1171,7 @@ app.post("/check-use", async (req, res) => {
 
 app.post("/login", async (req, res) => {
     if (req.cookies.userToken) {
-        res.status(500).json({
+        return res.status(500).json({
             error: "Tentativa de login inválida. O usuário já está logado.",
         });
     }
@@ -1189,7 +1193,9 @@ app.post("/login", async (req, res) => {
 
         const match = await bcrypt.compare(passwdValue, user.senhaMembro);
         if (!match)
-            res.status(401).json({ error: "Usuário ou senha incorretos." });
+            return res
+                .status(401)
+                .json({ error: "Usuário ou senha incorretos." });
 
         let newToken = await generateToken();
 
@@ -1205,10 +1211,12 @@ app.post("/login", async (req, res) => {
             sameSite: "lax",
             maxAge: 1000 * 60 * 60 * 24,
         });
-        res.status(200).json({ message: "Login realizado com sucesso!" });
+        return res
+            .status(200)
+            .json({ message: "Login realizado com sucesso!" });
     } catch (err) {
         console.error("Erro no MySQL:", err);
-        res.status(500).json({ error: err.message });
+        return res.status(500).json({ error: err.message });
     }
 });
 
@@ -1246,13 +1254,12 @@ app.post(
                     areaId,
                 ]
             );
-            res.status(200).send();
+            return res.status(200).send();
         } catch (err) {
             console.error("Erro no MySQL: ", err);
-            res.status(500).send({ error: "Erro ao tentar cadastrar" });
+            return res.status(500).send({ error: "Erro ao tentar cadastrar" });
         }
 
-        res.status(200).send();
     }
 );
 
